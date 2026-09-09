@@ -45,17 +45,20 @@
 
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
-  body{background:var(--page-bg);color:var(--text-primary);font-family:'Noto Sans KR',system-ui,-apple-system,sans-serif;}
+  body{background:var(--page-bg);color:var(--text-primary);font-family:'Noto Sans KR',system-ui,-apple-system,sans-serif;word-break:keep-all;overflow-wrap:break-word;}
   .mono{font-family:'JetBrains Mono',monospace;}
   h1,h2,h3{text-wrap:balance;}
   a{color:inherit;}
 
-  .wrap{max-width:920px;margin:0 auto;padding:0 24px;}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 24px;}
 
   /* ---------- topbar ---------- */
   .topbar{position:sticky;top:0;z-index:40;background:var(--surface-1);border-bottom:1px solid var(--border);}
-  .topbar-in{max-width:920px;margin:0 auto;padding:11px 24px;display:flex;align-items:center;justify-content:space-between;gap:14px;}
+  .topbar-in{max-width:1100px;margin:0 auto;padding:11px 24px;display:flex;align-items:center;justify-content:space-between;gap:14px;}
   .topbar-title{font:700 13.5px 'Noto Sans KR';color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .topbar-left{display:flex;align-items:center;gap:12px;min-width:0;}
+  .back-hub{flex:0 0 auto;display:flex;align-items:center;gap:5px;font:600 12.5px 'Noto Sans KR';color:var(--text-muted);text-decoration:none;padding:4px 9px;border-radius:999px;border:1px solid var(--border);}
+  .back-hub:hover{color:var(--accent);border-color:var(--accent);}
   .progress-pill{flex:0 0 auto;display:flex;align-items:center;gap:9px;}
   .progress-track{width:96px;height:6px;border-radius:999px;background:var(--surface-2);overflow:hidden;}
   .progress-fill{height:100%;width:0%;background:var(--accent);border-radius:999px;transition:width .25s ease;}
@@ -63,7 +66,7 @@
 
   /* ---------- hero ---------- */
   .hero{padding:52px 24px 34px;}
-  .hero-in{max-width:920px;margin:0 auto;}
+  .hero-in{max-width:1100px;margin:0 auto;}
   .eyebrow{display:inline-block;font:700 12px/1 'Noto Sans KR';letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:14px;}
   .hero h1{font:900 clamp(26px,4vw,38px)/1.28 'Noto Sans KR';margin:0 0 14px;}
   .hero p.lead{font:400 15.5px/1.75 'Noto Sans KR';color:var(--text-secondary);max-width:640px;margin:0 0 20px;}
@@ -178,7 +181,10 @@
 
 <div class="topbar">
   <div class="topbar-in">
-    <span class="topbar-title">기온 데이터 코랩 실습</span>
+    <div class="topbar-left">
+      <a class="back-hub" href="./index.html">← 허브</a>
+      <span class="topbar-title">기온 데이터 코랩 실습</span>
+    </div>
     <div class="progress-pill">
       <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
       <span class="progress-num" id="progress-num">0/13</span>

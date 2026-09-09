@@ -71,6 +71,8 @@
     font-family: "Noto Sans KR", "Malgun Gothic", sans-serif;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+    overflow-wrap: break-word;
   }
   .wrap { max-width: 920px; margin: 0 auto; padding: 40px 20px 80px; }
 
@@ -321,6 +323,12 @@
   footer.page { text-align: center; color: var(--muted); font-size: 13px; margin-top: 20px; }
   footer.page a { color: var(--muted); }
 
+  .back-hub {
+    display: flex; width: max-content; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;
+    color: var(--ink-secondary); text-decoration: none; margin-bottom: 14px;
+  }
+  .back-hub:hover { color: var(--brand-deep); }
+
   @media (max-width: 560px) {
     header.hero h1 { font-size: 33px; }
   }
@@ -329,6 +337,7 @@
 <div class="wrap">
 
   <header class="hero">
+    <a class="back-hub" href="./index.html">← 실습 허브로</a>
     <span class="eyebrow">3단원 · 데이터 전처리 실습</span>
     <h1>데이터 전처리</h1>
     <p class="lede">국가데이터처·교육부가 발표한 전국 17개 시도 고등학생 사교육비 자료(2019~2025)를 가지고 원본을 손질해 봅시다. 빈 곳을 채우고(결측치), 수상한 기록을 가려내고(이상치), 서로 다른 단위의 기준을 맞추면(정규화) 진짜 통계 분석 준비가 끝나요.</p>

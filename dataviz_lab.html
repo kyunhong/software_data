@@ -45,7 +45,7 @@
 
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
-  body{background:var(--page-bg);color:var(--text-primary);font-family:'Noto Sans KR',system-ui,-apple-system,sans-serif;}
+  body{background:var(--page-bg);color:var(--text-primary);font-family:'Noto Sans KR',system-ui,-apple-system,sans-serif;word-break:keep-all;overflow-wrap:break-word;}
   .mono{font-family:'JetBrains Mono',monospace;}
   h1,h2,h3{text-wrap:balance;}
 
@@ -54,6 +54,8 @@
   /* ---------- hero ---------- */
   .hero{padding:56px 24px 36px;}
   .hero-in{max-width:1140px;margin:0 auto;}
+  .back-hub{display:flex;width:max-content;align-items:center;gap:6px;font:600 13px 'Noto Sans KR';color:var(--text-secondary);text-decoration:none;margin-bottom:14px;}
+  .back-hub:hover{color:var(--slot1);}
   .eyebrow{display:inline-block;font:700 12px/1 'Noto Sans KR';letter-spacing:.08em;color:var(--slot1);text-transform:uppercase;margin-bottom:14px;}
   .hero h1{font:900 clamp(28px,4vw,42px)/1.25 'Noto Sans KR';margin:0 0 14px;}
   .hero p.lead{font:400 16px/1.75 'Noto Sans KR';color:var(--text-secondary);max-width:680px;margin:0 0 22px;}
@@ -172,6 +174,7 @@
 
 <header class="hero">
   <div class="hero-in">
+    <a class="back-hub" href="./index.html">← 실습 허브로</a>
     <span class="eyebrow">3단원 · 현상을 분석하는 소프트웨어</span>
     <h1>데이터 시각화 실습실</h1>
     <p class="lead">같은 데이터라도 어떤 그래프로 그리느냐에 따라 보이는 이야기가 달라져요. 8가지 시각화 방법의 목적과 사례를 살펴보고, 값을 직접 바꿔가며 그래프가 어떻게 변하는지 실습해 보세요. 마지막에는 미니게임 두 가지로 실력을 점검해요.</p>
