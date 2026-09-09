@@ -1,0 +1,1476 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>데이터 시각화 실습실</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+  :root{
+    color-scheme: light;
+    --page-bg:#f5f6f8; --surface-1:#ffffff; --surface-2:#f1f2f5;
+    --text-primary:#14171a; --text-secondary:#52565c; --text-muted:#8b8f94;
+    --gridline:#e1e0d9; --baseline:#c7c9cd; --border:rgba(11,11,11,0.10);
+    --slot1:#2a78d6; --slot2:#eb6834; --slot3:#1baf7a; --slot4:#eda100;
+    --slot5:#e87ba4; --slot6:#008300; --slot7:#4a3aa7; --slot8:#e34948;
+    --gameA:#9d4edd; --gameB:#0ea5a4;
+    --good:#0ca30c; --critical:#d03b3b;
+    --shadow: 0 1px 2px rgba(20,23,26,0.05), 0 10px 28px rgba(20,23,26,0.07);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:where(:not([data-theme="light"])){
+      color-scheme: dark;
+      --page-bg:#0d0d0d; --surface-1:#17181a; --surface-2:#1f2022;
+      --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#8b8f94;
+      --gridline:#2c2c2a; --baseline:#3a3b3d; --border:rgba(255,255,255,0.12);
+      --slot1:#3987e5; --slot2:#d95926; --slot3:#199e70; --slot4:#c98500;
+      --slot5:#d55181; --slot6:#3fbf3f; --slot7:#9085e9; --slot8:#e66767;
+      --gameA:#b98bf0; --gameB:#2dd4c7;
+      --good:#3fbf3f; --critical:#e66767;
+      --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 10px 28px rgba(0,0,0,0.45);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --page-bg:#0d0d0d; --surface-1:#17181a; --surface-2:#1f2022;
+    --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#8b8f94;
+    --gridline:#2c2c2a; --baseline:#3a3b3d; --border:rgba(255,255,255,0.12);
+    --slot1:#3987e5; --slot2:#d95926; --slot3:#199e70; --slot4:#c98500;
+    --slot5:#d55181; --slot6:#3fbf3f; --slot7:#9085e9; --slot8:#e66767;
+    --gameA:#b98bf0; --gameB:#2dd4c7;
+    --good:#3fbf3f; --critical:#e66767;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 10px 28px rgba(0,0,0,0.45);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--page-bg);color:var(--text-primary);font-family:'Noto Sans KR',system-ui,-apple-system,sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  h1,h2,h3{text-wrap:balance;}
+
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px;}
+
+  /* ---------- hero ---------- */
+  .hero{padding:56px 24px 36px;}
+  .hero-in{max-width:1140px;margin:0 auto;}
+  .eyebrow{display:inline-block;font:700 12px/1 'Noto Sans KR';letter-spacing:.08em;color:var(--slot1);text-transform:uppercase;margin-bottom:14px;}
+  .hero h1{font:900 clamp(28px,4vw,42px)/1.25 'Noto Sans KR';margin:0 0 14px;}
+  .hero p.lead{font:400 16px/1.75 'Noto Sans KR';color:var(--text-secondary);max-width:680px;margin:0 0 22px;}
+  .hero .tags{display:flex;flex-wrap:wrap;gap:8px;}
+  .hero .tag{font:600 12px 'Noto Sans KR';color:var(--text-secondary);background:var(--surface-1);border:1px solid var(--border);border-radius:999px;padding:6px 12px;}
+
+  /* ---------- nav ---------- */
+  nav.chapternav{position:sticky;top:0;z-index:30;background:var(--surface-1);border-bottom:1px solid var(--border);}
+  .navrow{max-width:1140px;margin:0 auto;padding:10px 24px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin;}
+  .navpill{flex:0 0 auto;display:flex;align-items:center;gap:7px;font:600 12.5px 'Noto Sans KR';color:var(--text-secondary);background:transparent;border:1px solid transparent;border-radius:999px;padding:7px 12px;text-decoration:none;white-space:nowrap;}
+  .navpill:hover{background:var(--surface-2);color:var(--text-primary);}
+  .navpill .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;}
+
+  /* ---------- chapter ---------- */
+  .chapter{padding:52px 0;border-top:1px solid var(--border);scroll-margin-top:64px;}
+  .chapter:first-of-type{border-top:none;}
+  .chapter-head{margin-bottom:22px;}
+  .chapter-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .chapter-num{font:700 13px 'JetBrains Mono';color:var(--chapter-color);}
+  .chapter-dot{width:9px;height:9px;border-radius:50%;background:var(--chapter-color);}
+  .chapter-head h2{font:900 25px/1.3 'Noto Sans KR';margin:0 0 10px;}
+  .chapter-purpose{display:inline-flex;align-items:center;gap:8px;font:500 13.5px 'Noto Sans KR';color:var(--text-secondary);background:var(--surface-2);border:1px solid var(--border);padding:6px 13px;border-radius:999px;}
+  .chapter-body{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:26px;align-items:start;}
+  @media (max-width:840px){.chapter-body{grid-template-columns:1fr;}}
+
+  .explain p{font:400 14.5px/1.8 'Noto Sans KR';color:var(--text-secondary);margin:0 0 14px;}
+  .explain .example-box{font-size:13.5px;line-height:1.7;color:var(--text-secondary);border-left:3px solid var(--chapter-color);padding:4px 0 4px 13px;margin-top:8px;}
+  .explain .example-box b{color:var(--text-primary);}
+
+  .chart-card{background:var(--surface-1);border:1px solid var(--border);border-radius:16px;padding:20px 22px 18px;box-shadow:var(--shadow);}
+  .chart-wrap svg{width:100%;height:auto;display:block;}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin:12px 0 2px;font:500 12.5px 'Noto Sans KR';color:var(--text-secondary);}
+  .legend .li{display:inline-flex;align-items:center;gap:6px;}
+  .legend .dot{width:10px;height:10px;border-radius:3px;display:inline-block;flex:0 0 auto;}
+
+  .controls{display:flex;flex-wrap:wrap;gap:18px;margin:16px 0 4px;padding:14px 16px;background:var(--surface-2);border-radius:12px;}
+  .control-row{display:flex;flex-direction:column;gap:5px;min-width:96px;}
+  .control-row label{font:600 11.5px 'Noto Sans KR';color:var(--text-muted);}
+  .control-row .val{font:700 12.5px 'JetBrains Mono';color:var(--text-primary);}
+  input[type=range]{accent-color:var(--chapter-color);width:100%;}
+  .toggle-row{display:flex;gap:6px;}
+  .toggle{font:600 12px 'Noto Sans KR';padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface-1);color:var(--text-secondary);cursor:pointer;}
+  .toggle.active{background:var(--chapter-color);border-color:var(--chapter-color);color:#fff;}
+  select.hm-select{font:600 12.5px 'Noto Sans KR';padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface-1);color:var(--text-primary);}
+
+  .quiz{margin-top:16px;padding-top:15px;border-top:1px dashed var(--border);}
+  .quiz p.q{font:600 13.5px/1.6 'Noto Sans KR';margin:0 0 10px;color:var(--text-primary);}
+  .opt-row{display:flex;flex-wrap:wrap;gap:8px;}
+  .opt{font:600 12.5px 'Noto Sans KR';padding:8px 13px;border-radius:9px;border:1px solid var(--border);background:var(--surface-1);color:var(--text-primary);cursor:pointer;}
+  .opt:hover{border-color:var(--chapter-color);}
+  .feedback{margin-top:10px;font:500 12.5px/1.65 'Noto Sans KR';padding:10px 12px;border-radius:10px;display:none;}
+  .feedback.show{display:block;}
+  .feedback.correct{background:color-mix(in srgb, var(--good) 12%, transparent);color:var(--good);}
+  .feedback.wrong{background:color-mix(in srgb, var(--critical) 12%, transparent);color:var(--critical);}
+  .score-tag{font:700 11px 'JetBrains Mono';color:var(--text-muted);margin-left:8px;}
+
+  /* ---------- mini-game UI ---------- */
+  .game-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-bottom:14px;}
+  .game-stat{display:flex;flex-direction:column;gap:2px;}
+  .game-stat label{font:600 11px 'Noto Sans KR';color:var(--text-muted);}
+  .game-stat .v{font:800 15px 'JetBrains Mono';color:var(--text-primary);}
+  .hearts{font-size:17px;letter-spacing:2px;color:var(--critical);}
+  .hearts .lost{opacity:.25;}
+  .timer-track{flex:1 1 140px;height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden;min-width:100px;}
+  .timer-fill{height:100%;border-radius:99px;background:var(--chapter-color);transition:width .1s linear;}
+  .combo-badge{font:700 12px 'JetBrains Mono';color:#fff;background:var(--chapter-color);padding:4px 10px;border-radius:999px;}
+  .game-stage{position:relative;min-height:190px;display:flex;align-items:center;justify-content:center;background:var(--surface-2);border-radius:12px;margin-bottom:14px;overflow:hidden;}
+  .game-stage svg{width:100%;height:190px;}
+  .game-stage .stage-msg{font:600 14px 'Noto Sans KR';color:var(--text-secondary);text-align:center;padding:20px;}
+  .game-stage.blurred svg{filter:blur(9px);opacity:.55;transition:filter .2s, opacity .2s;}
+  .game-options{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+  @media (max-width:560px){.game-options{grid-template-columns:repeat(2,1fr);}}
+  .game-opt{display:flex;flex-direction:column;align-items:center;gap:4px;font:600 12px 'Noto Sans KR';padding:10px 6px;border-radius:10px;border:1px solid var(--border);background:var(--surface-1);color:var(--text-primary);cursor:pointer;}
+  .game-opt:hover:not(:disabled){border-color:var(--chapter-color);}
+  .game-opt:disabled{opacity:.45;cursor:not-allowed;}
+  .game-opt .gicon{font-size:18px;}
+  .game-opt.correct{background:color-mix(in srgb, var(--good) 16%, transparent);border-color:var(--good);}
+  .game-opt.wrong{background:color-mix(in srgb, var(--critical) 16%, transparent);border-color:var(--critical);}
+  .scenario-card{font:600 15px/1.6 'Noto Sans KR';color:var(--text-primary);background:var(--surface-2);border-radius:12px;padding:16px 18px;margin-bottom:14px;min-height:64px;display:flex;align-items:center;}
+  .btn-game{font:700 13.5px 'Noto Sans KR';padding:10px 18px;border-radius:10px;border:none;background:var(--chapter-color);color:#fff;cursor:pointer;}
+  .btn-game:disabled{background:var(--baseline);color:var(--text-muted);cursor:not-allowed;}
+  .game-result{margin-top:6px;padding:12px 14px;border-radius:10px;background:var(--surface-2);font:500 13px/1.7 'Noto Sans KR';color:var(--text-secondary);display:none;}
+  .game-result.show{display:block;}
+  .game-result b{color:var(--text-primary);}
+
+  .heatmap-wrap{overflow-x:auto;}
+  table.heatmap-table{border-collapse:separate;border-spacing:2px;font-size:12px;width:100%;min-width:520px;}
+  table.heatmap-table th{font:700 11.5px 'Noto Sans KR';color:var(--text-secondary);padding:6px 8px;text-align:center;}
+  table.heatmap-table td{padding:5px 8px;text-align:center;border-radius:5px;font-family:'JetBrains Mono',monospace;font-weight:600;cursor:default;}
+  table.heatmap-table td.rowlabel{font-family:'Noto Sans KR';font-weight:600;text-align:left;color:var(--text-primary);background:transparent!important;padding-left:4px;}
+  .hm-legend{display:flex;align-items:center;gap:10px;margin-top:12px;font:500 12px 'Noto Sans KR';color:var(--text-muted);}
+  .hm-gradient{height:10px;width:140px;border-radius:6px;background:linear-gradient(90deg,#cde2fb,#0d366b);}
+
+  /* ---------- finish ---------- */
+  .finish{padding:56px 0 90px;}
+  .finish-card{background:var(--surface-1);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);padding:32px 30px;max-width:620px;margin:0 auto;}
+  .finish-card h2{font:900 22px 'Noto Sans KR';margin:0 0 6px;}
+  .finish-card .sub{font:400 13.5px 'Noto Sans KR';color:var(--text-secondary);margin:0 0 20px;}
+  #nickname{width:100%;font:600 15px 'Noto Sans KR';padding:11px 14px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text-primary);margin-bottom:18px;}
+  .score-table{display:flex;flex-direction:column;gap:0;margin-bottom:14px;}
+  .score-row{display:flex;justify-content:space-between;padding:8px 2px;border-bottom:1px solid var(--border);font-size:13.5px;}
+  .score-row span:first-child{color:var(--text-secondary);}
+  .score-row span:last-child{font-family:'JetBrains Mono',monospace;font-weight:700;}
+  .total-row{display:flex;align-items:center;justify-content:space-between;margin:16px 0 20px;padding:14px 16px;background:var(--surface-2);border-radius:12px;}
+  .total-row .label{font:600 13px 'Noto Sans KR';color:var(--text-secondary);}
+  .total-row .val{font:800 18px 'JetBrains Mono';color:var(--text-primary);}
+  .tier-chip{font:700 13px 'Noto Sans KR';padding:6px 14px;border-radius:999px;color:#fff;background:#9AA5A9;}
+  #btn-copy-image{width:100%;font:700 14.5px 'Noto Sans KR';padding:13px;border-radius:12px;border:none;background:var(--slot1);color:#fff;cursor:pointer;}
+  #btn-copy-image:disabled{background:var(--baseline);color:var(--text-muted);cursor:not-allowed;}
+  .finish-card .note{font:400 12.5px 'Noto Sans KR';color:var(--text-muted);margin-top:12px;text-align:center;}
+
+  footer.page-footer{text-align:center;padding:30px 24px 50px;font:400 12.5px 'Noto Sans KR';color:var(--text-muted);}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-in">
+    <span class="eyebrow">3단원 · 현상을 분석하는 소프트웨어</span>
+    <h1>데이터 시각화 실습실</h1>
+    <p class="lead">같은 데이터라도 어떤 그래프로 그리느냐에 따라 보이는 이야기가 달라져요. 8가지 시각화 방법의 목적과 사례를 살펴보고, 값을 직접 바꿔가며 그래프가 어떻게 변하는지 실습해 보세요. 마지막에는 미니게임 두 가지로 실력을 점검해요.</p>
+    <div class="tags">
+      <span class="tag">선그래프</span><span class="tag">막대그래프</span><span class="tag">히스토그램</span>
+      <span class="tag">원그래프</span><span class="tag">산점도</span><span class="tag">버블차트</span>
+      <span class="tag">히트맵</span><span class="tag">워드클라우드</span><span class="tag">🎮 미니게임 2종</span>
+    </div>
+  </div>
+</header>
+
+<nav class="chapternav">
+  <div class="navrow" id="navrow"></div>
+</nav>
+
+<main class="wrap">
+
+  <section class="chapter" id="ch-line" style="--chapter-color:var(--slot1)">
+    <div class="chapter-head">
+      <div class="chapter-eyebrow"><span class="chapter-num">01</span><span class="chapter-dot"></span></div>
+      <h2>선그래프 · Line Chart</h2>
+      <span class="chapter-purpose">시간에 따른 변화(추세)를 관찰할 때 사용해요</span>
+    </div>
+    <div class="chapter-body">
+      <div class="explain">
+        <p>선그래프는 두 변수의 관계를 선으로 연결해 시각화하는 방법이에요. 특히 가로축이 시간(연도·회차·월 등)일 때, 값이 오르내리는 흐름을 한눈에 파악할 수 있어요.</p>
+        <div class="example-box">교과서 예시: <b>나의 고사별 성적 변화</b> — 회차가 지날수록 성적이 어떻게 바뀌는지 선의 기울기로 확인해요.</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-wrap"><svg id="chart-line" viewBox="0 0 600 300" role="img" aria-label="고사별 국어 성적 선그래프"></svg></div>
+        <div class="controls" id="ctrl-line"></div>
+        <div class="quiz">
+          <p class="q">Q. 네 번의 점수 중, 전체 평균보다 높은 점수는 몇 번일까요?<span class="score-tag" id="score-line">0/15</span></p>
+          <div class="opt-row" id="opt-line"></div>
+          <p class="feedback" id="fb-line"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="ch-bar" style="--chapter-color:var(--slot2)">
+    <div class="chapter-head">
+      <div class="chapter-eyebrow"><span class="chapter-num">02</span><span class="chapter-dot"></span></div>
+      <h2>막대그래프 · Bar Chart</h2>
+      <span class="chapter-purpose">항목 간의 수량을 전체적으로 비교할 때 사용해요</span>
+    </div>
+    <div class="chapter-body">
+      <div class="explain">
+        <p>막대그래프는 범주형 데이터를 막대의 길이로 시각화해서, 항목끼리 얼마나 차이 나는지 비교하기 좋아요.</p>
+        <div class="example-box">교과서 예시: <b>우리 반 요일별 지각생 수</b> — 요일마다 지각생 수를 막대로 세워 어느 요일에 지각이 많은지 비교해요.</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-wrap"><svg id="chart-bar" viewBox="0 0 600 300" role="img" aria-label="요일별 지각생 수 막대그래프"></svg></div>
+        <div class="controls" id="ctrl-bar"></div>
+        <div class="quiz">
+          <p class="q">Q. 지각생 수가 반 평균보다 많은 요일은 모두 몇 개일까요?<span class="score-tag" id="score-bar">0/15</span></p>
+          <div class="opt-row" id="opt-bar"></div>
+          <p class="feedback" id="fb-bar"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="ch-hist" style="--chapter-color:var(--slot3)">
+    <div class="chapter-head">
+      <div class="chapter-eyebrow"><span class="chapter-num">03</span><span class="chapter-dot"></span></div>
+      <h2>히스토그램 · Histogram</h2>
+      <span class="chapter-purpose">자료의 분포 상태를 한눈에 비교할 때 사용해요</span>
+    </div>
+    <div class="chapter-body">
+      <div class="explain">
+        <p>히스토그램은 수치형 데이터를 같은 폭(계급)으로 나누어, 각 구간에 몇 개의 값이 속하는지 막대로 보여줘요. 막대그래프와 달리 막대끼리 붙어 있어요.</p>
+        <div class="example-box">교과서 예시: <b>반 학생들의 구간별 국어 점수</b> — 우리 반 33명의 국어 점수가 어느 점수대에 몰려 있는지 확인해요.</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-wrap"><svg id="chart-hist" viewBox="0 0 600 300" role="img" aria-label="국어 점수 히스토그램"></svg></div>
+        <div class="controls">
+          <div class="control-row"><label>계급 폭(막대 폭)</label><div class="toggle-row" id="ctrl-hist"></div></div>
+        </div>
+        <div class="quiz">
+          <p class="q">Q. 70점대와 80점대 학생을 모두 합치면, 전체 33명 중 몇 %쯤 될까요?<span class="score-tag" id="score-hist">0/15</span></p>
+          <div class="opt-row" id="opt-hist"></div>
+          <p class="feedback" id="fb-hist"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="ch-pie" style="--chapter-color:var(--slot4)">
+    <div class="chapter-head">
+      <div class="chapter-eyebrow"><span class="chapter-num">04</span><span class="chapter-dot"></span></div>
+      <h2>원그래프 · Pie Chart</h2>
+      <span class="chapter-purpose">전체에 대한 각 부분의 점유율을 나타낼 때 사용해요</span>
+    </div>
+    <div class="chapter-body">
+      <div class="explain">
+        <p>원그래프는 전체(100%)를 하나의 원으로 두고, 각 항목이 차지하는 비율만큼 조각을 나누어 시각화해요. 부분과 전체의 관계를 볼 때 유용해요.</p>
+        <div class="example-box">새 예시: <b>우리 반 급식 메뉴 선호도 투표</b> — 33명이 가장 좋아하는 급식 메뉴에 투표한 결과예요.</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-wrap"><svg id="chart-pie" viewBox="0 0 260 260" role="img" aria-label="급식 메뉴 선호도 원그래프"></svg></div>
+        <div class="legend" id="legend-pie"></div>
+        <div class="controls" id="ctrl-pie"></div>
+        <div class="quiz">
+          <p class="q">Q. 가장 인기 있는 메뉴는 전체의 몇 % 정도를 차지할까요?<span class="score-tag" id="score-pie">0/15</span></p>
+          <div class="opt-row" id="opt-pie"></div>
+          <p class="feedback" id="fb-pie"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="ch-scatter" style="--chapter-color:var(--slot5)">
+    <div class="chapter-head">
+      <div class="chapter-eyebrow"><span class="chapter-num">05</span><span class="chapter-dot"></span></div>
+      <h2>산점도 · Scatter Plot</h2>
+      <span class="chapter-purpose">두 변수 간의 관계(상관관계)를 나타낼 때 사용해요</span>
+    </div>
+    <div class="chapter-body">
+      <div class="explain">
+        <p>산점도는 두 변수의 값을 좌표평면 위의 점으로 나타내요. 점들이 흩어진 모양을 보면 두 변수가 함께 커지는지, 반대로 움직이는지, 아니면 관계가 없는지 알 수 있어요.</p>
+        <div class="example-box">교과서 예시: <b>학생들의 국어·영어 성적</b> — 국어를 잘하는 학생이 영어도 잘하는 경향이 있는지 확인해요.</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-wrap"><svg id="chart-scatter" viewBox="0 0 600 300" role="img" aria-label="국어 영어 성적 산점도"></svg></div>
+        <div class="legend" id="legend-scatter"></div>
+        <div class="controls" id="ctrl-scatter"></div>
+        <div class="quiz">
+          <p class="q">Q. 국어 성적과 영어 성적은 어떤 관계로 보이나요?<span class="score-tag" id="score-scatter">0/15</span></p>
+          <div class="opt-row" id="opt-scatter"></div>
+          <p class="feedback" id="fb-scatter"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="ch-bubble" style="--chapter-color:var(--slot6)">
+    <div class="chapter-head">
+      <div class="chapter-eyebrow"><span class="chapter-num">06</span><span class="chapter-dot"></span></div>
+      <h2>버블차트 · Bubble Chart</h2>
+      <span class="chapter-purpose">두 가지 이상의 변수를 원의 크기로 비교할 때 사용해요</span>
+    </div>
+    <div class="chapter-body">
+      <div class="explain">
+        <p>버블차트는 산점도에 세 번째 정보를 더한 그래프예요. 가로·세로 위치로 두 변수를, 원의 크기로 세 번째 변수를 함께 보여줘요.</p>
+        <div class="example-box">새 예시: <b>매점 간식 3종의 가격·칼로리·판매량</b> — 가격(가로)과 칼로리(세로)는 고정, 판매량은 원 크기로 직접 조절해 보세요.</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-wrap"><svg id="chart-bubble" viewBox="0 0 600 300" role="img" aria-label="간식 가격 칼로리 판매량 버블차트"></svg></div>
+        <div class="legend" id="legend-bubble"></div>
+        <div class="controls" id="ctrl-bubble"></div>
+        <div class="quiz">
+          <p class="q">Q. 판매량이 가장 많은 간식은 두 번째로 많이 팔린 간식보다 얼마나 더 많이 팔렸을까요?<span class="score-tag" id="score-bubble">0/15</span></p>
+          <div class="opt-row" id="opt-bubble"></div>
+          <p class="feedback" id="fb-bubble"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="ch-heatmap" style="--chapter-color:var(--slot7)">
+    <div class="chapter-head">
+      <div class="chapter-eyebrow"><span class="chapter-num">07</span><span class="chapter-dot"></span></div>
+      <h2>히트맵 · Heatmap</h2>
+      <span class="chapter-purpose">여러 항목의 값을 색상 농도로 한눈에 비교할 때 사용해요</span>
+    </div>
+    <div class="chapter-body">
+      <div class="explain">
+        <p>히트맵은 값이 클수록 진한 색, 작을수록 옅은 색으로 표현해서 표 전체를 이미지처럼 한눈에 훑어볼 수 있게 해줘요. 칸이 많을 때 특히 유용해요.</p>
+        <div class="example-box">실제 통계: <b>17개 시도의 사교육비(만원)</b> — 3단원 "데이터 전처리" 실습에서 다룬 실제 통계청 자료를 다시 활용했어요.</div>
+      </div>
+      <div class="chart-card">
+        <div class="heatmap-wrap"><table class="heatmap-table" id="chart-heatmap"></table></div>
+        <div class="hm-legend"><span>낮음</span><span class="hm-gradient"></span><span>높음</span></div>
+        <div class="controls" id="ctrl-heatmap"></div>
+        <div class="quiz">
+          <p class="q">Q. 표에서 값이 가장 큰 칸과 가장 작은 칸은 각각 어느 지역, 어떤 항목일까요? (두 개 다 골라주세요)<span class="score-tag" id="score-heatmap">0/15</span></p>
+          <div class="opt-row" id="opt-heatmap"></div>
+          <p class="feedback" id="fb-heatmap"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="ch-wordcloud" style="--chapter-color:var(--slot8)">
+    <div class="chapter-head">
+      <div class="chapter-eyebrow"><span class="chapter-num">08</span><span class="chapter-dot"></span></div>
+      <h2>워드클라우드 · Word Cloud</h2>
+      <span class="chapter-purpose">텍스트(비정형 데이터) 속 핵심 단어를 파악할 때 사용해요</span>
+    </div>
+    <div class="chapter-body">
+      <div class="explain">
+        <p>워드클라우드는 텍스트 안에서 자주 등장하는 단어일수록 글자를 크게 표시해요. 정형 데이터가 아닌 비정형(텍스트) 데이터를 시각화하는 대표적인 방법이에요.</p>
+        <div class="example-box">새 예시: <b>우리 반이 좋아하는 과목 키워드</b> — 언급된 횟수를 직접 조절하면 글자 크기가 바뀌어요.</div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-wrap"><svg id="chart-wordcloud" viewBox="0 0 600 260" role="img" aria-label="좋아하는 과목 워드클라우드"></svg></div>
+        <div class="controls" id="ctrl-wordcloud"></div>
+        <div class="quiz">
+          <p class="q">Q. 가장 많이 언급된 과목은 두 번째로 많이 언급된 과목보다 몇 번 더 많이 언급됐을까요?<span class="score-tag" id="score-wordcloud">0/15</span></p>
+          <div class="opt-row" id="opt-wordcloud"></div>
+          <p class="feedback" id="fb-wordcloud"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="ch-graphid" style="--chapter-color:var(--gameA)">
+    <div class="chapter-head">
+      <div class="chapter-eyebrow"><span class="chapter-num">09</span><span class="chapter-dot"></span></div>
+      <h2>그래프 감별사 · Speed ID</h2>
+      <span class="chapter-purpose">미니게임 — 짧게 스쳐가는 그래프를 보고 종류를 빠르게 맞혀보세요</span>
+    </div>
+    <div class="chapter-body">
+      <div class="explain">
+        <p>앞에서 배운 8가지 그래프가 무작위 순서로, 점점 짧은 시간 동안 화면에 나타나요. 제한 시간 60초 안에 최대한 많이, 정확하고 빠르게 맞혀서 점수를 쌓아보세요.</p>
+        <div class="example-box">진행 방식: <b>제한 시간 60초</b> · 그래프 노출 시간이 4.0초 → 1.5초까지 점점 짧아져요 · 연속 정답 시 콤보 보너스가 붙어요.</div>
+      </div>
+      <div class="chart-card">
+        <div class="game-toolbar">
+          <div class="game-stat"><label>남은 시간</label><span class="v" id="gid-time">60초</span></div>
+          <div class="timer-track"><div class="timer-fill" id="gid-timerfill" style="width:100%"></div></div>
+          <div class="game-stat"><label>정답</label><span class="v" id="gid-correct">0</span></div>
+          <span class="combo-badge" id="gid-combo">콤보 0</span>
+        </div>
+        <div class="game-stage" id="gid-stage"><div class="stage-msg">시작 버튼을 누르면 그래프가 나타나요</div></div>
+        <div class="game-options" id="gid-options"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <button type="button" class="btn-game" id="gid-start">시작하기</button>
+          <span class="score-tag" id="score-graphid">0/15</span>
+        </div>
+        <p class="game-result" id="gid-result"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter" id="ch-purposerush" style="--chapter-color:var(--gameB)">
+    <div class="chapter-head">
+      <div class="chapter-eyebrow"><span class="chapter-num">10</span><span class="chapter-dot"></span></div>
+      <h2>목적 매칭 러시 · Purpose Rush</h2>
+      <span class="chapter-purpose">미니게임 — 상황에 가장 알맞은 그래프 종류를 빠르게 골라보세요</span>
+    </div>
+    <div class="chapter-body">
+      <div class="explain">
+        <p>데이터를 시각화하는 진짜 이유는 "무엇을 보여주고 싶은가"예요. 짧은 상황 설명을 읽고, 그 목적에 가장 알맞은 그래프 종류를 8초 안에 골라보세요.</p>
+        <div class="example-box">진행 방식: <b>하트 3개</b>(오답·시간초과 시 1개 감소) · 문제당 제한 시간 8초 · 총 10문제 또는 하트 소진 시 종료돼요.</div>
+      </div>
+      <div class="chart-card">
+        <div class="game-toolbar">
+          <div class="game-stat"><label>문제</label><span class="v" id="pr-round">0/10</span></div>
+          <div class="timer-track"><div class="timer-fill" id="pr-timerfill" style="width:100%"></div></div>
+          <div class="game-stat"><label>목숨</label><span class="hearts" id="pr-hearts">♥♥♥</span></div>
+        </div>
+        <div class="scenario-card" id="pr-scenario">시작 버튼을 누르면 상황이 나타나요</div>
+        <div class="game-options" id="pr-options"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+          <button type="button" class="btn-game" id="pr-start">시작하기</button>
+          <span class="score-tag" id="score-purposerush">0/15</span>
+        </div>
+        <p class="game-result" id="pr-result"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="finish" id="finish">
+    <div class="finish-card">
+      <h2>실습 완료 확인서</h2>
+      <p class="sub">8가지 시각화 실습과 미니게임 2종을 모두 완료하면(각 1점 이상 획득) 완료 확인서가 만들어져요.</p>
+      <input id="nickname" placeholder="이름을 입력하세요" maxlength="20">
+      <div class="score-table" id="score-table"></div>
+      <div class="total-row">
+        <span class="label">종합 점수</span>
+        <span><span class="val mono" id="r-total">0/150점</span> <span class="tier-chip" id="r-tier">시작 전</span></span>
+      </div>
+      <canvas id="receipt-canvas" width="640" height="760" hidden></canvas>
+      <button id="btn-copy-image" disabled>이미지로 복사하기</button>
+      <p class="feedback" id="copy-feedback"></p>
+      <p class="note">이미지로 복사한 뒤 패들렛 게시물에 붙여넣기(Ctrl+V)로 제출하세요.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="page-footer">데이터 시각화 실습실 · 소프트웨어와 생활 3단원 · 목적에 맞는 시각화 방법을 직접 골라보세요.</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- meta / chapters ----------
+  var CH = [
+    { key:"line",      name:"선그래프",   slot:"--slot1" },
+    { key:"bar",       name:"막대그래프", slot:"--slot2" },
+    { key:"hist",      name:"히스토그램", slot:"--slot3" },
+    { key:"pie",       name:"원그래프",   slot:"--slot4" },
+    { key:"scatter",   name:"산점도",     slot:"--slot5" },
+    { key:"bubble",    name:"버블차트",   slot:"--slot6" },
+    { key:"heatmap",   name:"히트맵",     slot:"--slot7" },
+    { key:"wordcloud", name:"워드클라우드", slot:"--slot8" },
+    { key:"graphid",     name:"그래프 감별사",   slot:"--gameA" },
+    { key:"purposerush", name:"목적 매칭 러시", slot:"--gameB" }
+  ];
+
+  var TIERS = [
+    { min: 0,   name: "언랭",     color: "#9AA5A9" },
+    { min: 30,  name: "몬스터볼", color: "#E8552F" },
+    { min: 60,  name: "수퍼볼",   color: "#1D6FB8" },
+    { min: 81,  name: "하이퍼볼", color: "#D9A404" },
+    { min: 105, name: "마스터볼", color: "#7C3AED" },
+    { min: 128, name: "챔피언",   color: "#C9A227" },
+    { min: 145, name: "박홍균급", color: "#141413" }
+  ];
+  function tierFor(total){
+    var best = TIERS[0];
+    TIERS.forEach(function(t){ if (total >= t.min) best = t; });
+    return best;
+  }
+
+  var state = { scores:{}, streak:{} };
+  CH.forEach(function(c){ state.scores[c.key]=0; state.streak[c.key]=0; });
+
+  function $(id){ return document.getElementById(id); }
+  function css(varName){ return getComputedStyle(document.documentElement).getPropertyValue(varName).trim(); }
+  function lin(v,d0,d1,r0,r1){ if (d1===d0) return (r0+r1)/2; return r0 + (v-d0)/(d1-d0)*(r1-r0); }
+  function fmt1(n){ return (Math.round(n*10)/10).toString(); }
+  function niceStep(max){
+    if (max<=0) return 1;
+    var raw = max/4;
+    var mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    var norm = raw/mag;
+    var mult = norm<1.5?1:(norm<3?2:(norm<7?5:10));
+    return mult*mag;
+  }
+  function ticksFor(max){
+    var step = niceStep(max);
+    var ticks=[0];
+    while (ticks[ticks.length-1] < max) ticks.push(ticks[ticks.length-1]+step);
+    return ticks;
+  }
+  function isDark(){
+    var attr = document.documentElement.getAttribute("data-theme");
+    if (attr==="dark") return true;
+    if (attr==="light") return false;
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+
+  // ---------- nav ----------
+  $("navrow").innerHTML = CH.map(function(c,i){
+    return '<a class="navpill" href="#ch-'+c.key+'"><span class="dot" style="background:var('+c.slot+')"></span>'+(i+1)+'. '+c.name+'</a>';
+  }).join("") + '<a class="navpill" href="#finish"><span class="dot" style="background:#9AA5A9"></span>확인서</a>';
+
+  // ---------- scoring ----------
+  function recordAnswer(key, correct, fbEl, correctMsg, wrongMsg){
+    if (correct){
+      var s = state.streak[key]===0 ? 15 : (state.streak[key]===1 ? 9 : 3);
+      if (s > state.scores[key]) state.scores[key] = s;
+      state.streak[key] = 0;
+      fbEl.className = "feedback show correct";
+      fbEl.textContent = correctMsg;
+    } else {
+      state.streak[key]++;
+      fbEl.className = "feedback show wrong";
+      fbEl.textContent = wrongMsg;
+    }
+    $("score-"+key).textContent = state.scores[key]+"/15";
+    renderScoreTable();
+  }
+
+  // 미니게임 전용 채점: 판 종료 시 계산된 0~15점을 최고 기록과 비교해 갱신
+  function recordGameScore(key, score15){
+    score15 = Math.max(0, Math.min(15, Math.round(score15)));
+    if (score15 > state.scores[key]) state.scores[key] = score15;
+    $("score-"+key).textContent = state.scores[key]+"/15";
+    renderScoreTable();
+    return state.scores[key];
+  }
+
+  function wireOptions(containerId, key, labels, evaluator, msgFn){
+    var el = $(containerId);
+    el.innerHTML = labels.map(function(l,i){ return '<button type="button" class="opt" data-i="'+i+'">'+l+'</button>'; }).join("");
+    el.querySelectorAll(".opt").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var i = +btn.dataset.i;
+        var correctI = evaluator();
+        var correct = (i === correctI);
+        var msg = msgFn(correctI, correct);
+        recordAnswer(key, correct, $("fb-"+key), msg.correct, msg.wrong);
+      });
+    });
+  }
+
+  function renderScoreTable(){
+    var total = 0; CH.forEach(function(c){ total += state.scores[c.key]; });
+    $("score-table").innerHTML = CH.map(function(c){
+      return '<div class="score-row"><span>'+c.name+'</span><span>'+state.scores[c.key]+'/15</span></div>';
+    }).join("");
+    var tier = tierFor(total);
+    $("r-total").textContent = total+"/150점";
+    var tierChip = $("r-tier");
+    tierChip.textContent = total>0 ? tier.name : "시작 전";
+    tierChip.style.background = total>0 ? tier.color : "#9AA5A9";
+    var allDone = CH.every(function(c){ return state.scores[c.key] > 0; });
+    $("btn-copy-image").disabled = !allDone;
+    drawReceiptCanvas();
+  }
+
+  // ---------- shared svg helpers ----------
+  function barPath(x, yTop, w, yBase, r){
+    var h = yBase - yTop;
+    if (h <= 0.5) return "";
+    r = Math.min(r, h, w/2);
+    return "M"+x+","+yBase+" L"+x+","+(yTop+r)+" Q"+x+","+yTop+" "+(x+r)+","+yTop+
+           " L"+(x+w-r)+","+yTop+" Q"+(x+w)+","+yTop+" "+(x+w)+","+(yTop+r)+
+           " L"+(x+w)+","+yBase+" Z";
+  }
+  function numAxis(x0,x1,y0,y1,xTicks,yTicks){
+    var s = '<line x1="'+x0+'" y1="'+y0+'" x2="'+x1+'" y2="'+y0+'" stroke="var(--baseline)" stroke-width="1"/>';
+    s += '<line x1="'+x0+'" y1="'+y0+'" x2="'+x0+'" y2="'+y1+'" stroke="var(--baseline)" stroke-width="1"/>';
+    var yMin = yTicks[0], yMax = yTicks[yTicks.length-1];
+    yTicks.forEach(function(t){
+      var y = lin(t, yMin, yMax, y0, y1);
+      s += '<line x1="'+x0+'" y1="'+y+'" x2="'+x1+'" y2="'+y+'" stroke="var(--gridline)" stroke-width="1"/>';
+      s += '<text x="'+(x0-8)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="var(--text-muted)" font-family="JetBrains Mono, monospace">'+t+'</text>';
+    });
+    var xMin = xTicks[0], xMax = xTicks[xTicks.length-1];
+    xTicks.forEach(function(t){
+      var x = lin(t, xMin, xMax, x0, x1);
+      s += '<text x="'+x+'" y="'+(y0+18)+'" text-anchor="middle" font-size="11" fill="var(--text-muted)" font-family="JetBrains Mono, monospace">'+t+'</text>';
+    });
+    return s;
+  }
+  function argmax(arr){
+    var bi=0; for (var i=1;i<arr.length;i++){ if (arr[i]>arr[bi]) bi=i; }
+    return bi;
+  }
+  function hasBatchim(ch){
+    var code = ch.charCodeAt(0) - 0xAC00;
+    if (code < 0 || code > 11171) return false;
+    return (code % 28) !== 0;
+  }
+  function josa(word, withBatchim, withoutBatchim){
+    var last = word[word.length-1];
+    return hasBatchim(last) ? withBatchim : withoutBatchim;
+  }
+
+  // ================= 01 선그래프 =================
+  var lineState = { vals:[78,85,82,91] };
+  var lineLabels = ["1회","2회","3회","4회"];
+  function drawLine(){
+    var W=600,H=300, x0=46,x1=584, y0=248,y1=24;
+    var xs = lineState.vals.map(function(v,i){ return lin(i,0,3,x0,x1); });
+    var ys = lineState.vals.map(function(v){ return lin(v,40,100,y0,y1); });
+    var s = '<line x1="'+x0+'" y1="'+y0+'" x2="'+x1+'" y2="'+y0+'" stroke="var(--baseline)" stroke-width="1"/>';
+    [40,60,80,100].forEach(function(t){
+      var gy = lin(t,40,100,y0,y1);
+      s += '<line x1="'+x0+'" y1="'+gy+'" x2="'+x1+'" y2="'+gy+'" stroke="var(--gridline)" stroke-width="1"/>';
+      s += '<text x="'+(x0-8)+'" y="'+(gy+4)+'" text-anchor="end" font-size="11" fill="var(--text-muted)" font-family="JetBrains Mono, monospace">'+t+'</text>';
+    });
+    var path = "M"+xs.map(function(x,i){ return x+","+ys[i]; }).join(" L");
+    s += '<path d="'+path+'" fill="none" stroke="var(--slot1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+    xs.forEach(function(x,i){
+      s += '<circle cx="'+x+'" cy="'+ys[i]+'" r="5" fill="var(--slot1)" stroke="var(--surface-1)" stroke-width="2"/>';
+      s += '<text x="'+x+'" y="'+(ys[i]-13)+'" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text-primary)" font-family="JetBrains Mono, monospace">'+lineState.vals[i]+'</text>';
+      s += '<text x="'+x+'" y="'+(y0+34)+'" text-anchor="middle" font-size="12" fill="var(--text-secondary)">'+lineLabels[i]+'</text>';
+    });
+    $("chart-line").innerHTML = s;
+  }
+  function initLine(){
+    $("ctrl-line").innerHTML = lineLabels.map(function(l,i){
+      return '<div class="control-row"><label>'+l+' 점수</label><input type="range" min="40" max="100" step="1" value="'+lineState.vals[i]+'" data-i="'+i+'" id="line-s'+i+'"><span class="val" id="line-v'+i+'">'+lineState.vals[i]+'점</span></div>';
+    }).join("");
+    for (var i=0;i<4;i++){
+      (function(i){
+        $("line-s"+i).addEventListener("input", function(){
+          lineState.vals[i] = +this.value;
+          $("line-v"+i).textContent = this.value+"점";
+          drawLine();
+        });
+      })(i);
+    }
+    wireOptions("opt-line","line",["0번","1번","2번","3번"], function(){
+      var vals = lineState.vals;
+      var mean = (vals[0]+vals[1]+vals[2]+vals[3])/4;
+      return vals.filter(function(v){ return v>mean; }).length;
+    }, function(correctI){
+      var vals = lineState.vals;
+      var mean = (vals[0]+vals[1]+vals[2]+vals[3])/4;
+      return {
+        correct: "맞아요! 네 점수의 평균은 "+mean.toFixed(1)+"점이고, 그보다 높은 점수는 "+correctI+"번이에요.",
+        wrong: "먼저 네 점수를 더해 4로 나눈 평균을 구한 뒤, 그 평균보다 큰 값이 몇 개인지 세어보세요."
+      };
+    });
+    drawLine();
+  }
+
+  // ================= 02 막대그래프 =================
+  var barDays = ["월","화","수","목","금","토"];
+  var barState = { vals:[3,1,2,5,4,7] };
+  function drawBar(){
+    var x0=46,x1=584,y0=248,y1=24;
+    var yTicks = ticksFor(Math.max.apply(null, barState.vals));
+    var s = '<line x1="'+x0+'" y1="'+y0+'" x2="'+x1+'" y2="'+y0+'" stroke="var(--baseline)" stroke-width="1"/>';
+    var yMax = yTicks[yTicks.length-1];
+    yTicks.forEach(function(t){
+      var y = lin(t,0,yMax,y0,y1);
+      s += '<line x1="'+x0+'" y1="'+y+'" x2="'+x1+'" y2="'+y+'" stroke="var(--gridline)" stroke-width="1"/>';
+      s += '<text x="'+(x0-8)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="var(--text-muted)" font-family="JetBrains Mono, monospace">'+t+'</text>';
+    });
+    var band = (x1-x0)/barDays.length;
+    var barW = Math.min(28, band*0.55);
+    barState.vals.forEach(function(v,i){
+      var cx = x0 + band*(i+0.5);
+      var yTop = lin(v,0,yMax,y0,y1);
+      s += '<path d="'+barPath(cx-barW/2, yTop, barW, y0, 4)+'" fill="var(--slot2)"/>';
+      s += '<text x="'+cx+'" y="'+(yTop-8)+'" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text-primary)" font-family="JetBrains Mono, monospace">'+v+'</text>';
+      s += '<text x="'+cx+'" y="'+(y0+22)+'" text-anchor="middle" font-size="12" fill="var(--text-secondary)">'+barDays[i]+'</text>';
+    });
+    $("chart-bar").innerHTML = s;
+  }
+  function initBar(){
+    $("ctrl-bar").innerHTML = barDays.map(function(d,i){
+      return '<div class="control-row"><label>'+d+'요일</label><input type="range" min="0" max="15" step="1" value="'+barState.vals[i]+'" id="bar-s'+i+'"><span class="val" id="bar-v'+i+'">'+barState.vals[i]+'명</span></div>';
+    }).join("");
+    for (var i=0;i<barDays.length;i++){
+      (function(i){
+        $("bar-s"+i).addEventListener("input", function(){
+          barState.vals[i] = +this.value;
+          $("bar-v"+i).textContent = this.value+"명";
+          drawBar();
+        });
+      })(i);
+    }
+    wireOptions("opt-bar","bar",["0개","1개","2개","3개","4개","5개"], function(){
+      var vals = barState.vals;
+      var mean = vals.reduce(function(a,b){ return a+b; },0)/vals.length;
+      return vals.filter(function(v){ return v>mean; }).length;
+    }, function(correctI){
+      var vals = barState.vals;
+      var mean = vals.reduce(function(a,b){ return a+b; },0)/vals.length;
+      return {
+        correct: "맞아요! 6일 평균은 "+mean.toFixed(1)+"명이고, 그보다 지각생이 많은 요일은 "+correctI+"개예요.",
+        wrong: "먼저 6일치 지각생 수의 평균을 구한 뒤, 평균보다 많은 요일이 몇 개인지 세어보세요."
+      };
+    });
+    drawBar();
+  }
+
+  // ================= 03 히스토그램 =================
+  var histScores = [58,62,64,66,68,70,71,72,73,74,75,75,76,76,77,78,78,79,80,80,81,82,83,84,85,86,87,88,89,90,92,95,98];
+  var histW = 10;
+  function makeBins(width){
+    var bins=[];
+    for (var lo=40; lo<100; lo+=width){ bins.push({lo:lo, hi:Math.min(lo+width,100), count:0}); }
+    histScores.forEach(function(v){
+      var idx = Math.min(bins.length-1, Math.floor((v-40)/width));
+      if (idx>=0) bins[idx].count++;
+    });
+    return bins;
+  }
+  function drawHist(){
+    var bins = makeBins(histW);
+    var x0=46,x1=584,y0=248,y1=24;
+    var maxCount = Math.max.apply(null, bins.map(function(b){return b.count;}));
+    var yTicks = ticksFor(maxCount);
+    var yMax = yTicks[yTicks.length-1];
+    var s = '<line x1="'+x0+'" y1="'+y0+'" x2="'+x1+'" y2="'+y0+'" stroke="var(--baseline)" stroke-width="1"/>';
+    yTicks.forEach(function(t){
+      var y = lin(t,0,yMax,y0,y1);
+      s += '<line x1="'+x0+'" y1="'+y+'" x2="'+x1+'" y2="'+y+'" stroke="var(--gridline)" stroke-width="1"/>';
+      s += '<text x="'+(x0-8)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="var(--text-muted)" font-family="JetBrains Mono, monospace">'+t+'</text>';
+    });
+    [40,50,60,70,80,90,100].forEach(function(t){
+      var x = lin(t,40,100,x0,x1);
+      s += '<text x="'+x+'" y="'+(y0+18)+'" text-anchor="middle" font-size="10.5" fill="var(--text-muted)" font-family="JetBrains Mono, monospace">'+t+'</text>';
+    });
+    bins.forEach(function(b){
+      var bx0 = lin(b.lo,40,100,x0,x1), bx1 = lin(b.hi,40,100,x0,x1);
+      var yTop = lin(b.count,0,yMax,y0,y1);
+      s += '<path d="'+barPath(bx0+1, yTop, (bx1-bx0-2), y0, 4)+'" fill="var(--slot3)"/>';
+      if (b.count>0) s += '<text x="'+((bx0+bx1)/2)+'" y="'+(yTop-7)+'" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-primary)" font-family="JetBrains Mono, monospace">'+b.count+'</text>';
+    });
+    $("chart-hist").innerHTML = s;
+  }
+  function initHist(){
+    $("ctrl-hist").innerHTML = [5,10,20].map(function(w){
+      return '<button type="button" class="toggle'+(w===histW?' active':'')+'" data-w="'+w+'">'+w+'점</button>';
+    }).join("");
+    $("ctrl-hist").querySelectorAll(".toggle").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        histW = +this.dataset.w;
+        $("ctrl-hist").querySelectorAll(".toggle").forEach(function(b){ b.classList.toggle("active", b===btn); });
+        drawHist();
+      });
+    });
+    var fixedBins = makeBins(10);
+    var n70 = fixedBins[3].count, n80 = fixedBins[4].count;
+    var pctLabels = ["50% 미만","50~65%","65~80%","80% 이상"];
+    wireOptions("opt-hist","hist",pctLabels, function(){
+      var pct = (n70+n80)/histScores.length*100;
+      return pct<50 ? 0 : (pct<65 ? 1 : (pct<80 ? 2 : 3));
+    }, function(correctI){
+      var pct = (n70+n80)/histScores.length*100;
+      return {
+        correct: "맞아요! 70점대 "+n70+"명 + 80점대 "+n80+"명 = "+(n70+n80)+"명, 전체 33명 중 약 "+Math.round(pct)+"%예요.",
+        wrong: "계급 폭을 10점으로 맞추고, 70점대와 80점대 막대의 학생 수를 더해 33으로 나눠보세요."
+      };
+    });
+    drawHist();
+  }
+
+  // ================= 04 원그래프 =================
+  var pieItems = ["돈까스","제육볶음","미역국","기타"];
+  var pieState = { vals:[12,9,4,8] };
+  var pieColors = ["--slot1","--slot2","--slot3","--slot4"];
+  function drawPie(){
+    var sum = pieState.vals.reduce(function(a,b){return a+b;},0) || 1;
+    var cx=130, cy=130, r=100;
+    var ang = -90;
+    var s = "";
+    pieState.vals.forEach(function(v,i){
+      var sweep = v/sum*360;
+      var a0 = ang*Math.PI/180, a1 = (ang+sweep)*Math.PI/180;
+      var x0 = cx + r*Math.cos(a0), y0 = cy + r*Math.sin(a0);
+      var x1 = cx + r*Math.cos(a1), y1 = cy + r*Math.sin(a1);
+      var large = sweep > 180 ? 1 : 0;
+      if (v>0){
+        var d = "M"+cx+","+cy+" L"+x0+","+y0+" A"+r+","+r+" 0 "+large+" 1 "+x1+","+y1+" Z";
+        s += '<path d="'+d+'" fill="var('+pieColors[i]+')" stroke="var(--surface-1)" stroke-width="2"/>';
+      }
+      ang += sweep;
+    });
+    $("chart-pie").innerHTML = s;
+    var total = sum;
+    $("legend-pie").innerHTML = pieItems.map(function(name,i){
+      var pct = Math.round(pieState.vals[i]/total*100);
+      return '<span class="li"><span class="dot" style="background:var('+pieColors[i]+')"></span>'+name+' '+pieState.vals[i]+'명 ('+pct+'%)</span>';
+    }).join("");
+  }
+  function initPie(){
+    $("ctrl-pie").innerHTML = pieItems.map(function(name,i){
+      return '<div class="control-row"><label>'+name+'</label><input type="range" min="0" max="20" step="1" value="'+pieState.vals[i]+'" id="pie-s'+i+'"><span class="val" id="pie-v'+i+'">'+pieState.vals[i]+'명</span></div>';
+    }).join("");
+    pieItems.forEach(function(name,i){
+      $("pie-s"+i).addEventListener("input", function(){
+        pieState.vals[i] = +this.value;
+        $("pie-v"+i).textContent = this.value+"명";
+        drawPie();
+      });
+    });
+    var shareLabels = ["25% 미만","25~40%","40~55%","55% 이상"];
+    wireOptions("opt-pie","pie",shareLabels, function(){
+      var sum = pieState.vals.reduce(function(a,b){return a+b;},0);
+      var max = Math.max.apply(null, pieState.vals);
+      var share = sum>0 ? max/sum*100 : 0;
+      return share<25 ? 0 : (share<40 ? 1 : (share<55 ? 2 : 3));
+    }, function(correctI){
+      var sum = pieState.vals.reduce(function(a,b){return a+b;},0);
+      var max = Math.max.apply(null, pieState.vals);
+      var share = sum>0 ? max/sum*100 : 0;
+      var winner = pieItems[argmax(pieState.vals)];
+      return {
+        correct: "맞아요! 가장 인기 있는 "+winner+josa(winner,"이","가")+" 전체의 약 "+Math.round(share)+"%를 차지해요.",
+        wrong: "다시 살펴보세요 — 가장 넓은 조각의 인원수를 전체 인원수로 나눠 비율을 가늠해보세요."
+      };
+    });
+    drawPie();
+  }
+
+  // ================= 05 산점도 =================
+  var scatterFixed = [[85,96],[79,76],[92,94],[59,67],[88,78]];
+  var scatterAdd = { kor:75, eng:75 };
+  function pearson(pts){
+    var n = pts.length;
+    var mx = pts.reduce(function(s,p){return s+p[0];},0)/n;
+    var my = pts.reduce(function(s,p){return s+p[1];},0)/n;
+    var num=0, dx2=0, dy2=0;
+    pts.forEach(function(p){ var dx=p[0]-mx, dy=p[1]-my; num+=dx*dy; dx2+=dx*dx; dy2+=dy*dy; });
+    if (dx2===0 || dy2===0) return 0;
+    return num/Math.sqrt(dx2*dy2);
+  }
+  function drawScatter(){
+    var x0=46,x1=584,y0=248,y1=24;
+    var s = numAxis(x0,x1,y0,y1,[40,60,80,100],[40,60,80,100]);
+    scatterFixed.forEach(function(p){
+      var x = lin(p[0],40,100,x0,x1), y = lin(p[1],40,100,y0,y1);
+      s += '<circle cx="'+x+'" cy="'+y+'" r="6" fill="var(--slot1)" stroke="var(--surface-1)" stroke-width="2"/>';
+    });
+    var ax = lin(scatterAdd.kor,40,100,x0,x1), ay = lin(scatterAdd.eng,40,100,y0,y1);
+    s += '<circle cx="'+ax+'" cy="'+ay+'" r="7" fill="var(--slot2)" stroke="var(--surface-1)" stroke-width="2.5"/>';
+    $("chart-scatter").innerHTML = s;
+  }
+  function initScatter(){
+    $("legend-scatter").innerHTML =
+      '<span class="li"><span class="dot" style="background:var(--slot1)"></span>기존 5명 학생</span>'+
+      '<span class="li"><span class="dot" style="background:var(--slot2)"></span>내가 추가한 학생</span>';
+    $("ctrl-scatter").innerHTML =
+      '<div class="control-row"><label>내 학생 국어 점수</label><input type="range" min="40" max="100" step="1" value="'+scatterAdd.kor+'" id="sc-kor"><span class="val" id="sc-korv">'+scatterAdd.kor+'점</span></div>'+
+      '<div class="control-row"><label>내 학생 영어 점수</label><input type="range" min="40" max="100" step="1" value="'+scatterAdd.eng+'" id="sc-eng"><span class="val" id="sc-engv">'+scatterAdd.eng+'점</span></div>';
+    $("sc-kor").addEventListener("input", function(){ scatterAdd.kor=+this.value; $("sc-korv").textContent=this.value+"점"; drawScatter(); });
+    $("sc-eng").addEventListener("input", function(){ scatterAdd.eng=+this.value; $("sc-engv").textContent=this.value+"점"; drawScatter(); });
+    var labels = ["양의 상관 (함께 커진다)","음의 상관 (반대로 움직인다)","상관 거의 없음"];
+    wireOptions("opt-scatter","scatter",labels, function(){
+      var pts = scatterFixed.concat([[scatterAdd.kor, scatterAdd.eng]]);
+      var r = pearson(pts);
+      if (r > 0.3) return 0;
+      if (r < -0.3) return 1;
+      return 2;
+    }, function(correctI){
+      var pts = scatterFixed.concat([[scatterAdd.kor, scatterAdd.eng]]);
+      var r = pearson(pts);
+      return {
+        correct: "맞아요! 상관계수가 "+fmt1(r)+"로, '"+labels[correctI]+"'에 해당해요.",
+        wrong: "점들이 왼쪽 아래에서 오른쪽 위로 향하는지, 아닌지 패턴을 다시 살펴보세요."
+      };
+    });
+    drawScatter();
+  }
+
+  // ================= 06 버블차트 =================
+  var bubbleItems = [
+    { name:"삼각김밥", price:900,  cal:210 },
+    { name:"컵라면",   price:1500, cal:400 },
+    { name:"초코과자", price:1200, cal:260 }
+  ];
+  var bubbleSales = [40,25,60];
+  var bubbleColors = ["--slot1","--slot2","--slot3"];
+  function drawBubble(){
+    var x0=60,x1=580,y0=248,y1=30;
+    var s = numAxis(x0,x1,y0,y1,[0,500,1000,1500,2000],[0,100,200,300,400,500]);
+    var maxSales = Math.max.apply(null, bubbleSales);
+    bubbleItems.forEach(function(it,i){
+      var x = lin(it.price,0,2000,x0,x1), y = lin(it.cal,0,500,y0,y1);
+      var r = 13 + Math.sqrt(bubbleSales[i]/maxSales)*32;
+      s += '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="var('+bubbleColors[i]+')" fill-opacity="0.55" stroke="var('+bubbleColors[i]+')" stroke-width="2"/>';
+      s += '<text x="'+x+'" y="'+(y+4)+'" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-primary)">'+it.name+'</text>';
+    });
+    $("chart-bubble").innerHTML = s;
+  }
+  function initBubble(){
+    $("legend-bubble").innerHTML = bubbleItems.map(function(it,i){
+      return '<span class="li" id="bl-'+i+'"><span class="dot" style="background:var('+bubbleColors[i]+')"></span>'+it.name+' · 가격 '+it.price+'원 · '+it.cal+'kcal</span>';
+    }).join("");
+    $("ctrl-bubble").innerHTML = bubbleItems.map(function(it,i){
+      return '<div class="control-row"><label>'+it.name+' 판매량</label><input type="range" min="1" max="100" step="1" value="'+bubbleSales[i]+'" id="bb-s'+i+'"><span class="val" id="bb-v'+i+'">'+bubbleSales[i]+'개</span></div>';
+    }).join("");
+    bubbleItems.forEach(function(it,i){
+      $("bb-s"+i).addEventListener("input", function(){
+        bubbleSales[i] = +this.value;
+        $("bb-v"+i).textContent = this.value+"개";
+        drawBubble();
+      });
+    });
+    var gapLabels = ["20개 미만","20~50개","50개 이상"];
+    wireOptions("opt-bubble","bubble",gapLabels, function(){
+      var sorted = bubbleSales.slice().sort(function(a,b){ return b-a; });
+      var gap = sorted[0]-sorted[1];
+      return gap<20 ? 0 : (gap<50 ? 1 : 2);
+    }, function(correctI){
+      var sorted = bubbleSales.slice().sort(function(a,b){ return b-a; });
+      var gap = sorted[0]-sorted[1];
+      var winner = bubbleItems[argmax(bubbleSales)].name;
+      return {
+        correct: "맞아요! 1위와 2위의 판매량 차이는 "+gap+"개예요. (1위: "+winner+")",
+        wrong: "다시 살펴보세요 — 가장 큰 원과 두 번째로 큰 원의 판매량을 각각 확인해 차이를 계산해보세요."
+      };
+    });
+    drawBubble();
+  }
+
+  // ================= 07 히트맵 =================
+  var hmRegions = [
+    { name:"서울특별시",   v:[55.6,76.7,76.8,79.9] },
+    { name:"부산광역시",   v:[36.0,44.0,52.8,32.6] },
+    { name:"대구광역시",   v:[37.5,49.0,50.5,40.3] },
+    { name:"인천광역시",   v:[36.3,50.5,54.3,47.1] },
+    { name:"광주광역시",   v:[29.7,41.3,46.7,30.6] },
+    { name:"대전광역시",   v:[36.4,48.6,50.6,37.6] },
+    { name:"울산광역시",   v:[30.2,40.3,49.2,29.9] },
+    { name:"세종특별자치시", v:[37.3,47.2,51.4,40.0] },
+    { name:"경기도",       v:[41.4,57.3,61.6,53.7] },
+    { name:"강원특별자치도", v:[21.9,31.0,33.3,26.3] },
+    { name:"충청북도",     v:[23.6,32.1,32.3,27.8] },
+    { name:"충청남도",     v:[23.8,34.0,35.8,30.8] },
+    { name:"전라북도",     v:[26.7,34.4,39.2,25.8] },
+    { name:"전라남도",     v:[19.7,28.5,30.3,23.6] },
+    { name:"경상북도",     v:[21.6,29.8,34.2,22.5] },
+    { name:"경상남도",     v:[24.4,35.1,41.9,26.2] },
+    { name:"제주특별자치도", v:[28.1,37.6,43.3,27.8] }
+  ];
+  var hmCols = ["2019년","2025년","고1(2025)","고3(2025)"];
+  var hmMin = 19.7, hmMax = 79.9;
+  function seqBlue(t){
+    var dark = isDark();
+    var lo = dark ? [24,38,58]  : [205,226,251];
+    var hi = dark ? [57,135,229]: [13,54,107];
+    var r = Math.round(lo[0]+(hi[0]-lo[0])*t);
+    var g = Math.round(lo[1]+(hi[1]-lo[1])*t);
+    var b = Math.round(lo[2]+(hi[2]-lo[2])*t);
+    return "rgb("+r+","+g+","+b+")";
+  }
+  function drawHeatmap(){
+    var head = "<tr><th></th>"+hmCols.map(function(c){return "<th>"+c+"</th>";}).join("")+"</tr>";
+    var body = hmRegions.map(function(r){
+      var cells = r.v.map(function(v){
+        var t = (v - hmMin)/(hmMax - hmMin);
+        var bg = seqBlue(t);
+        var txt = t > 0.55 ? "#ffffff" : (isDark() ? "#0d0d0d" : "#14171a");
+        return '<td style="background:'+bg+';color:'+txt+'">'+fmt1(v)+'</td>';
+      }).join("");
+      return "<tr><td class=\"rowlabel\">"+r.name+"</td>"+cells+"</tr>";
+    }).join("");
+    $("chart-heatmap").innerHTML = head + body;
+  }
+  function initHeatmap(){
+    var regionOpts = hmRegions.map(function(r,i){ return '<option value="'+i+'">'+r.name+'</option>'; }).join("");
+    var colOpts = hmCols.map(function(c,i){ return '<option value="'+i+'">'+c+'</option>'; }).join("");
+    $("ctrl-heatmap").innerHTML =
+      '<div class="control-row"><label>가장 큰 값 · 지역</label><select class="hm-select" id="hm-region-max">'+regionOpts+'</select></div>'+
+      '<div class="control-row"><label>가장 큰 값 · 항목</label><select class="hm-select" id="hm-col-max">'+colOpts+'</select></div>'+
+      '<div class="control-row"><label>가장 작은 값 · 지역</label><select class="hm-select" id="hm-region-min">'+regionOpts+'</select></div>'+
+      '<div class="control-row"><label>가장 작은 값 · 항목</label><select class="hm-select" id="hm-col-min">'+colOpts+'</select></div>'+
+      '<div class="control-row"><label>&nbsp;</label><button type="button" class="toggle" id="hm-check">확인</button></div>';
+    $("hm-check").addEventListener("click", function(){
+      var riMax = +$("hm-region-max").value, ciMax = +$("hm-col-max").value;
+      var riMin = +$("hm-region-min").value, ciMin = +$("hm-col-min").value;
+      var maxV = -Infinity, mr=0, mc=0;
+      var minV = Infinity, nr=0, nc=0;
+      hmRegions.forEach(function(r,i){
+        r.v.forEach(function(v,j){
+          if (v>maxV){ maxV=v; mr=i; mc=j; }
+          if (v<minV){ minV=v; nr=i; nc=j; }
+        });
+      });
+      var correct = (riMax===mr && ciMax===mc && riMin===nr && ciMin===nc);
+      recordAnswer("heatmap", correct, $("fb-heatmap"),
+        "맞아요! 가장 큰 값은 "+hmRegions[mr].name+"의 '"+hmCols[mc]+"'("+fmt1(maxV)+"만원), 가장 작은 값은 "+hmRegions[nr].name+"의 '"+hmCols[nc]+"'("+fmt1(minV)+"만원)이에요.",
+        "다시 살펴보세요 — 표에서 색이 가장 진한 칸과 가장 옅은 칸을 각각 찾아 지역·항목을 모두 맞게 골라보세요.");
+    });
+    drawHeatmap();
+    window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").addEventListener && window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawHeatmap);
+  }
+
+  // ================= 08 워드클라우드 =================
+  var wcWords = [
+    { w:"수학", f:11 }, { w:"체육", f:6 }, { w:"미술", f:5 },
+    { w:"영어", f:4 }, { w:"과학", f:3 }, { w:"음악", f:2 }
+  ];
+  function drawWordcloud(){
+    var W=600,H=260, cx=W/2, cy=H/2;
+    var sorted = wcWords.map(function(w,i){ return {w:w.w, f:w.f, i:i}; }).sort(function(a,b){ return b.f-a.f; });
+    var maxF = Math.max.apply(null, wcWords.map(function(w){return w.f;})) || 1;
+    var placed = [];
+    var out = "";
+    sorted.forEach(function(item, rank){
+      var fontSize = 15 + (item.f/maxF)*46;
+      var textW = item.w.length * fontSize * 1.02;
+      var textH = fontSize * 1.05;
+      var x = cx, y = cy, found=false;
+      for (var step=0; step<900 && !found; step++){
+        var ang = step*0.5;
+        var rad = 2 + step*1.15;
+        var tx = cx + rad*Math.cos(ang);
+        var ty = cy + rad*Math.sin(ang)*0.72;
+        var box = { x0:tx-textW/2-3, x1:tx+textW/2+3, y0:ty-textH/2-2, y1:ty+textH/2+2 };
+        if (box.x0 < 8 || box.x1 > W-8 || box.y0 < 8 || box.y1 > H-8) continue;
+        var collide = placed.some(function(p){
+          return !(box.x1 < p.x0 || box.x0 > p.x1 || box.y1 < p.y0 || box.y0 > p.y1);
+        });
+        if (!collide){ x=tx; y=ty; found=true; placed.push(box); }
+      }
+      if (!found){ x=cx; y=cy; placed.push({x0:x-textW/2,x1:x+textW/2,y0:y-textH/2,y1:y+textH/2}); }
+      var weight = rank===0 ? 800 : 600;
+      out += '<text x="'+x+'" y="'+(y+fontSize*0.34)+'" text-anchor="middle" font-size="'+fontSize.toFixed(1)+'" font-weight="'+weight+'" fill="var(--slot8)" font-family="Noto Sans KR, sans-serif">'+item.w+'</text>';
+    });
+    $("chart-wordcloud").innerHTML = out;
+  }
+  function initWordcloud(){
+    $("ctrl-wordcloud").innerHTML = wcWords.map(function(w,i){
+      return '<div class="control-row"><label>'+w.w+'</label><input type="range" min="0" max="15" step="1" value="'+w.f+'" id="wc-s'+i+'"><span class="val" id="wc-v'+i+'">'+w.f+'회</span></div>';
+    }).join("");
+    wcWords.forEach(function(w,i){
+      $("wc-s"+i).addEventListener("input", function(){
+        wcWords[i].f = +this.value;
+        $("wc-v"+i).textContent = this.value+"회";
+        drawWordcloud();
+      });
+    });
+    var wcGapLabels = ["1회 이하","2~4회","5회 이상"];
+    wireOptions("opt-wordcloud","wordcloud",wcGapLabels, function(){
+      var sorted = wcWords.map(function(w){ return w.f; }).sort(function(a,b){ return b-a; });
+      var gap = sorted[0]-sorted[1];
+      return gap<2 ? 0 : (gap<5 ? 1 : 2);
+    }, function(correctI){
+      var sorted = wcWords.map(function(w){ return w.f; }).sort(function(a,b){ return b-a; });
+      var gap = sorted[0]-sorted[1];
+      var top = wcWords[argmax(wcWords.map(function(w){return w.f;}))].w;
+      return {
+        correct: "맞아요! 가장 큰 글자인 '"+top+"'"+josa(top,"과","와")+" 두 번째로 큰 글자의 언급 횟수 차이는 "+gap+"회예요.",
+        wrong: "다시 살펴보세요 — 가장 크게 표시된 단어와 두 번째로 큰 단어의 언급 횟수를 비교해보세요."
+      };
+    });
+    drawWordcloud();
+  }
+
+  // ================= 09~10 미니게임 공통 =================
+  var GTYPES = [
+    { key:"line",      name:"선그래프",   icon:"📈" },
+    { key:"bar",       name:"막대그래프", icon:"📊" },
+    { key:"hist",      name:"히스토그램", icon:"📶" },
+    { key:"pie",       name:"원그래프",   icon:"🥧" },
+    { key:"scatter",   name:"산점도",     icon:"✳️" },
+    { key:"bubble",    name:"버블차트",   icon:"🫧" },
+    { key:"heatmap",   name:"히트맵",     icon:"🌡️" },
+    { key:"wordcloud", name:"워드클라우드", icon:"🔤" }
+  ];
+  function gameOptionsHTML(){
+    return GTYPES.map(function(t){
+      return '<button type="button" class="game-opt" data-type="'+t.key+'" disabled><span class="gicon">'+t.icon+'</span>'+t.name+'</button>';
+    }).join("");
+  }
+
+  // 형태만 보고 종류를 맞히도록 축, 숫자, 범례 없이 그래프의 '모양'만 그리는 미니 렌더러
+  function miniChartSVG(type){
+    var W=240, H=190;
+    switch(type){
+      case "line": {
+        var n=5, vals=[]; for (var i=0;i<n;i++) vals.push(20+Math.random()*140);
+        var xs = vals.map(function(v,i){ return lin(i,0,n-1,20,W-20); });
+        var ys = vals.map(function(v){ return lin(v,0,160,H-20,20); });
+        var path = "M"+xs.map(function(x,i){ return x+","+ys[i]; }).join(" L");
+        var s = '<path d="'+path+'" fill="none" stroke="var(--slot1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>';
+        xs.forEach(function(x,i){ s += '<circle cx="'+x+'" cy="'+ys[i]+'" r="4" fill="var(--slot1)"/>'; });
+        return s;
+      }
+      case "bar": {
+        var n=5, vals=[]; for (var i=0;i<n;i++) vals.push(20+Math.random()*140);
+        var band=(W-40)/n, bw=band*0.55, s="";
+        vals.forEach(function(v,i){
+          var x = 20+band*i+(band-bw)/2;
+          s += '<rect x="'+x+'" y="'+(H-20-v)+'" width="'+bw+'" height="'+v+'" rx="3" fill="var(--slot2)"/>';
+        });
+        return s;
+      }
+      case "hist": {
+        var n=7, vals=[]; for (var i=0;i<n;i++) vals.push(10+Math.random()*130);
+        var band=(W-40)/n, s="";
+        vals.forEach(function(v,i){
+          var x = 20+band*i;
+          s += '<rect x="'+(x+1)+'" y="'+(H-20-v)+'" width="'+(band-2)+'" height="'+v+'" fill="var(--slot3)"/>';
+        });
+        return s;
+      }
+      case "pie": {
+        var n=3+Math.floor(Math.random()*2), vals=[]; for (var i=0;i<n;i++) vals.push(10+Math.random()*90);
+        var sum = vals.reduce(function(a,b){ return a+b; },0);
+        var cols=["--slot1","--slot2","--slot3","--slot4"];
+        var cx=W/2, cy=H/2, r=70, ang=-90, s="";
+        vals.forEach(function(v,i){
+          var sweep = v/sum*360;
+          var a0=ang*Math.PI/180, a1=(ang+sweep)*Math.PI/180;
+          var x0=cx+r*Math.cos(a0), y0=cy+r*Math.sin(a0), x1=cx+r*Math.cos(a1), y1=cy+r*Math.sin(a1);
+          var large = sweep>180 ? 1 : 0;
+          s += '<path d="M'+cx+','+cy+' L'+x0+','+y0+' A'+r+','+r+' 0 '+large+' 1 '+x1+','+y1+' Z" fill="var('+cols[i%4]+')" stroke="var(--surface-2)" stroke-width="2"/>';
+          ang += sweep;
+        });
+        return s;
+      }
+      case "scatter": {
+        var n=16, s="";
+        for (var i=0;i<n;i++){
+          var x = 20+Math.random()*(W-40), y = 20+Math.random()*(H-40);
+          s += '<circle cx="'+x+'" cy="'+y+'" r="4.5" fill="var(--slot5)"/>';
+        }
+        return s;
+      }
+      case "bubble": {
+        var pts=[[0.3,0.35,26],[0.55,0.6,40],[0.75,0.3,18]], cols=["--slot1","--slot2","--slot3"], s="";
+        pts.forEach(function(p,i){
+          var x = 20+p[0]*(W-40), y = 20+p[1]*(H-40);
+          s += '<circle cx="'+x+'" cy="'+y+'" r="'+p[2]+'" fill="var('+cols[i]+')" fill-opacity="0.55" stroke="var('+cols[i]+')" stroke-width="2"/>';
+        });
+        return s;
+      }
+      case "heatmap": {
+        var rows=4, cols=5, s="", cw=(W-40)/cols, ch=(H-40)/rows;
+        for (var r=0;r<rows;r++){
+          for (var c=0;c<cols;c++){
+            var t = Math.random();
+            s += '<rect x="'+(20+c*cw+1)+'" y="'+(20+r*ch+1)+'" width="'+(cw-2)+'" height="'+(ch-2)+'" rx="2" fill="'+seqBlue(t)+'"/>';
+          }
+        }
+        return s;
+      }
+      case "wordcloud": {
+        var words=["학교","친구","공부","꿈","시간"], s="";
+        var positions=[[0.5,0.3,34],[0.28,0.6,20],[0.72,0.62,22],[0.2,0.82,14],[0.8,0.85,14]];
+        words.forEach(function(w,i){
+          var p = positions[i];
+          s += '<text x="'+(p[0]*W)+'" y="'+(p[1]*H)+'" text-anchor="middle" font-size="'+p[2]+'" font-weight="700" fill="var(--slot8)" font-family="Noto Sans KR, sans-serif">'+w+'</text>';
+        });
+        return s;
+      }
+    }
+    return "";
+  }
+
+  // ================= 09 그래프 감별사 =================
+  var gid = {
+    playing:false, timeLeft:60, ticker:null, exposureId:null, roundStart:0,
+    roundIndex:0, streak:0, raw:0, correctCount:0, currentType:null, exposureMs:4000, answered:false
+  };
+  function gidSetOptionsDisabled(disabled){
+    $("gid-options").querySelectorAll(".game-opt").forEach(function(b){ b.disabled=disabled; b.classList.remove("correct","wrong"); });
+  }
+  function initGraphID(){
+    $("gid-options").innerHTML = gameOptionsHTML();
+    $("gid-options").querySelectorAll(".game-opt").forEach(function(btn){
+      btn.addEventListener("click", function(){ gidAnswer(btn.dataset.type, btn); });
+    });
+    $("gid-start").addEventListener("click", gidStart);
+  }
+  function gidUpdateTime(){
+    $("gid-time").textContent = Math.max(0,gid.timeLeft)+"초";
+    $("gid-timerfill").style.width = Math.max(0, gid.timeLeft/60*100)+"%";
+  }
+  function gidStart(){
+    clearInterval(gid.ticker); clearTimeout(gid.exposureId);
+    gid.playing=true; gid.timeLeft=60; gid.roundIndex=0; gid.streak=0; gid.raw=0; gid.correctCount=0; gid.currentType=null;
+    $("gid-start").disabled=true; $("gid-start").textContent="진행 중…";
+    $("gid-result").className="game-result"; $("gid-result").textContent="";
+    $("gid-correct").textContent="0"; $("gid-combo").textContent="콤보 0";
+    gidUpdateTime();
+    gid.ticker = setInterval(function(){
+      gid.timeLeft -= 1;
+      gidUpdateTime();
+      if (gid.timeLeft<=0) gidEnd();
+    }, 1000);
+    gidNextRound();
+  }
+  function gidNextRound(){
+    if (!gid.playing) return;
+    clearTimeout(gid.exposureId);
+    gid.answered=false;
+    var pool = GTYPES.filter(function(t){ return t.key!==gid.currentType; });
+    var pick = pool[Math.floor(Math.random()*pool.length)];
+    gid.currentType = pick.key;
+    gid.exposureMs = Math.max(1500, 4000 - gid.roundIndex*250);
+    var stage = $("gid-stage");
+    stage.classList.remove("blurred");
+    stage.innerHTML = '<svg viewBox="0 0 240 190">'+miniChartSVG(pick.key)+'</svg>';
+    gidSetOptionsDisabled(false);
+    gid.roundStart = Date.now();
+    gid.exposureId = setTimeout(function(){ stage.classList.add("blurred"); }, gid.exposureMs);
+  }
+  function gidAnswer(typeKey, btn){
+    if (!gid.playing || gid.answered) return;
+    gid.answered = true;
+    var elapsed = Date.now() - gid.roundStart;
+    var correct = (typeKey === gid.currentType);
+    gidSetOptionsDisabled(true);
+    btn.classList.add(correct?"correct":"wrong");
+    if (correct){
+      gid.correctCount++;
+      var speedBonus = elapsed <= gid.exposureMs*0.6 ? 5 : 0;
+      var comboBonus = Math.min(gid.streak,5);
+      gid.raw += 10 + speedBonus + comboBonus;
+      gid.streak++;
+    } else {
+      var correctBtn = $("gid-options").querySelector('[data-type="'+gid.currentType+'"]');
+      if (correctBtn) correctBtn.classList.add("correct");
+      gid.streak = 0;
+    }
+    $("gid-correct").textContent = gid.correctCount;
+    $("gid-combo").textContent = "콤보 "+gid.streak;
+    gid.roundIndex++;
+    clearTimeout(gid.exposureId);
+    setTimeout(function(){ if (gid.playing) gidNextRound(); }, 550);
+  }
+  function gidEnd(){
+    if (!gid.playing) return;
+    gid.playing=false;
+    clearInterval(gid.ticker); clearTimeout(gid.exposureId);
+    gidSetOptionsDisabled(true);
+    $("gid-stage").innerHTML = '<div class="stage-msg">게임 종료! 다시하기를 눌러 재도전하세요</div>';
+    $("gid-start").disabled=false; $("gid-start").textContent="다시하기";
+    var score15 = Math.round(gid.raw/150*15);
+    var best = recordGameScore("graphid", score15);
+    var res = $("gid-result");
+    res.className="game-result show";
+    res.innerHTML = "이번 판 결과: <b>"+gid.roundIndex+"라운드</b> 중 <b>"+gid.correctCount+"개 정답</b> · 획득 점수 <b>"+Math.max(0,Math.min(15,score15))+"/15점</b> (최고 기록 "+best+"/15점 유지)";
+  }
+
+  // ================= 10 목적 매칭 러시 =================
+  var PR_BANK = [
+    { t:"매달 내 용돈 사용액이 학기 초부터 어떻게 변해왔는지 확인하고 싶다.", k:"line" },
+    { t:"우리 반 평균 키가 학년이 올라가며 어떻게 달라졌는지 보고 싶다.", k:"line" },
+    { t:"최근 10경기 동안 우리 학교 축구부의 득점 수 흐름을 살펴보고 싶다.", k:"line" },
+    { t:"동아리별로 가입한 학생 수를 비교하고 싶다.", k:"bar" },
+    { t:"반별 체육대회 획득 메달 수를 비교하고 싶다.", k:"bar" },
+    { t:"메뉴별 급식 잔반량을 비교하고 싶다.", k:"bar" },
+    { t:"우리 반 학생 33명의 수학 점수가 어느 구간에 몰려있는지 보고 싶다.", k:"hist" },
+    { t:"전교생의 등교 소요 시간이 대체로 몇 분대에 집중되는지 확인하고 싶다.", k:"hist" },
+    { t:"학생들의 하루 평균 수면 시간 분포를 살펴보고 싶다.", k:"hist" },
+    { t:"설문에서 가장 좋아하는 계절에 투표한 비율을 보여주고 싶다.", k:"pie" },
+    { t:"우리 반 학생들의 통학 수단 비율(도보·버스·자전거 등)을 나타내고 싶다.", k:"pie" },
+    { t:"학교 축제 예산이 항목별로 몇 %씩 쓰였는지 보여주고 싶다.", k:"pie" },
+    { t:"공부 시간과 시험 점수 사이에 관계가 있는지 확인하고 싶다.", k:"scatter" },
+    { t:"일일 걸음 수와 수면 시간 사이의 관계를 살펴보고 싶다.", k:"scatter" },
+    { t:"키와 몸무게 사이에 어떤 경향이 있는지 알아보고 싶다.", k:"scatter" },
+    { t:"간식의 가격, 칼로리, 판매량을 한 그래프에서 함께 비교하고 싶다.", k:"bubble" },
+    { t:"각 나라의 인구, 면적, 평균 소득을 하나의 그래프로 비교하고 싶다.", k:"bubble" },
+    { t:"17개 시도의 월별 평균 기온을 표 전체에서 한눈에 비교하고 싶다.", k:"heatmap" },
+    { t:"학급별·과목별 평균 점수를 색깔로 한눈에 비교하고 싶다.", k:"heatmap" },
+    { t:"설문 주관식 답변에서 학생들이 가장 많이 언급한 단어를 한눈에 보고 싶다.", k:"wordcloud" },
+    { t:"학급 문집에 실린 글에서 자주 등장하는 단어를 파악하고 싶다.", k:"wordcloud" }
+  ];
+  var pr = { playing:false, round:0, hearts:3, correctCount:0, raw:0, current:null, timerId:null, timeLeft:8, answered:false, usedIdx:[], roundStart:0 };
+  function prSetOptionsDisabled(disabled){
+    $("pr-options").querySelectorAll(".game-opt").forEach(function(b){ b.disabled=disabled; b.classList.remove("correct","wrong"); });
+  }
+  function initPurposeRush(){
+    $("pr-options").innerHTML = gameOptionsHTML();
+    $("pr-options").querySelectorAll(".game-opt").forEach(function(btn){
+      btn.addEventListener("click", function(){ prAnswer(btn.dataset.type, btn); });
+    });
+    $("pr-start").addEventListener("click", prStart);
+  }
+  function prUpdateHearts(){
+    var s=""; for (var i=0;i<3;i++){ s += i<pr.hearts ? "♥" : '<span class="lost">♥</span>'; }
+    $("pr-hearts").innerHTML = s;
+  }
+  function prPickScenario(){
+    if (pr.usedIdx.length >= PR_BANK.length) pr.usedIdx = [];
+    var idx;
+    do { idx = Math.floor(Math.random()*PR_BANK.length); } while (pr.usedIdx.indexOf(idx)>=0);
+    pr.usedIdx.push(idx);
+    return PR_BANK[idx];
+  }
+  function prStart(){
+    clearInterval(pr.timerId);
+    pr.playing=true; pr.round=0; pr.hearts=3; pr.correctCount=0; pr.raw=0; pr.usedIdx=[];
+    $("pr-start").disabled=true; $("pr-start").textContent="진행 중…";
+    $("pr-result").className="game-result"; $("pr-result").textContent="";
+    prUpdateHearts();
+    prNextRound();
+  }
+  function prNextRound(){
+    if (!pr.playing) return;
+    if (pr.round>=10 || pr.hearts<=0){ prEnd(); return; }
+    pr.round++;
+    pr.answered=false;
+    pr.current = prPickScenario();
+    pr.timeLeft = 8;
+    pr.roundStart = Date.now();
+    $("pr-round").textContent = pr.round+"/10";
+    $("pr-scenario").textContent = pr.current.t;
+    $("pr-timerfill").style.width="100%";
+    prSetOptionsDisabled(false);
+    clearInterval(pr.timerId);
+    pr.timerId = setInterval(function(){
+      pr.timeLeft -= 0.1;
+      $("pr-timerfill").style.width = Math.max(0,pr.timeLeft/8*100)+"%";
+      if (pr.timeLeft<=0) prTimeout();
+    }, 100);
+  }
+  function prRevealAndAdvance(){
+    setTimeout(function(){ if (pr.playing) prNextRound(); }, 700);
+  }
+  function prTimeout(){
+    if (pr.answered) return;
+    pr.answered=true;
+    clearInterval(pr.timerId);
+    prSetOptionsDisabled(true);
+    var correctBtn = $("pr-options").querySelector('[data-type="'+pr.current.k+'"]');
+    if (correctBtn) correctBtn.classList.add("correct");
+    pr.hearts--;
+    prUpdateHearts();
+    prRevealAndAdvance();
+  }
+  function prAnswer(typeKey, btn){
+    if (!pr.playing || pr.answered) return;
+    pr.answered=true;
+    clearInterval(pr.timerId);
+    var elapsed = Date.now() - pr.roundStart;
+    var correct = (typeKey === pr.current.k);
+    prSetOptionsDisabled(true);
+    btn.classList.add(correct?"correct":"wrong");
+    if (correct){
+      pr.correctCount++;
+      pr.raw += elapsed <= 4000 ? 2 : 1;
+    } else {
+      var correctBtn = $("pr-options").querySelector('[data-type="'+pr.current.k+'"]');
+      if (correctBtn) correctBtn.classList.add("correct");
+      pr.hearts--;
+      prUpdateHearts();
+    }
+    prRevealAndAdvance();
+  }
+  function prEnd(){
+    if (!pr.playing) return;
+    pr.playing=false;
+    clearInterval(pr.timerId);
+    prSetOptionsDisabled(true);
+    $("pr-scenario").textContent = "게임 종료! 다시하기를 눌러 재도전하세요";
+    $("pr-start").disabled=false; $("pr-start").textContent="다시하기";
+    var attempted = pr.round;
+    var ratio = attempted>0 ? pr.raw/(attempted*2) : 0;
+    var score15 = Math.round(ratio*15);
+    var best = recordGameScore("purposerush", score15);
+    var res = $("pr-result");
+    res.className="game-result show";
+    res.innerHTML = "이번 판 결과: <b>"+attempted+"문제</b> 중 <b>"+pr.correctCount+"개 정답</b> · 획득 점수 <b>"+Math.max(0,Math.min(15,score15))+"/15점</b> (최고 기록 "+best+"/15점 유지)";
+  }
+
+  // ---------- certificate canvas ----------
+  function roundRect(ctx,x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+  function drawReceiptCanvas(){
+    var canvas = $("receipt-canvas");
+    var ctx = canvas.getContext("2d");
+    var W = canvas.width, H = canvas.height, pad = 34;
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = "#F6FAFB"; ctx.fillRect(0,0,W,H);
+    roundRect(ctx,10,10,W-20,H-20,20); ctx.fillStyle="#FFFFFF"; ctx.fill();
+    ctx.strokeStyle="#DCE7EA"; ctx.lineWidth=1.5; roundRect(ctx,10,10,W-20,H-20,20); ctx.stroke();
+
+    var y = pad+30;
+    ctx.textAlign="left";
+    ctx.fillStyle="#16262B"; ctx.font="800 24px 'Noto Sans KR', sans-serif";
+    ctx.fillText("데이터 시각화 실습 완료 확인서", pad, y);
+    y += 26;
+    ctx.fillStyle="#4B6169"; ctx.font="400 13px 'Noto Sans KR', sans-serif";
+    ctx.fillText("3단원 · 데이터 시각화 실습실 (8종 그래프 + 미니게임 2종)", pad, y);
+    y += 34;
+
+    var nickname = $("nickname").value.trim() || "이름 미입력";
+    ctx.strokeStyle="#CFE3E6"; ctx.beginPath(); ctx.moveTo(pad,y+8); ctx.lineTo(W-pad,y+8); ctx.stroke();
+    ctx.fillStyle="#4B6169"; ctx.font="400 14px 'Noto Sans KR', sans-serif"; ctx.fillText("이름", pad, y);
+    ctx.textAlign="right"; ctx.fillStyle="#16262B"; ctx.font="700 15px 'JetBrains Mono', monospace";
+    ctx.fillText(nickname, W-pad, y);
+    ctx.textAlign="left";
+    y += 30;
+
+    CH.forEach(function(c){
+      ctx.strokeStyle="#CFE3E6"; ctx.beginPath(); ctx.moveTo(pad,y+8); ctx.lineTo(W-pad,y+8); ctx.stroke();
+      ctx.fillStyle="#4B6169"; ctx.font="400 14px 'Noto Sans KR', sans-serif"; ctx.fillText(c.name, pad, y);
+      ctx.textAlign="right"; ctx.fillStyle="#16262B"; ctx.font="700 15px 'JetBrains Mono', monospace";
+      ctx.fillText(state.scores[c.key]+"/15", W-pad, y);
+      ctx.textAlign="left";
+      y += 27;
+    });
+
+    y += 12;
+    var total = 0; CH.forEach(function(c){ total += state.scores[c.key]; });
+    var allDone = CH.every(function(c){ return state.scores[c.key] > 0; });
+    ctx.strokeStyle="#CFE3E6"; ctx.beginPath(); ctx.moveTo(pad,y+8); ctx.lineTo(W-pad,y+8); ctx.stroke();
+    ctx.fillStyle="#4B6169"; ctx.font="400 14px 'Noto Sans KR', sans-serif"; ctx.fillText("종합 점수", pad, y);
+    ctx.textAlign="right"; ctx.fillStyle="#16262B"; ctx.font="700 16px 'JetBrains Mono', monospace";
+    ctx.fillText(total+"/150점", W-pad, y);
+    ctx.textAlign="left";
+    y += 40;
+
+    var tier = tierFor(allDone ? total : -1);
+    var chipW=168, chipH=44;
+    roundRect(ctx,pad,y,chipW,chipH,22);
+    ctx.fillStyle = allDone ? tier.color : "#CFE3E6"; ctx.fill();
+    ctx.fillStyle = allDone ? "#FFFFFF" : "#7C8F95";
+    ctx.font="700 17px 'Noto Sans KR', sans-serif"; ctx.textAlign="center";
+    ctx.fillText(allDone ? tier.name : "진행 중", pad+chipW/2, y+chipH/2+6);
+    ctx.textAlign="left";
+  }
+
+  $("nickname").addEventListener("input", drawReceiptCanvas);
+  $("btn-copy-image").addEventListener("click", function(){
+    var canvas = $("receipt-canvas");
+    var fb = $("copy-feedback");
+    canvas.toBlob(function(blob){
+      if (!blob){ fb.className="feedback show wrong"; fb.textContent="이미지를 만들지 못했어요. 다시 시도해보세요."; return; }
+      if (!navigator.clipboard || !window.ClipboardItem){ fb.className="feedback show wrong"; fb.textContent="이 브라우저에서는 복사가 지원되지 않아요. 화면을 캡처해서 올려주세요."; return; }
+      navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]).then(function(){
+        fb.className="feedback show correct"; fb.textContent="이미지가 복사됐어요! 패들렛에서 Ctrl+V(붙여넣기) 하세요.";
+      }).catch(function(){
+        fb.className="feedback show wrong"; fb.textContent="복사에 실패했어요. 화면을 캡처해서 올려주세요.";
+      });
+    }, "image/png");
+  });
+
+  // ---------- init all ----------
+  initLine(); initBar(); initHist(); initPie(); initScatter(); initBubble(); initHeatmap(); initWordcloud();
+  initGraphID(); initPurposeRush();
+  renderScoreTable();
+})();
+</script>
+</body>
+</html>
