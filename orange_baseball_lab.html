@@ -185,7 +185,7 @@
   .quiz-opt:hover:not(.disabled){border-color:var(--accent);}
   .quiz-opt.correct{background:var(--good-tint);border-color:var(--good);color:var(--good);font-weight:700;}
   .quiz-opt.wrong{background:var(--critical-tint);border-color:var(--critical);color:var(--critical);}
-  .quiz-opt.disabled{cursor:default;opacity:.75;}
+  .quiz-opt.disabled{cursor:default;opacity:.75;pointer-events:none;}
   .quiz-text-row{display:flex;gap:8px;flex-wrap:wrap;}
   .quiz-text-input{flex:1 1 160px;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font:500 13px 'Noto Sans KR';background:var(--surface-1);color:var(--text-primary);}
   .quiz-text-input:focus{outline:2px solid var(--accent);outline-offset:1px;}
@@ -635,6 +635,15 @@
     }
   ];
   var DET_TIME = 15;
+  function shuffleIdx(n){
+    var a = [];
+    for (var i=0;i<n;i++) a.push(i);
+    for (var i=a.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var tmp=a[i]; a[i]=a[j]; a[j]=tmp;
+    }
+    return a;
+  }
 
   var GLOSSARY = [
     ["타율 (AVG)","타수 대비 안타 비율 — 높을수록 잘 침"],
@@ -1039,15 +1048,19 @@
   var detEl = $("det-game");
   var detTimer = null;
   var detTimeLeft = DET_TIME;
+  var detCaseLocked = false;
 
-  function detCurrentCase(){ return CASES[detState.idx]; }
+  function detCurrentCase(){ return CASES[detState.order[detState.idx]]; }
+  function detCurrentOptOrder(){ return detState.optOrders[detState.idx]; }
 
   function renderDetStart(){
     if (!detEl) return;
     detEl.innerHTML = '<button type="button" class="case-next-btn" id="det-start-btn">🎮 미니게임 시작하기</button>';
     var btn = $("det-start-btn");
     if (btn) btn.addEventListener("click", function(){
-      detState = { idx:0, score:0, correctCount:0, done:false, answers:[] };
+      var order = shuffleIdx(CASES.length);
+      var optOrders = order.map(function(caseIdx){ return shuffleIdx(CASES[caseIdx].options.length); });
+      detState = { idx:0, score:0, correctCount:0, done:false, answers:[], order:order, optOrders:optOrders };
       saveDet();
       startCase();
     });
@@ -1077,13 +1090,15 @@
 
   function renderCase(){
     if (!detEl) return;
+    detCaseLocked = false;
     var c = detCurrentCase();
+    var optOrder = detCurrentOptOrder();
     var html = '<div class="case-meta"><span class="case-count">사건 '+(detState.idx+1)+' / '+CASES.length+'</span><span class="case-count" id="det-score-live">누적 '+detState.score+'점</span></div>';
     html += '<div class="case-timer-track"><div class="case-timer-fill" id="det-timer-fill" style="width:100%"></div></div>';
     html += '<div class="case-scenario">'+c.scenario+'</div>';
     html += '<div class="quiz-opts">';
-    c.options.forEach(function(opt, oi){
-      html += '<button type="button" class="quiz-opt" data-case-oi="'+oi+'">'+opt+'</button>';
+    optOrder.forEach(function(origOi, displayOi){
+      html += '<button type="button" class="quiz-opt" data-case-oi="'+displayOi+'" data-orig-oi="'+origOi+'">'+c.options[origOi]+'</button>';
     });
     html += '</div>';
     html += '<div class="case-explain" id="det-explain" style="display:none"></div>';
@@ -1094,16 +1109,20 @@
     });
   }
 
-  function lockCase(chosenOi){
+  function lockCase(chosenDisplayOi){
+    if (detCaseLocked) return;
+    detCaseLocked = true;
     clearInterval(detTimer);
     var c = detCurrentCase();
+    var optOrder = detCurrentOptOrder();
+    var chosenOi = chosenDisplayOi === -1 ? -1 : optOrder[chosenDisplayOi];
     var correct = (chosenOi === c.correct);
     var opts = detEl.querySelectorAll(".quiz-opt");
     opts.forEach(function(btn){
       btn.classList.add("disabled");
-      var oi = +btn.dataset.caseOi;
-      if (oi === c.correct) btn.classList.add("correct");
-      else if (oi === chosenOi) btn.classList.add("wrong");
+      var origOi = +btn.dataset.origOi;
+      if (origOi === c.correct) btn.classList.add("correct");
+      else if (origOi === chosenOi) btn.classList.add("wrong");
     });
     var gained = correct ? 4 : 0;
     detState.score += gained;
