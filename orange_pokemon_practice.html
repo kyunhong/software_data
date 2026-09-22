@@ -1,0 +1,849 @@
+<title>오렌지(Orange3) 연습하기 (포켓몬 데이터)</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#faf7f2;
+    --page:#f3efe7;
+    --surface:#ffffff;
+    --surface-2:#f6f2ea;
+    --text-primary:#201d18;
+    --text-secondary:#5b564d;
+    --text-muted:#938d80;
+    --border:rgba(32,29,24,0.12);
+    --border-soft:rgba(32,29,24,0.07);
+    --accent:#eb6834;
+    --accent-dark:#c4501f;
+    --accent-tint:#fbe3d5;
+    --accent-ink:#ffffff;
+    --good:#0ca30c;
+    --warning:#fab219;
+    --critical:#d03b3b;
+    --shadow: 0 1px 2px rgba(32,29,24,0.06), 0 8px 24px -12px rgba(32,29,24,0.18);
+
+    --s1:#2a78d6; /* blue    - File */
+    --s2:#eb6834; /* orange  - Data Table */
+    --s3:#1baf7a; /* aqua    - Select Rows */
+    --s4:#eda100; /* yellow  - Box Plot */
+    --s5:#e87ba4; /* magenta - Bar Plot */
+    --s6:#008300; /* green   - Scatter Plot */
+    --s7:#4a3aa7; /* violet  - Normalize */
+    --s8:#e34948; /* red     - spare */
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --bg:#141311;
+      --page:#0d0d0c;
+      --surface:#1c1a17;
+      --surface-2:#242119;
+      --text-primary:#faf8f4;
+      --text-secondary:#c7c1b5;
+      --text-muted:#928c7f;
+      --border:rgba(250,248,244,0.12);
+      --border-soft:rgba(250,248,244,0.07);
+      --accent:#f0793f;
+      --accent-dark:#ffa876;
+      --accent-tint:#3a2418;
+      --accent-ink:#191410;
+      --good:#0ca30c;
+      --warning:#fab219;
+      --critical:#e66767;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 28px -12px rgba(0,0,0,0.55);
+
+      --s1:#3987e5;
+      --s2:#e2793f;
+      --s3:#199e70;
+      --s4:#c98500;
+      --s5:#d55181;
+      --s6:#2fae2f;
+      --s7:#9085e9;
+      --s8:#e66767;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --bg:#141311;
+    --page:#0d0d0c;
+    --surface:#1c1a17;
+    --surface-2:#242119;
+    --text-primary:#faf8f4;
+    --text-secondary:#c7c1b5;
+    --text-muted:#928c7f;
+    --border:rgba(250,248,244,0.12);
+    --border-soft:rgba(250,248,244,0.07);
+    --accent:#f0793f;
+    --accent-dark:#ffa876;
+    --accent-tint:#3a2418;
+    --accent-ink:#191410;
+    --good:#0ca30c;
+    --warning:#fab219;
+    --critical:#e66767;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 28px -12px rgba(0,0,0,0.55);
+    --s1:#3987e5; --s2:#e2793f; --s3:#199e70; --s4:#c98500;
+    --s5:#d55181; --s6:#2fae2f; --s7:#9085e9; --s8:#e66767;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; overflow-x:hidden; }
+  body{
+    margin:0; background:var(--page); color:var(--text-primary);
+    font-family:"Noto Sans KR", system-ui, -apple-system, sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+    word-break:keep-all; overflow-wrap:break-word;
+  }
+  .back-hub{ display:flex; width:max-content; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--text-muted); text-decoration:none; margin-bottom:14px; }
+  .back-hub:hover{ color:var(--accent-dark); }
+  .display{ font-family:"Black Han Sans","Noto Sans KR",sans-serif; letter-spacing:.01em; }
+  img,svg{ display:block; }
+  .wrap{ max-width:920px; margin:0 auto; padding:0 20px; }
+  .tabular{ font-variant-numeric: tabular-nums; }
+
+  /* progress bar */
+  #progressbar{ position:fixed; top:0; left:0; height:4px; width:0%; background:var(--accent); z-index:100; transition:width .3s ease; }
+
+  /* header */
+  header.hero{ padding:64px 0 36px; background:
+      radial-gradient(circle at 12% 0%, var(--accent-tint), transparent 55%), var(--bg); }
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:700; color:var(--accent-dark); text-transform:uppercase; letter-spacing:.08em; background:var(--accent-tint); border-radius:999px; padding:6px 14px; }
+  h1.title{ font-size:clamp(34px,5.4vw,52px); margin:18px 0 10px; line-height:1.15; text-wrap:balance; }
+  .subtitle{ font-size:17px; color:var(--text-secondary); max-width:620px; margin:0 0 28px; }
+
+  .statrow{ display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-top:8px; }
+  .stattile{ background:var(--surface); border:1px solid var(--border-soft); border-radius:14px; padding:14px 16px; box-shadow:var(--shadow); }
+  .stattile .num{ font-size:24px; font-weight:800; font-family:"Black Han Sans"; }
+  .stattile .lab{ font-size:12.5px; color:var(--text-muted); margin-top:2px; }
+
+  .chiprow{ display:flex; flex-wrap:wrap; gap:8px; margin-top:22px; }
+  .chip{ display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; padding:7px 12px; border-radius:999px; background:var(--surface); border:1px solid var(--border); color:var(--text-secondary); }
+  .chip .dot{ width:8px; height:8px; border-radius:50%; }
+
+  /* sticky nav */
+  #modnav{ position:sticky; top:0; z-index:50; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--border-soft); }
+  #modnav .inner{ display:flex; align-items:center; gap:6px; padding:10px 0; overflow-x:auto; scrollbar-width:none; }
+  #modnav .inner::-webkit-scrollbar{ display:none; }
+  #modnav a{ flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; text-decoration:none; font-size:12.5px; font-weight:700; color:var(--text-secondary); background:var(--surface); border:1px solid var(--border-soft); border-radius:999px; padding:6px 12px; white-space:nowrap; transition:transform .15s; }
+  #modnav a:hover{ transform:translateY(-1px); }
+  #modnav a .n{ width:16px; height:16px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:10px; color:#fff; }
+  #modnav a.done{ opacity:.55; }
+  #ringwrap{ margin-left:auto; flex:0 0 auto; display:flex; align-items:center; gap:8px; padding-left:10px; }
+  #ringtext{ font-size:12px; font-weight:700; color:var(--text-secondary); }
+
+  section{ padding:52px 0; }
+  section.alt{ background:var(--surface-2); border-top:1px solid var(--border-soft); border-bottom:1px solid var(--border-soft); }
+  h2.h2{ font-size:26px; margin:0 0 6px; }
+  p.lead{ color:var(--text-secondary); font-size:15.5px; max-width:640px; }
+
+  /* intro grid */
+  .introgrid{ display:grid; grid-template-columns: 1.1fr 1fr; gap:28px; align-items:center; margin-top:20px;}
+  .introgrid > *{ min-width:0; }
+  @media (max-width:760px){ .introgrid{ grid-template-columns:1fr; } }
+  .card{ background:var(--surface); border:1px solid var(--border-soft); border-radius:18px; padding:22px; box-shadow:var(--shadow); min-width:0; }
+  .card h3{ margin:0 0 8px; font-size:16px; }
+  .card p{ margin:0; color:var(--text-secondary); font-size:14.5px; }
+  ol.steps{ margin:14px 0 0; padding-left:0; list-style:none; counter-reset:step; }
+  ol.steps li{ counter-increment:step; padding:10px 0 10px 34px; position:relative; font-size:14.5px; color:var(--text-secondary); border-top:1px solid var(--border-soft); }
+  ol.steps li:first-child{ border-top:none; }
+  ol.steps li::before{ content:counter(step); position:absolute; left:0; top:9px; width:22px; height:22px; border-radius:50%; background:var(--accent-tint); color:var(--accent-dark); font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  ol.steps b{ color:var(--text-primary); }
+
+  /* module card */
+  .module{ scroll-margin-top:64px; }
+  .modhead{ display:flex; align-items:flex-start; gap:16px; margin-bottom:18px; }
+  .modbadge{ flex:0 0 auto; width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow); }
+  .modnum{ font-size:12.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); }
+  .modtitle{ font-size:23px; margin:2px 0 4px; }
+  .modwhy{ color:var(--text-secondary); font-size:14.5px; max-width:640px; }
+  .catlabel{ display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px; border:1px solid currentColor; margin-top:6px; }
+
+  .modbody-stack{ display:flex; flex-direction:column; gap:20px; }
+  .shotbox{ background:var(--surface); border:1px solid var(--border-soft); border-radius:18px; padding:18px; box-shadow:var(--shadow); }
+  .shotbox .imgframe{ background:#eef0ef; border-radius:12px; padding:10px; overflow-x:auto; }
+  .shotbox img{ display:block; width:100%; height:auto; min-width:480px; border-radius:6px; }
+  .shotbox .cap{ font-size:12.5px; color:var(--text-muted); text-align:center; margin-top:10px; }
+  .shotbox .connrow{ display:flex; justify-content:center; margin-bottom:16px; padding-bottom:16px; border-bottom:1px dashed var(--border); }
+  .shotbox .connrow .connframe{ background:#eef0ef; border-radius:10px; padding:8px 14px; max-width:440px; width:100%; overflow-x:auto; }
+  .shotbox .connrow img{ min-width:320px; width:100%; height:auto; display:block; border-radius:6px; }
+  .shotbox .conncap{ font-size:11.5px; font-weight:700; color:var(--accent-dark); text-align:center; margin-top:8px; }
+  .cmpgrid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px; }
+  @media (max-width:640px){ .cmpgrid{ grid-template-columns:1fr; } }
+
+  .demo{ background:var(--surface); border:1px solid var(--border-soft); border-radius:16px; padding:20px; box-shadow:var(--shadow); min-width:0; }
+  .demo h4{ margin:0 0 10px; font-size:14px; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); }
+  .controls{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; align-items:center; }
+  select, input[type=text]{ font-family:inherit; font-size:14px; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text-primary); }
+  .btn{ font-family:inherit; font-size:14px; font-weight:700; padding:9px 16px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text-primary); cursor:pointer; transition:transform .1s, background .15s; }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn.primary{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+  .btn.toggle.active{ background:var(--accent-tint); border-color:var(--accent); color:var(--accent-dark); }
+  .resulttext{ font-size:14px; color:var(--text-secondary); margin-top:10px; }
+  .resulttext b{ color:var(--text-primary); }
+
+  table.dt{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  table.dt th, table.dt td{ padding:8px 10px; text-align:right; border-bottom:1px solid var(--border-soft); white-space:nowrap; }
+  table.dt th:first-child, table.dt td:first-child{ text-align:left; }
+  table.dt th{ cursor:pointer; user-select:none; color:var(--text-secondary); font-weight:700; position:relative; }
+  table.dt th.sorted{ color:var(--accent-dark); }
+  table.dt th .arrow{ font-size:10px; margin-left:3px; }
+  table.dt tbody tr:hover{ background:var(--surface-2); }
+  table.dt tbody tr.hl{ background:var(--accent-tint); }
+  .tablewrap{ overflow-x:auto; border-radius:10px; }
+  .speciesdot{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+
+  /* svg chart */
+  .chartsvg{ width:100%; height:auto; }
+  .axislabel{ font-size:10px; fill:var(--text-muted); font-family:"Noto Sans KR",sans-serif; }
+  .gridline{ stroke:var(--border); stroke-width:1; }
+  .baseline{ stroke:var(--text-muted); stroke-width:1; }
+  #tooltip{ position:fixed; pointer-events:none; background:var(--text-primary); color:var(--bg); font-size:12.5px; padding:6px 10px; border-radius:8px; z-index:200; opacity:0; transform:translate(-50%,-130%); transition:opacity .1s; white-space:nowrap; box-shadow:var(--shadow); }
+  #tooltip.show{ opacity:1; }
+
+  .legend{ display:flex; gap:14px; flex-wrap:wrap; font-size:12.5px; color:var(--text-secondary); margin-top:10px; }
+  .legend .item{ display:flex; align-items:center; gap:6px; }
+  .legend .sw{ width:10px; height:10px; border-radius:3px; }
+
+  /* MCQ */
+  .mcq{ margin-top:18px; border-top:1px dashed var(--border); padding-top:16px; }
+  .mcq .q{ font-weight:700; font-size:15px; margin-bottom:10px; }
+  .mcq .opts{ display:grid; gap:8px; }
+  .mcq button.opt{ text-align:left; font-family:inherit; font-size:14px; padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text-primary); cursor:pointer; }
+  .mcq button.opt:hover{ border-color:var(--accent); }
+  .mcq button.opt.correct{ background:color-mix(in srgb, var(--good) 16%, var(--surface)); border-color:var(--good); }
+  .mcq button.opt.wrong{ background:color-mix(in srgb, var(--critical) 14%, var(--surface)); border-color:var(--critical); }
+  .mcq .explain{ margin-top:10px; font-size:13.5px; color:var(--text-secondary); background:var(--surface-2); border-radius:10px; padding:10px 14px; display:none; }
+  .mcq .explain.show{ display:block; }
+
+  .donebar{ display:flex; align-items:center; justify-content:space-between; margin-top:20px; padding-top:16px; border-top:1px dashed var(--border); }
+  label.donecheck{ display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700; cursor:pointer; color:var(--text-secondary); }
+  label.donecheck input{ width:18px; height:18px; accent-color:var(--good); }
+  label.donecheck.checked{ color:var(--good); }
+  .hintlink{ font-size:13px; color:var(--text-muted); }
+
+  .tip{ background:var(--accent-tint); border-radius:12px; padding:12px 16px; font-size:13.5px; color:var(--accent-dark); margin-top:12px; }
+  .tip b{ font-weight:800; }
+
+  footer{ padding:40px 0 60px; text-align:center; color:var(--text-muted); font-size:13px; }
+
+  /* summary section */
+  .summarygrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-top:20px; }
+  .sumitem{ background:var(--surface); border:1px solid var(--border-soft); border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px; box-shadow:var(--shadow); }
+  .sumitem .n{ width:26px; height:26px; border-radius:8px; flex:0 0 auto; }
+  .sumitem span{ font-size:13.5px; font-weight:700; }
+  .pipelinewrap{ display:flex; justify-content:center; margin-top:20px; }
+  .pipelinewrap .imgframe{ background:#eef0ef; border-radius:14px; padding:14px; max-width:420px; width:100%; }
+  .pipelinewrap img{ width:100%; height:auto; display:block; border-radius:8px; }
+  .pipelinecap{ text-align:center; color:var(--text-muted); font-size:12.5px; margin-top:10px; }
+</style>
+<div id="progressbar"></div>
+<div id="tooltip"></div>
+
+<header class="hero">
+  <div class="wrap">
+    <a class="back-hub" href="./index.html">← 실습 허브로</a>
+    <span class="eyebrow">오렌지(Orange3) 연습하기</span>
+    <h1 class="title display">오렌지 연습하기</h1>
+    <p class="subtitle">데이터를 불러오고(File) → 확인하고(Data Table) → 걸러내고(Select Rows) → 이상치를 찾고(Box Plot) → 그래프로 비교하고(Bar Plot·Scatter Plot) → 정규화(Normalize)까지, 오렌지의 핵심 위젯 7가지를 <b>1세대 포켓몬 18마리의 실제 능력치 데이터</b>로 순서대로 연습해. 각 단계마다 실제로 Orange3를 직접 실행해서 캡처한 화면이 함께 있어 — 여기서 감을 잡고, 진짜 오렌지 캔버스에서 그대로 따라해봐.</p>
+    <div class="statrow" id="statrow"></div>
+    <div class="chiprow" id="chiprow"></div>
+  </div>
+</header>
+
+<nav id="modnav"><div class="wrap inner" id="modnavinner"></div></nav>
+
+<section>
+  <div class="wrap introgrid">
+    <div>
+      <h2 class="h2">오렌지 캔버스, 잠깐 복습</h2>
+      <p class="lead">오렌지는 코드를 치지 않고, <b>위젯(widget)</b>이라는 네모 상자를 캔버스에 놓고 선으로 연결해서 데이터를 분석하는 프로그램이야. 위젯 하나하나가 "데이터 불러오기", "표로 보기", "조건으로 거르기", "그래프 그리기" 같은 하나의 역할을 맡아.</p>
+      <ol class="steps">
+        <li><b>위젯 놓기</b> — 왼쪽 위젯 목록에서 필요한 위젯을 캔버스로 드래그해.</li>
+        <li><b>선으로 연결하기</b> — 위젯의 오른쪽 끝을 다음 위젯의 왼쪽 끝으로 드래그하면 데이터가 흘러가.</li>
+        <li><b>더블클릭해서 열기</b> — 위젯을 더블클릭하면 그 위젯의 설정 창이 열려. 여기서 조건을 정하거나 그래프 종류를 골라.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>이번 실습 데이터</h3>
+      <p>1세대 포켓몬 18마리의 <b>체력·공격·방어·스피드·무게</b> 데이터야. (공개 도감 자료 기준 실제 수치이고, 타입도 불·물·전기·노말·고스트·에스퍼·바위 7가지 그대로 사용해.)</p>
+      <div class="tablewrap" style="margin-top:14px; max-height:220px; overflow-y:auto;">
+        <table class="dt" id="previewtable"></table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main id="modules"></main>
+
+<section class="alt" id="summary-section">
+  <div class="wrap">
+    <h2 class="h2">전체 파이프라인 한눈에 보기</h2>
+    <p class="lead">지금까지 연습한 위젯들을 모두 연결하면, 실제 오렌지 캔버스는 이런 모습이 돼. 하나의 File에서 시작해 여러 갈래로 뻗어나가며 데이터를 다양하게 살펴보는 거야. Select Rows와 Preprocess는 자기 혼자서는 계산된 값을 안 보여주기 때문에, 그 뒤에 각각 Data Table을 한 번 더 연결해서 실제 결과를 확인하는 것도 잊지 마. (아래는 실제로 Orange3를 실행해서 캡처한 캔버스 화면이야.)</p>
+    <div class="pipelinewrap">
+      <div>
+        <div class="imgframe"><img src="orange_pokemon_images/00_pipeline.png" alt="File 위젯에서 6개 위젯으로 뻗어나가고, 그중 Select Rows와 Preprocess는 다시 Data Table로 이어지는 실제 Orange3 캔버스"></div>
+        <div class="pipelinecap">🖥️ 실제 Orange3 캔버스 — File 위젯 하나에서 6개 위젯으로 뻗어나가고, Select Rows·Preprocess는 각각 Data Table로 한 번 더 연결한 전체 파이프라인</div>
+      </div>
+    </div>
+    <div class="summarygrid" id="summarychecklist"></div>
+    <div class="tip" style="margin-top:22px;"><b>다음 단계 —</b> 이제 실제 오렌지를 켜고, 위젯을 하나씩 캔버스에 놓아가며 이 페이지에서 연습한 순서 그대로 따라해봐. 같은 포켓몬 주제가 아니어도 좋아 — 내가 관심 있는 데이터로 이 7단계를 그대로 적용해보면 그게 바로 데이터 분석이야.</div>
+  </div>
+</section>
+
+<footer>오렌지(Orange3) 연습하기 · 소프트웨어와 생활 3단원 실습 자료 · 포켓몬 데이터로 실습, 위젯 화면은 실제 Orange3에서 캡처</footer>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- DATA ---------------- */
+const DATA = [
+  {name:"리자몽",   type:"불",   hp:78,  attack:84,  defense:78,  speed:100, weight:90.5},
+  {name:"부스터",   type:"불",   hp:65,  attack:130, defense:60,  speed:65,  weight:25.0},
+  {name:"날쌩마",   type:"불",   hp:65,  attack:100, defense:70,  speed:105, weight:95.0},
+  {name:"윈디",     type:"불",   hp:90,  attack:110, defense:80,  speed:95,  weight:155.0},
+  {name:"거북왕",   type:"물",   hp:79,  attack:83,  defense:100, speed:78,  weight:85.5},
+  {name:"갸라도스", type:"물",   hp:95,  attack:125, defense:79,  speed:81,  weight:235.0},
+  {name:"라프라스", type:"물",   hp:130, attack:85,  defense:80,  speed:60,  weight:220.0},
+  {name:"샤미드",   type:"물",   hp:130, attack:65,  defense:60,  speed:65,  weight:29.0},
+  {name:"잉어킹",   type:"물",   hp:20,  attack:10,  defense:55,  speed:80,  weight:10.0},
+  {name:"피카츄",   type:"전기", hp:35,  attack:55,  defense:40,  speed:90,  weight:6.0},
+  {name:"라이츄",   type:"전기", hp:60,  attack:90,  defense:55,  speed:110, weight:30.0},
+  {name:"쥬피썬더", type:"전기", hp:65,  attack:65,  defense:60,  speed:130, weight:24.5},
+  {name:"잠만보",   type:"노말", hp:160, attack:110, defense:65,  speed:30,  weight:460.0},
+  {name:"팬텀",     type:"고스트", hp:60, attack:65, defense:60,  speed:110, weight:40.5},
+  {name:"후딘",     type:"에스퍼", hp:55, attack:50, defense:45,  speed:120, weight:48.0},
+  {name:"뮤츠",     type:"에스퍼", hp:106,attack:110, defense:90, speed:130, weight:122.0},
+  {name:"롱스톤",   type:"바위", hp:35,  attack:45,  defense:160, speed:70,  weight:210.0},
+  {name:"메타몽",   type:"노말", hp:48,  attack:48,  defense:48,  speed:48,  weight:4.0},
+];
+const COLS = {
+  hp:{label:"체력", short:"체력"},
+  attack:{label:"공격", short:"공격"},
+  defense:{label:"방어", short:"방어"},
+  speed:{label:"스피드", short:"스피드"},
+  weight:{label:"무게(kg)", short:"무게"},
+};
+const TYPE_COLOR = {"불":"var(--s2)", "물":"var(--s1)", "전기":"var(--s4)", "노말":"var(--s3)", "고스트":"var(--s7)", "에스퍼":"var(--s5)", "바위":"var(--s8)"};
+
+function fmt(n){ return (Math.round(n*10)/10).toLocaleString("ko-KR"); }
+
+function previewRowHTML(d){
+  return `<tr><td>${d.name}</td><td><span class="speciesdot" style="background:${TYPE_COLOR[d.type]}"></span>${d.type}</td><td class="tabular">${fmt(d.hp)}</td><td class="tabular">${fmt(d.attack)}</td><td class="tabular">${fmt(d.defense)}</td><td class="tabular">${fmt(d.speed)}</td><td class="tabular">${fmt(d.weight)}</td></tr>`;
+}
+function previewTableHTML(rows){
+  return `<thead><tr><th>이름</th><th>타입</th><th>체력</th><th>공격</th><th>방어</th><th>스피드</th><th>무게</th></tr></thead><tbody>${rows.map(previewRowHTML).join("")}</tbody>`;
+}
+
+function quartiles(vals){
+  const a = [...vals].sort((x,y)=>x-y);
+  function med(arr){ const n=arr.length; return n%2 ? arr[(n-1)/2] : (arr[n/2-1]+arr[n/2])/2; }
+  const n=a.length;
+  const mid = n%2 ? (n-1)/2 : n/2;
+  const lower = a.slice(0, Math.floor(n/2));
+  const upper = n%2 ? a.slice(mid+1) : a.slice(mid);
+  const q1=med(lower), q3=med(upper), q2=med(a);
+  const iqr=q3-q1;
+  return {min:a[0], max:a[n-1], q1,q2,q3,iqr, lowFence:q1-1.5*iqr, highFence:q3+1.5*iqr, sorted:a};
+}
+function pearson(xs,ys){
+  const n=xs.length; const mx=xs.reduce((a,b)=>a+b,0)/n, my=ys.reduce((a,b)=>a+b,0)/n;
+  let num=0,dx=0,dy=0;
+  for(let i=0;i<n;i++){ num += (xs[i]-mx)*(ys[i]-my); dx += (xs[i]-mx)**2; dy += (ys[i]-my)**2; }
+  return num / Math.sqrt(dx*dy);
+}
+
+/* ---------------- ICONS ---------------- */
+function icon(kind, color, size){
+  size = size || 22;
+  const c = color || "currentColor";
+  const s = `width="${size}" height="${size}" viewBox="0 0 24 24" fill="none"`;
+  switch(kind){
+    case "file":
+      return `<svg ${s}><path d="M5 3h9l5 5v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="${c}" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 3v5h5" stroke="${c}" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+    case "table":
+      return `<svg ${s}><rect x="3.5" y="4.5" width="17" height="15" rx="1.5" stroke="${c}" stroke-width="1.8"/><path d="M3.5 10h17M3.5 15h17M10 4.5v15" stroke="${c}" stroke-width="1.8"/></svg>`;
+    case "filter":
+      return `<svg ${s}><path d="M4 5h16M7 12h10M10 19h4" stroke="${c}" stroke-width="2" stroke-linecap="round"/></svg>`;
+    case "box":
+      return `<svg ${s}><path d="M12 3v5M12 16v5" stroke="${c}" stroke-width="1.8"/><rect x="7" y="8" width="10" height="8" rx="1" stroke="${c}" stroke-width="1.8"/><path d="M8.5 12h7" stroke="${c}" stroke-width="1.8"/></svg>`;
+    case "bar":
+      return `<svg ${s}><path d="M4 20V11M11 20V4M18 20v-7" stroke="${c}" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+    case "scatter":
+      return `<svg ${s}><circle cx="6" cy="17" r="1.8" fill="${c}"/><circle cx="11" cy="10" r="1.8" fill="${c}"/><circle cx="15" cy="14" r="1.8" fill="${c}"/><circle cx="19" cy="6" r="1.8" fill="${c}"/><circle cx="9" cy="6" r="1.8" fill="${c}"/></svg>`;
+    case "normalize":
+      return `<svg ${s}><path d="M4 18V6M9 18V10M14 18V13M19 18V8" stroke="${c}" stroke-width="1.6" stroke-linecap="round" opacity=".45"/><path d="M4 20h15" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/><path d="M17 3l3 3-3 3M20 6H12" stroke="${c}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    default: return "";
+  }
+}
+
+/* ---------------- MODULE CONFIG ---------------- */
+const MODULES = [
+  {id:"file", num:1, slot:"--s1", icon:"file", cat:"Data 카테고리",
+    widget:"File", title:"데이터 불러오기",
+    why:"모든 분석의 시작. csv 파일을 캔버스로 불러와서 다른 위젯에 연결할 준비를 해.",
+    shot:"orange_pokemon_images/01_file.png", shotcap:"실제 Orange3 File 위젯 — pokemon_data.csv를 불러온 화면 (18 instances, 6 features)",
+    conn:"orange_pokemon_images/conn_file.png", conncap:"캔버스 연결 — File은 체인의 시작점이라 아직 들어오는 연결선이 없어"},
+  {id:"table", num:2, slot:"--s2", icon:"table", cat:"Data 카테고리",
+    widget:"Data Table", title:"데이터 확인하기",
+    why:"불러온 데이터가 표 형태로 잘 들어왔는지 눈으로 확인해. 열 머리글을 클릭하면 그 기준으로 정렬돼.",
+    shot:"orange_pokemon_images/02_table.png", shotcap:"실제 Orange3 Data Table 위젯 — 포켓몬 18마리 전체 데이터",
+    conn:"orange_pokemon_images/conn_table.png", conncap:"캔버스 연결 — File의 오른쪽 끝을 Data Table 왼쪽으로 드래그하면 'Data' 선이 이어져"},
+  {id:"select", num:3, slot:"--s3", icon:"filter", cat:"Data 카테고리",
+    widget:"Select Rows", title:"조건으로 필터링하기",
+    why:"조건에 맞는 행(포켓몬)만 골라내. '체력 is greater than 100' 처럼 조건을 정하면 그 조건을 만족하는 데이터만 남아.",
+    shot:"orange_pokemon_images/03_select.png", shotcap:"실제 Orange3 Select Rows 위젯 — 체력 조건(is greater than 100), 18마리 → 4마리로 필터링",
+    shot2:"orange_pokemon_images/03b_select_table.png", shot2cap:"Select Rows 결과를 Data Table에 연결하면 이렇게 걸러진 4마리(라프라스·샤미드·잠만보·뮤츠)를 직접 확인할 수 있어",
+    conn:"orange_pokemon_images/conn_select.png", conncap:"캔버스 연결 — File → Select Rows → Data Table 순서로 이어줘. Select Rows 혼자서는 조건 목록만 보이니까, 뒤에 Data Table을 붙여야 실제로 걸러진 행을 직접 확인할 수 있어"},
+  {id:"box", num:4, slot:"--s4", icon:"box", cat:"Visualize 카테고리",
+    widget:"Box Plot", title:"이상치 확인하기",
+    why:"대부분의 데이터가 모여 있는 상자와, 상자 밖으로 멀리 떨어진 이상치를 한눈에 보여줘.",
+    shot:"orange_pokemon_images/04_box.png", shotcap:"실제 Orange3 Box Plot 위젯 — 타입별 체력 분포 (노말 그룹 평균이 잠만보 때문에 크게 벌어져)",
+    conn:"orange_pokemon_images/conn_box.png", conncap:"캔버스 연결 — File → Box Plot으로 'Data' 선을 연결해"},
+  {id:"bar", num:5, slot:"--s5", icon:"bar", cat:"Visualize 카테고리",
+    widget:"Bar Plot", title:"비교해서 보기",
+    why:"포켓몬별 능력치를 막대의 길이로 비교해. 어떤 값이 가장 크고 작은지 한눈에 드러나.",
+    shot:"orange_pokemon_images/05_bar.png", shotcap:"실제 Orange3 Bar Plot 위젯 — 타입별로 묶은 공격력(Attack) 비교",
+    conn:"orange_pokemon_images/conn_bar.png", conncap:"캔버스 연결 — File → Bar Plot으로 'Data' 선을 연결해"},
+  {id:"scatter", num:6, slot:"--s6", icon:"scatter", cat:"Visualize 카테고리",
+    widget:"Scatter Plot", title:"관계 살펴보기",
+    why:"두 수치를 각각 x축·y축에 놓고 점으로 흩뿌려서, 두 값 사이에 어떤 관계(상관관계)가 있는지 확인해.",
+    shot:"orange_pokemon_images/06_scatter.png", shotcap:"실제 Orange3 Scatter Plot 위젯 — 몸무게(Weight) × 방어력(Defense), 롱스톤이 홀로 우상단에",
+    conn:"orange_pokemon_images/conn_scatter.png", conncap:"캔버스 연결 — File → Scatter Plot으로 'Data' 선을 연결해"},
+  {id:"normalize", num:7, slot:"--s7", icon:"normalize", cat:"Preprocess 안의 기능",
+    widget:"Preprocess → Normalize", title:"정규화하기",
+    why:"단위와 범위가 다른 열도 0~1 사이 값으로 맞추면 같은 잣대로 비교할 수 있어. 무게만 정규화했을 때, 공격만 정규화했을 때 각각 어떻게 되는지 비교해봐.",
+    shot:"orange_pokemon_images/07_normalize.png", shotcap:"실제 Orange3 Preprocess 위젯 — Normalize Features → Normalize to interval [0, 1]",
+    shot2:"orange_pokemon_images/07b_normalize_table.png", shot2cap:"Preprocess 결과를 Data Table에 연결하면 이렇게 실제 정규화된 값을 볼 수 있어 (체력·공격·방어·스피드·무게 5개 열 전부 한번에 0~1로 변환돼)",
+    conn:"orange_pokemon_images/conn_normalize.png", conncap:"캔버스 연결 — File → Preprocess → Data Table 순서로 이어줘. Preprocess 혼자서는 계산된 값이 안 보이니까, 뒤에 Data Table을 붙여야 정규화된 숫자를 직접 확인할 수 있어"},
+];
+
+/* ---------------- STAT TILES / CHIPS / PREVIEW ---------------- */
+function renderIntro(){
+  const hpArr = DATA.map(d=>d.hp);
+  const avgHp = hpArr.reduce((a,b)=>a+b,0)/DATA.length;
+  const typeCount = new Set(DATA.map(d=>d.type)).size;
+  const topAtk = [...DATA].sort((a,b)=>b.attack-a.attack)[0];
+  document.getElementById("statrow").innerHTML = `
+    <div class="stattile"><div class="num tabular">${DATA.length}</div><div class="lab">전체 포켓몬 수</div></div>
+    <div class="stattile"><div class="num tabular">${fmt(avgHp)}</div><div class="lab">평균 체력</div></div>
+    <div class="stattile"><div class="num tabular">${typeCount}</div><div class="lab">등장하는 타입 종류</div></div>
+    <div class="stattile"><div class="num tabular" style="font-size:18px;">${topAtk.name}</div><div class="lab">공격력 1위 포켓몬</div></div>`;
+
+  document.getElementById("chiprow").innerHTML = MODULES.map(m=>`
+    <span class="chip"><span class="dot" style="background:var(${m.slot})"></span>${m.widget}</span>`).join("");
+
+  document.getElementById("previewtable").innerHTML = previewTableHTML(DATA);
+}
+
+/* ---------------- NAV ---------------- */
+function renderNav(){
+  const html = MODULES.map(m=>`
+    <a href="#mod-${m.id}" id="nav-${m.id}"><span class="n" style="background:var(${m.slot})">${m.num}</span>${m.widget}</a>`).join("");
+  document.getElementById("modnavinner").innerHTML = html +
+    `<div id="ringwrap"><span id="ringtext">0/${MODULES.length} 완료</span></div>`;
+}
+
+/* ---------------- MCQ helper ---------------- */
+function renderMCQ(container, question, options, correctIdx, explain){
+  const optsHtml = options.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join("");
+  container.innerHTML = `<div class="mcq"><div class="q">✅ 확인 문제 — ${question}</div><div class="opts">${optsHtml}</div><div class="explain"></div></div>`;
+  const buttons = container.querySelectorAll(".opt");
+  const explainBox = container.querySelector(".explain");
+  buttons.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      if(container.dataset.answered) return;
+      container.dataset.answered = "1";
+      const i = parseInt(btn.dataset.i,10);
+      buttons.forEach(b=>b.disabled=true);
+      if(i===correctIdx){ btn.classList.add("correct"); }
+      else{ btn.classList.add("wrong"); buttons[correctIdx].classList.add("correct"); }
+      explainBox.textContent = explain;
+      explainBox.classList.add("show");
+    });
+  });
+}
+
+/* ---------------- DONE TRACKING ---------------- */
+let doneState = {};
+try{ doneState = JSON.parse(localStorage.getItem("orangeLabDone")||"{}"); }catch(e){ doneState = {}; }
+function saveDone(){ try{ localStorage.setItem("orangeLabDone", JSON.stringify(doneState)); }catch(e){} }
+function updateProgress(){
+  const total = MODULES.length;
+  const doneN = MODULES.filter(m=>doneState[m.id]).length;
+  document.getElementById("progressbar").style.width = (doneN/total*100)+"%";
+  const rt = document.getElementById("ringtext");
+  if(rt) rt.textContent = `${doneN}/${total} 완료`;
+  MODULES.forEach(m=>{
+    const navEl = document.getElementById("nav-"+m.id);
+    if(navEl){
+      navEl.classList.toggle("done", !!doneState[m.id]);
+      const numEl = navEl.querySelector(".n");
+      if(numEl) numEl.textContent = doneState[m.id] ? "✓" : String(m.num);
+    }
+    const chk = document.getElementById("chk-"+m.id);
+    if(chk){ chk.checked = !!doneState[m.id]; chk.closest("label").classList.toggle("checked", !!doneState[m.id]); }
+    const sumEl = document.getElementById("sum-"+m.id);
+    if(sumEl) sumEl.style.opacity = doneState[m.id] ? "1" : ".45";
+  });
+}
+
+/* ---------------- MODULE BODIES ---------------- */
+function buildModuleShell(mod){
+  const el = document.createElement("section");
+  el.className = "module" + (mod.num%2===0 ? " alt":"");
+  el.id = "mod-"+mod.id;
+  el.innerHTML = `
+    <div class="wrap">
+      <div class="modhead">
+        <div class="modbadge" style="background:var(${mod.slot})">${icon(mod.icon,"#fff",26)}</div>
+        <div>
+          <div class="modnum">STEP ${mod.num} · ${mod.widget}</div>
+          <h3 class="modtitle display">${mod.title}</h3>
+          <p class="modwhy">${mod.why}</p>
+          <span class="catlabel" style="color:var(${mod.slot})">${mod.cat}</span>
+        </div>
+      </div>
+      <div class="modbody-stack">
+        <div class="shotbox">
+          <div class="connrow"><div><div class="connframe"><img src="${mod.conn}" alt="${mod.conncap}"></div><div class="conncap">🔗 ${mod.conncap}</div></div></div>
+          <div class="imgframe"><img src="${mod.shot}" alt="${mod.shotcap}"></div>
+          <div class="cap">🖥️ ${mod.shotcap}</div>
+          ${mod.shot2 ? `<div class="imgframe" style="margin-top:14px;"><img src="${mod.shot2}" alt="${mod.shot2cap}"></div><div class="cap">🖥️ ${mod.shot2cap}</div>` : ""}
+        </div>
+        <div class="demo" id="demo-${mod.id}"></div>
+      </div>
+      <div class="donebar">
+        <label class="donecheck"><input type="checkbox" id="chk-${mod.id}"> 이 위젯 연습 완료!</label>
+        <span class="hintlink">실제 오렌지에서도 ${mod.widget} 위젯을 찾아 똑같이 해봐</span>
+      </div>
+    </div>`;
+  document.getElementById("modules").appendChild(el);
+  el.querySelector(`#chk-${mod.id}`).addEventListener("change", (e)=>{
+    doneState[mod.id] = e.target.checked; saveDone(); updateProgress();
+  });
+  return el.querySelector(`#demo-${mod.id}`);
+}
+
+/* ---- 1. File ---- */
+function buildFile(mod){
+  const demo = buildModuleShell(mod);
+  demo.innerHTML = `
+    <h4>미리보기</h4>
+    <p class="resulttext">아래 버튼을 눌러 <b>pokemon_data.csv</b> 파일을 캔버스로 불러와봐.</p>
+    <div class="controls"><button class="btn primary" id="fileLoadBtn">📁 File 위젯으로 불러오기</button><span class="resulttext" id="fileStatus"></span></div>
+    <div class="tablewrap" id="fileTableWrap" style="display:none; max-height:240px; overflow-y:auto; margin-top:10px;">
+      <table class="dt" id="fileTable"></table>
+    </div>
+    <div id="file-mcq"></div>`;
+  demo.querySelector("#fileLoadBtn").addEventListener("click", ()=>{
+    demo.querySelector("#fileStatus").innerHTML = `<b>불러오는 중...</b>`;
+    setTimeout(()=>{
+      demo.querySelector("#fileStatus").innerHTML = `✔ <b>${DATA.length}행 × 6열</b> 불러오기 완료`;
+      demo.querySelector("#fileTableWrap").style.display = "block";
+      demo.querySelector("#fileTable").innerHTML = previewTableHTML(DATA);
+    }, 450);
+  });
+  renderMCQ(demo.querySelector("#file-mcq"), "File 위젯의 역할로 가장 알맞은 것은?",
+    ["데이터를 캔버스로 불러온다","데이터를 그래프로 그린다","데이터를 정렬한다","이상치를 찾아준다"], 0,
+    "File 위젯은 분석의 출발점이야. csv 같은 파일을 캔버스로 불러와서 다른 위젯들이 이어받아 쓸 수 있게 해줘.");
+}
+
+/* ---- 2. Data Table (sort) ---- */
+function buildTable(mod){
+  const demo = buildModuleShell(mod);
+  demo.innerHTML = `
+    <h4>열 머리글을 클릭해서 정렬해보기</h4>
+    <p class="resulttext">Data Table 위젯에서는 열 머리글을 클릭할 때마다 오름차순 ↔ 내림차순으로 바뀌어.</p>
+    <div class="tablewrap"><table class="dt" id="sortTable"></table></div>
+    <div id="table-mcq"></div>`;
+  const keys = [["name","이름"],["type","타입"],["hp","체력"],["attack","공격"],["defense","방어"],["speed","스피드"],["weight","무게"]];
+  let sortKey = null, sortDir = 1;
+  function draw(){
+    let rows = [...DATA];
+    if(sortKey){ rows.sort((a,b)=> (a[sortKey] > b[sortKey] ? 1 : a[sortKey] < b[sortKey] ? -1 : 0) * sortDir); }
+    const thead = `<thead><tr>${keys.map(([k,l])=>`<th data-k="${k}" class="${sortKey===k?'sorted':''}">${l}${sortKey===k?`<span class="arrow">${sortDir===1?'▲':'▼'}</span>`:''}</th>`).join("")}</tr></thead>`;
+    const tbody = `<tbody>${rows.map(d=>`<tr><td>${d.name}</td><td>${d.type}</td><td class="tabular">${fmt(d.hp)}</td><td class="tabular">${fmt(d.attack)}</td><td class="tabular">${fmt(d.defense)}</td><td class="tabular">${fmt(d.speed)}</td><td class="tabular">${fmt(d.weight)}</td></tr>`).join("")}</tbody>`;
+    demo.querySelector("#sortTable").innerHTML = thead + tbody;
+    demo.querySelectorAll("#sortTable th").forEach(th=>{
+      th.addEventListener("click", ()=>{
+        const k = th.dataset.k;
+        if(sortKey===k){ sortDir *= -1; } else { sortKey=k; sortDir = (k==="name"||k==="type") ? 1 : -1; }
+        draw();
+      });
+    });
+  }
+  draw();
+  renderMCQ(demo.querySelector("#table-mcq"), "Data Table 위젯에서 열 머리글을 클릭하면 어떤 일이 일어날까?",
+    ["그 열을 기준으로 정렬된다","그 열이 삭제된다","그래프가 자동으로 그려진다","데이터가 저장된다"], 0,
+    "머리글을 클릭할 때마다 그 열 기준 오름차순 → 내림차순으로 바뀌어. 공격력 열을 내림차순으로 정렬하면 공격력 1위 포켓몬을 바로 찾을 수 있어.");
+}
+
+/* ---- 3. Select Rows ---- */
+function buildSelect(mod){
+  const demo = buildModuleShell(mod);
+  const colOpts = Object.keys(COLS).map(k=>`<option value="${k}">${COLS[k].label}</option>`).join("");
+  const typeOpts = Object.keys(TYPE_COLOR).map(t=>`<option value="${t}">타입 = ${t}</option>`).join("");
+  demo.innerHTML = `
+    <h4>조건을 만들어 필터링하기</h4>
+    <div class="controls">
+      <select id="selCol">${colOpts}</select>
+      <select id="selOp"><option value="gt">보다 큼(&gt;)</option><option value="gte">이상(&ge;)</option><option value="lt">보다 작음(&lt;)</option><option value="lte">이하(&le;)</option></select>
+      <input type="text" id="selVal" value="100" style="width:80px;">
+      <button class="btn primary" id="selApply">조건 적용</button>
+    </div>
+    <div class="controls">
+      <select id="selType"><option value="">(타입 조건 없음)</option>${typeOpts}</select>
+    </div>
+    <div class="resulttext" id="selResultText"></div>
+    <div class="tablewrap" id="selTableWrap" style="max-height:220px; overflow-y:auto; margin-top:10px;"></div>
+    <div id="select-mcq"></div>`;
+  function apply(){
+    const col = demo.querySelector("#selCol").value;
+    const op = demo.querySelector("#selOp").value;
+    const val = parseFloat(demo.querySelector("#selVal").value) || 0;
+    const type = demo.querySelector("#selType").value;
+    let rows = DATA.filter(d=>{
+      let ok = op==="gt" ? d[col]>val : op==="gte" ? d[col]>=val : op==="lt" ? d[col]<val : d[col]<=val;
+      if(type) ok = ok && d.type===type;
+      return ok;
+    });
+    const opLabel = {gt:"보다 큼",gte:"이상",lt:"보다 작음",lte:"이하"}[op];
+    demo.querySelector("#selResultText").innerHTML = `<b>${COLS[col].label} ${opLabel} ${val}</b>${type?` 그리고 <b>타입 = ${type}</b>`:""} 조건 → <b>${rows.length}마리</b> 포켓몬이 남았어.`;
+    const tbl = rows.length ? `<table class="dt"><thead><tr><th>이름</th><th>타입</th><th>${COLS[col].short}</th></tr></thead><tbody>${rows.map(d=>`<tr><td>${d.name}</td><td>${d.type}</td><td class="tabular">${fmt(d[col])}</td></tr>`).join("")}</tbody></table>` : `<p class="resulttext">조건을 만족하는 포켓몬이 없어.</p>`;
+    demo.querySelector("#selTableWrap").innerHTML = tbl;
+  }
+  demo.querySelector("#selApply").addEventListener("click", apply);
+  demo.querySelector("#selType").addEventListener("change", apply);
+  apply();
+  renderMCQ(demo.querySelector("#select-mcq"), "Select Rows 위젯을 쓰는 이유로 가장 알맞은 것은?",
+    ["조건에 맞는 데이터만 걸러서 보기 위해","데이터 순서를 무작위로 섞기 위해","그래프의 색을 바꾸기 위해","결측치를 자동으로 채우기 위해"], 0,
+    "Select Rows는 '체력 > 100'처럼 조건을 정해서, 그 조건을 만족하는 행만 남기는 위젯이야. 관심 있는 부분만 따로 떼어서 분석할 때 자주 써.");
+}
+
+/* ---- 4. Box Plot ---- */
+function buildBox(mod){
+  const demo = buildModuleShell(mod);
+  const colOpts = Object.keys(COLS).map(k=>`<option value="${k}">${COLS[k].label}</option>`).join("");
+  demo.innerHTML = `
+    <h4>Box Plot으로 이상치 찾기</h4>
+    <div class="controls"><select id="boxCol">${colOpts}</select></div>
+    <svg class="chartsvg" id="boxSvg" viewBox="0 0 640 170" style="margin-top:6px;"></svg>
+    <div class="resulttext" id="boxResultText"></div>
+    <div id="box-mcq"></div>`;
+  function draw(){
+    const col = demo.querySelector("#boxCol").value;
+    const vals = DATA.map(d=>d[col]);
+    const q = quartiles(vals);
+    const pad = 50;
+    const w = 640 - pad*2;
+    const scaleMax = Math.max(q.max, q.highFence) * 1.05;
+    const x = v => pad + (v/scaleMax)*w;
+    const y = 85, boxH = 46;
+    let svg = `<line x1="${pad}" y1="${y}" x2="${640-pad}" y2="${y}" class="baseline"/>`;
+    const whiskLo = Math.max(q.min, q.lowFence);
+    const whiskHi = Math.min(q.max, q.highFence);
+    svg += `<line x1="${x(whiskLo)}" y1="${y}" x2="${x(q.q1)}" y2="${y}" stroke="var(--s4)" stroke-width="2"/>`;
+    svg += `<line x1="${x(q.q3)}" y1="${y}" x2="${x(whiskHi)}" y2="${y}" stroke="var(--s4)" stroke-width="2"/>`;
+    svg += `<line x1="${x(whiskLo)}" y1="${y-boxH/3}" x2="${x(whiskLo)}" y2="${y+boxH/3}" stroke="var(--s4)" stroke-width="2"/>`;
+    svg += `<line x1="${x(whiskHi)}" y1="${y-boxH/3}" x2="${x(whiskHi)}" y2="${y+boxH/3}" stroke="var(--s4)" stroke-width="2"/>`;
+    svg += `<rect x="${x(q.q1)}" y="${y-boxH/2}" width="${x(q.q3)-x(q.q1)}" height="${boxH}" fill="var(--s4)" opacity="0.18" stroke="var(--s4)" stroke-width="2" rx="4"/>`;
+    svg += `<line x1="${x(q.q2)}" y1="${y-boxH/2}" x2="${x(q.q2)}" y2="${y+boxH/2}" stroke="var(--s4)" stroke-width="2.5"/>`;
+    DATA.forEach(d=>{
+      const v = d[col];
+      const isOutlier = v > q.highFence || v < q.lowFence;
+      svg += `<circle class="pt" data-name="${d.name}" data-val="${fmt(v)}" cx="${x(v)}" cy="${isOutlier? y-boxH/2-14 : y+ (hashOffset(d.name)*22)}" r="5" fill="${isOutlier?'var(--critical)':'var(--s4)'}" opacity="${isOutlier?1:0.55}" stroke="var(--surface)" stroke-width="1.5" style="cursor:pointer;"/>`;
+    });
+    svg += `<text x="${x(q.min)}" y="${y+42}" text-anchor="middle" class="axislabel">최소 ${fmt(q.min)}</text>`;
+    svg += `<text x="${x(q.q2)}" y="${y-boxH/2-8}" text-anchor="middle" class="axislabel">중앙값 ${fmt(q.q2)}</text>`;
+    svg += `<text x="${x(q.max)}" y="${y+42}" text-anchor="middle" class="axislabel">최대 ${fmt(q.max)}</text>`;
+    demo.querySelector("#boxSvg").innerHTML = svg;
+    demo.querySelectorAll("#boxSvg .pt").forEach(pt=>{
+      pt.addEventListener("mousemove", (e)=> showTip(e, `<b>${pt.dataset.name}</b> · ${COLS[col].short} ${pt.dataset.val}`));
+      pt.addEventListener("mouseleave", hideTip);
+    });
+    const outliers = DATA.filter(d=> d[col] > q.highFence || d[col] < q.lowFence);
+    demo.querySelector("#boxResultText").innerHTML = outliers.length
+      ? `상자 밖 빨간 점 = 이상치 후보: <b>${outliers.map(d=>d.name).join(", ")}</b> (${COLS[col].label} ${outliers.map(d=>fmt(d[col])).join(", ")}) — 위 경계선(${fmt(q.highFence)}) 밖이라 다른 포켓몬들과 크게 달라.`
+      : `이 열에서는 뚜렷한 이상치가 보이지 않아. 대부분 상자와 수염 범위 안에 들어와.`;
+  }
+  function hashOffset(name){
+    let h=0; for(let i=0;i<name.length;i++) h = (h*31 + name.charCodeAt(i))%7;
+    return (h-3)/8;
+  }
+  demo.querySelector("#boxCol").addEventListener("change", draw);
+  draw();
+  renderMCQ(demo.querySelector("#box-mcq"), "Box Plot에서 상자 밖으로 멀리 떨어진 점은 무엇을 뜻할까?",
+    ["다른 데이터와 크게 다른 값(이상치)일 가능성","결측치(빈 값)","가장 평범한 값","오류라서 무조건 삭제해야 하는 값"], 0,
+    "상자 밖 점은 '이상치일 가능성이 있다'는 신호일 뿐이야. 진짜 오류인지, 아니면 의미 있는 특별한 값(예: 유난히 거대한 잠만보처럼)인지는 데이터를 보고 우리가 직접 판단해야 해 — 무조건 지우면 안 돼.");
+}
+
+/* ---- 5. Bar Plot ---- */
+function buildBar(mod){
+  const demo = buildModuleShell(mod);
+  const colOpts = Object.keys(COLS).map(k=>`<option value="${k}">${COLS[k].label}</option>`).join("");
+  demo.innerHTML = `
+    <h4>Bar Plot으로 포켓몬 비교하기</h4>
+    <div class="controls">
+      <select id="barCol">${colOpts}</select>
+      <button class="btn toggle" id="barGroupBtn">타입별 색상 구분(Group by)</button>
+    </div>
+    <svg class="chartsvg" id="barSvg" viewBox="0 0 700 380"></svg>
+    <div class="legend" id="barLegend"></div>
+    <div class="resulttext" id="barResultText"></div>
+    <div id="bar-mcq"></div>`;
+  demo.querySelector("#barCol").value = "attack";
+  let grouped = false;
+  demo.querySelector("#barGroupBtn").addEventListener("click", ()=>{ grouped=!grouped; demo.querySelector("#barGroupBtn").classList.toggle("active",grouped); draw(); });
+  demo.querySelector("#barCol").addEventListener("change", draw);
+  function draw(){
+    const col = demo.querySelector("#barCol").value;
+    const rows = [...DATA].sort((a,b)=>b[col]-a[col]);
+    const maxV = rows[0][col];
+    const padL = 130, padR = 40, top=10, rowH = 20, gap=3;
+    const chartW = 700-padL-padR;
+    let svg = "";
+    rows.forEach((d,i)=>{
+      const y = top + i*(rowH+gap);
+      const w = (d[col]/maxV)*chartW;
+      const color = grouped ? TYPE_COLOR[d.type] : "var(--s5)";
+      svg += `<text x="${padL-8}" y="${y+rowH*0.7}" text-anchor="end" class="axislabel" style="font-size:11px;">${d.name}</text>`;
+      svg += `<rect class="bar" data-name="${d.name}" data-val="${fmt(d[col])}" x="${padL}" y="${y}" width="${Math.max(w,2)}" height="${rowH}" rx="4" fill="${color}" style="cursor:pointer;"/>`;
+      svg += `<text x="${padL+w+6}" y="${y+rowH*0.7}" class="axislabel tabular">${fmt(d[col])}</text>`;
+    });
+    demo.querySelector("#barSvg").setAttribute("viewBox", `0 0 700 ${top + rows.length*(rowH+gap)+10}`);
+    demo.querySelector("#barSvg").innerHTML = svg;
+    demo.querySelectorAll("#barSvg .bar").forEach(b=>{
+      b.addEventListener("mousemove",(e)=>showTip(e, `<b>${b.dataset.name}</b> · ${COLS[col].short} ${b.dataset.val}`));
+      b.addEventListener("mouseleave", hideTip);
+    });
+    demo.querySelector("#barLegend").innerHTML = grouped
+      ? Object.entries(TYPE_COLOR).map(([k,c])=>`<span class="item"><span class="sw" style="background:${c}"></span>${k}</span>`).join("")
+      : "";
+    const top1 = rows[0], top2 = rows[1];
+    demo.querySelector("#barResultText").innerHTML = `${COLS[col].label} 기준 1위는 <b>${top1.name}</b>(${fmt(top1[col])}), 2위는 <b>${top2.name}</b>(${fmt(top2[col])})이야.`;
+  }
+  draw();
+  renderMCQ(demo.querySelector("#bar-mcq"), "Bar Plot으로 여러 포켓몬을 비교할 때 가장 좋은 점은?",
+    ["값의 크기를 한눈에 비교할 수 있다","두 수치 사이의 상관관계를 알 수 있다","이상치를 자동으로 제거해준다","결측치를 자동으로 채워준다"], 0,
+    "막대의 길이가 값의 크기를 그대로 보여주기 때문에, 여러 대상을 순서대로 비교하기에 아주 좋아. 관계나 이상치 판단은 Scatter Plot·Box Plot의 역할이야.");
+}
+
+/* ---- 6. Scatter Plot ---- */
+function buildScatter(mod){
+  const demo = buildModuleShell(mod);
+  const opts = Object.keys(COLS).map(k=>`<option value="${k}">${COLS[k].label}</option>`).join("");
+  demo.innerHTML = `
+    <h4>Scatter Plot으로 관계 살펴보기</h4>
+    <div class="controls">
+      X축 <select id="scX">${opts}</select>
+      Y축 <select id="scY">${opts}</select>
+    </div>
+    <svg class="chartsvg" id="scSvg" viewBox="0 0 560 360"></svg>
+    <div class="resulttext" id="scResultText"></div>
+    <div id="scatter-mcq"></div>`;
+  demo.querySelector("#scX").value="weight";
+  demo.querySelector("#scY").value="defense";
+  function draw(){
+    const xk = demo.querySelector("#scX").value, yk = demo.querySelector("#scY").value;
+    const pad = 46, w=560-pad*2, h=360-pad*2;
+    const xs = DATA.map(d=>d[xk]), ys = DATA.map(d=>d[yk]);
+    const xMax = Math.max(...xs)*1.08, yMax = Math.max(...ys)*1.12;
+    const X = v => pad + (v/xMax)*w;
+    const Y = v => pad + h - (v/yMax)*h;
+    let svg = `<line x1="${pad}" y1="${pad+h}" x2="${pad+w}" y2="${pad+h}" class="baseline"/><line x1="${pad}" y1="${pad}" x2="${pad}" y2="${pad+h}" class="baseline"/>`;
+    svg += `<text x="${pad+w/2}" y="${pad+h+34}" text-anchor="middle" class="axislabel">${COLS[xk].label} →</text>`;
+    svg += `<text x="${pad-34}" y="${pad+h/2}" text-anchor="middle" class="axislabel" transform="rotate(-90 ${pad-34} ${pad+h/2})">${COLS[yk].label} →</text>`;
+    DATA.forEach(d=>{
+      svg += `<circle class="pt" data-name="${d.name}" data-x="${fmt(d[xk])}" data-y="${fmt(d[yk])}" cx="${X(d[xk])}" cy="${Y(d[yk])}" r="6" fill="var(--s6)" opacity="0.7" stroke="var(--surface)" stroke-width="1.5" style="cursor:pointer;"/>`;
+    });
+    demo.querySelector("#scSvg").innerHTML = svg;
+    demo.querySelectorAll("#scSvg .pt").forEach(pt=>{
+      pt.addEventListener("mousemove",(e)=>showTip(e, `<b>${pt.dataset.name}</b> · (${pt.dataset.x}, ${pt.dataset.y})`));
+      pt.addEventListener("mouseleave", hideTip);
+    });
+    const r = pearson(xs, ys);
+    const rel = Math.abs(r) < 0.2 ? "관계가 거의 없어" : (r>0 ? "양의 상관관계 (하나가 커지면 다른 하나도 커지는 경향)" : "음의 상관관계 (하나가 커지면 다른 하나는 작아지는 경향)");
+    demo.querySelector("#scResultText").innerHTML = `상관계수 r ≈ <b class="tabular">${r.toFixed(2)}</b> → <b>${rel}</b>`;
+  }
+  demo.querySelector("#scX").addEventListener("change", draw);
+  demo.querySelector("#scY").addEventListener("change", draw);
+  draw();
+  renderMCQ(demo.querySelector("#scatter-mcq"), "Scatter Plot은 주로 무엇을 확인할 때 사용할까?",
+    ["두 수치 사이의 관계(상관관계)","하나의 값의 순위","전체 값의 합계","데이터의 전체 개수"], 0,
+    "점들이 오른쪽 위로 향하면 양의 상관관계, 오른쪽 아래로 향하면 음의 상관관계, 흩어져 있으면 관계가 약한 거야. 두 수치를 동시에 비교할 때 Scatter Plot이 제격이야.");
+}
+
+/* ---- 7. Normalize ---- */
+function buildNormalize(mod){
+  const demo = buildModuleShell(mod);
+  demo.innerHTML = `
+    <h4>한 열씩 정규화해보기</h4>
+    <p class="resulttext">무게(최대 460kg)와 공격(최대 130)은 범위가 완전히 달라. 각 열을 따로 정규화하면 순위가 어떻게 나올까 — 먼저 무게, 그다음 공격으로 직접 비교해봐.</p>
+    <div class="controls">
+      <button class="btn toggle active" id="normWeightBtn">⚖️ 무게로 정규화</button>
+      <button class="btn toggle" id="normAttackBtn">⚔️ 공격으로 정규화</button>
+    </div>
+    <div id="normResult"></div>
+    <div id="normalize-mcq"></div>`;
+  const weightBtn = demo.querySelector("#normWeightBtn");
+  const attackBtn = demo.querySelector("#normAttackBtn");
+  let lastCol = null;
+  function renderCol(col){
+    weightBtn.classList.toggle("active", col==="weight");
+    attackBtn.classList.toggle("active", col==="attack");
+    const vals = DATA.map(d=>d[col]);
+    const min = Math.min(...vals), max = Math.max(...vals);
+    const sorted = [...DATA].map(d=>({...d, norm: max>min ? (d[col]-min)/(max-min) : 0}))
+      .sort((a,b)=>b[col]-a[col]);
+    const label = COLS[col].label;
+    const top = sorted[0], bottom = sorted[sorted.length-1];
+    const otherCol = col==="weight" ? "attack" : "weight";
+    const otherTop = [...DATA].sort((a,b)=>b[otherCol]-a[otherCol])[0];
+    demo.querySelector("#normResult").innerHTML = `
+      <div class="tip"><b>정규화(Min-Max) 공식</b> — (값 − 최솟값) ÷ (최댓값 − 최솟값) → ${label}의 최솟값 ${fmt(min)}은 0, 최댓값 ${fmt(max)}은 1이 되고 나머지는 그 사이 값이 돼. 오렌지에서는 Preprocess 위젯을 열고 'Normalize Features → Normalize to interval [0, 1]'을 선택하면 똑같이 계산해줘.</div>
+      <div class="tablewrap" style="max-height:380px; overflow-y:auto;">
+        <table class="dt">
+          <thead><tr><th>순위</th><th>이름</th><th>타입</th><th>${label} 원래 값</th><th>정규화 값(0~1)</th></tr></thead>
+          <tbody>${sorted.map((d,i)=>`<tr><td>${i+1}</td><td>${d.name}</td><td><span class="speciesdot" style="background:${TYPE_COLOR[d.type]}"></span>${d.type}</td><td class="tabular">${fmt(d[col])}</td><td class="tabular">${d.norm.toFixed(2)}</td></tr>`).join("")}</tbody>
+        </table>
+      </div>
+      <div class="resulttext" style="margin-top:14px;"><b>${top.name}</b>가 ${label} 1위(${fmt(top[col])} → 정규화 1.00)이고, <b>${bottom.name}</b>이 꼴찌(${fmt(bottom[col])} → 정규화 0.00)야. <b>정규화를 해도 순서는 그대로</b>야 — 그냥 같은 범위(0~1) 안으로 값을 눌러놓은 것뿐이거든.${lastCol && lastCol!==col ? ` 그런데 ${otherCol==="weight"?"무게":"공격"} 기준 1위는 <b>${otherTop.name}</b>였잖아 — 정규화를 하면 이렇게 서로 다른 단위의 열도 같은 잣대(0~1)로 나란히 비교할 수 있게 돼.` : ""}</div>`;
+    lastCol = col;
+  }
+  weightBtn.addEventListener("click", ()=>renderCol("weight"));
+  attackBtn.addEventListener("click", ()=>renderCol("attack"));
+  renderCol("weight");
+  renderMCQ(demo.querySelector("#normalize-mcq"), "한 개의 열(예: 무게)만 정규화하면 그 열 안에서 포켓몬의 순위는 어떻게 될까?",
+    ["원래와 똑같이 유지된다(순서는 안 바뀐다)","무작위로 섞인다","항상 거꾸로 뒤집힌다","1등이 사라진다"], 0,
+    "정규화(Min-Max)는 값을 0~1 범위로 눌러놓는 선형 변환이라 원래 순서를 그대로 유지해. 정규화가 진짜 힘을 발휘하는 건 무게와 공격처럼 단위가 다른 여러 열을 같은 잣대에서 비교하거나 합칠 때야.");
+}
+
+/* ---------------- TOOLTIP ---------------- */
+const tipEl = document.getElementById("tooltip");
+function showTip(e, html){ tipEl.innerHTML = html; tipEl.style.left = e.clientX+"px"; tipEl.style.top = e.clientY+"px"; tipEl.classList.add("show"); }
+function hideTip(){ tipEl.classList.remove("show"); }
+
+/* ---------------- SUMMARY CHECKLIST ---------------- */
+function renderSummaryChecklist(){
+  document.getElementById("summarychecklist").innerHTML = MODULES.map(m=>`
+    <div class="sumitem" id="sum-${m.id}" style="opacity:.45;"><div class="n" style="background:var(${m.slot})"></div><span>${m.widget}</span></div>`).join("");
+}
+
+/* ---------------- INIT ---------------- */
+renderIntro();
+renderNav();
+buildFile(MODULES[0]);
+buildTable(MODULES[1]);
+buildSelect(MODULES[2]);
+buildBox(MODULES[3]);
+buildBar(MODULES[4]);
+buildScatter(MODULES[5]);
+buildNormalize(MODULES[6]);
+renderSummaryChecklist();
+updateProgress();
+
+})();
+</script>
