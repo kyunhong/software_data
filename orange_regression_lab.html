@@ -1,0 +1,643 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>오렌지(Orange3)로 회귀분석하기 (포켓몬 데이터)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#faf7f2;
+    --page:#f3efe7;
+    --surface:#ffffff;
+    --surface-2:#f6f2ea;
+    --text-primary:#201d18;
+    --text-secondary:#5b564d;
+    --text-muted:#938d80;
+    --border:rgba(32,29,24,0.12);
+    --border-soft:rgba(32,29,24,0.07);
+    --accent:#eb6834;
+    --accent-dark:#c4501f;
+    --accent-tint:#fbe3d5;
+    --accent-ink:#ffffff;
+    --good:#0ca30c;
+    --warning:#fab219;
+    --critical:#d03b3b;
+    --shadow: 0 1px 2px rgba(32,29,24,0.06), 0 8px 24px -12px rgba(32,29,24,0.18);
+
+    --s1:#2a78d6; /* blue    - File */
+    --s2:#eb6834; /* orange  - Predictions */
+    --s3:#1baf7a; /* aqua */
+    --s4:#eda100; /* yellow  - Test and Score */
+    --s5:#e87ba4; /* magenta */
+    --s6:#008300; /* green   - Scatter Plot */
+    --s7:#4a3aa7; /* violet  - Linear Regression */
+    --s8:#e34948; /* red     - Data Table (coefficients) */
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --bg:#141311;
+      --page:#0d0d0c;
+      --surface:#1c1a17;
+      --surface-2:#242119;
+      --text-primary:#faf8f4;
+      --text-secondary:#c7c1b5;
+      --text-muted:#928c7f;
+      --border:rgba(250,248,244,0.12);
+      --border-soft:rgba(250,248,244,0.07);
+      --accent:#f0793f;
+      --accent-dark:#ffa876;
+      --accent-tint:#3a2418;
+      --accent-ink:#191410;
+      --good:#0ca30c;
+      --warning:#fab219;
+      --critical:#e66767;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 28px -12px rgba(0,0,0,0.55);
+
+      --s1:#3987e5; --s2:#e2793f; --s3:#199e70; --s4:#c98500;
+      --s5:#d55181; --s6:#2fae2f; --s7:#9085e9; --s8:#e66767;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --bg:#141311; --page:#0d0d0c; --surface:#1c1a17; --surface-2:#242119;
+    --text-primary:#faf8f4; --text-secondary:#c7c1b5; --text-muted:#928c7f;
+    --border:rgba(250,248,244,0.12); --border-soft:rgba(250,248,244,0.07);
+    --accent:#f0793f; --accent-dark:#ffa876; --accent-tint:#3a2418; --accent-ink:#191410;
+    --good:#0ca30c; --warning:#fab219; --critical:#e66767;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 28px -12px rgba(0,0,0,0.55);
+    --s1:#3987e5; --s2:#e2793f; --s3:#199e70; --s4:#c98500;
+    --s5:#d55181; --s6:#2fae2f; --s7:#9085e9; --s8:#e66767;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; overflow-x:hidden; }
+  body{
+    margin:0; background:var(--page); color:var(--text-primary);
+    font-family:"Noto Sans KR", system-ui, -apple-system, sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+    word-break:keep-all; overflow-wrap:break-word;
+  }
+  .back-hub{ display:flex; width:max-content; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--text-muted); text-decoration:none; margin-bottom:14px; }
+  .back-hub:hover{ color:var(--accent-dark); }
+  .display{ font-family:"Black Han Sans","Noto Sans KR",sans-serif; letter-spacing:.01em; }
+  img,svg{ display:block; }
+  .wrap{ max-width:920px; margin:0 auto; padding:0 20px; }
+  .tabular{ font-variant-numeric: tabular-nums; }
+
+  #progressbar{ position:fixed; top:0; left:0; height:4px; width:0%; background:var(--accent); z-index:100; transition:width .3s ease; }
+
+  header.hero{ padding:64px 0 36px; background:
+      radial-gradient(circle at 12% 0%, var(--accent-tint), transparent 55%), var(--bg); }
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:700; color:var(--accent-dark); text-transform:uppercase; letter-spacing:.08em; background:var(--accent-tint); border-radius:999px; padding:6px 14px; }
+  h1.title{ font-size:clamp(34px,5.4vw,52px); margin:18px 0 10px; line-height:1.15; text-wrap:balance; }
+  .subtitle{ font-size:17px; color:var(--text-secondary); max-width:640px; margin:0 0 28px; }
+
+  .statrow{ display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-top:8px; }
+  .stattile{ background:var(--surface); border:1px solid var(--border-soft); border-radius:14px; padding:14px 16px; box-shadow:var(--shadow); }
+  .stattile .num{ font-size:24px; font-weight:800; font-family:"Black Han Sans"; }
+  .stattile .lab{ font-size:12.5px; color:var(--text-muted); margin-top:2px; }
+
+  .chiprow{ display:flex; flex-wrap:wrap; gap:8px; margin-top:22px; }
+  .chip{ display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; padding:7px 12px; border-radius:999px; background:var(--surface); border:1px solid var(--border); color:var(--text-secondary); }
+  .chip .dot{ width:8px; height:8px; border-radius:50%; }
+
+  #modnav{ position:sticky; top:0; z-index:50; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--border-soft); }
+  #modnav .inner{ display:flex; align-items:center; gap:6px; padding:10px 0; overflow-x:auto; scrollbar-width:none; }
+  #modnav .inner::-webkit-scrollbar{ display:none; }
+  #modnav a{ flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; text-decoration:none; font-size:12.5px; font-weight:700; color:var(--text-secondary); background:var(--surface); border:1px solid var(--border-soft); border-radius:999px; padding:6px 12px; white-space:nowrap; transition:transform .15s; }
+  #modnav a:hover{ transform:translateY(-1px); }
+  #modnav a .n{ width:16px; height:16px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:10px; color:#fff; }
+  #modnav a.done{ opacity:.55; }
+  #ringwrap{ margin-left:auto; flex:0 0 auto; display:flex; align-items:center; gap:8px; padding-left:10px; }
+  #ringtext{ font-size:12px; font-weight:700; color:var(--text-secondary); }
+
+  section{ padding:52px 0; }
+  section.alt{ background:var(--surface-2); border-top:1px solid var(--border-soft); border-bottom:1px solid var(--border-soft); }
+  h2.h2{ font-size:26px; margin:0 0 6px; }
+  p.lead{ color:var(--text-secondary); font-size:15.5px; max-width:640px; }
+
+  .introgrid{ display:grid; grid-template-columns: 1.1fr 1fr; gap:28px; align-items:center; margin-top:20px;}
+  .introgrid > *{ min-width:0; }
+  @media (max-width:760px){ .introgrid{ grid-template-columns:1fr; } }
+  .card{ background:var(--surface); border:1px solid var(--border-soft); border-radius:18px; padding:22px; box-shadow:var(--shadow); min-width:0; }
+  .card h3{ margin:0 0 8px; font-size:16px; }
+  .card p{ margin:0; color:var(--text-secondary); font-size:14.5px; }
+  ol.steps{ margin:14px 0 0; padding-left:0; list-style:none; counter-reset:step; }
+  ol.steps li{ counter-increment:step; padding:10px 0 10px 34px; position:relative; font-size:14.5px; color:var(--text-secondary); border-top:1px solid var(--border-soft); }
+  ol.steps li:first-child{ border-top:none; }
+  ol.steps li::before{ content:counter(step); position:absolute; left:0; top:9px; width:22px; height:22px; border-radius:50%; background:var(--accent-tint); color:var(--accent-dark); font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  ol.steps b{ color:var(--text-primary); }
+
+  .module{ scroll-margin-top:64px; }
+  .modhead{ display:flex; align-items:flex-start; gap:16px; margin-bottom:18px; }
+  .modbadge{ flex:0 0 auto; width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow); }
+  .modnum{ font-size:12.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); }
+  .modtitle{ font-size:23px; margin:2px 0 4px; }
+  .modwhy{ color:var(--text-secondary); font-size:14.5px; max-width:640px; }
+  .catlabel{ display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px; border:1px solid currentColor; margin-top:6px; }
+
+  .modbody-stack{ display:flex; flex-direction:column; gap:20px; }
+  .shotbox{ background:var(--surface); border:1px solid var(--border-soft); border-radius:18px; padding:18px; box-shadow:var(--shadow); }
+  .shotbox .imgframe{ background:#eef0ef; border-radius:12px; padding:10px; overflow-x:auto; }
+  .shotbox img{ display:block; width:100%; height:auto; min-width:360px; border-radius:6px; }
+  .shotbox .cap{ font-size:12.5px; color:var(--text-muted); text-align:center; margin-top:10px; }
+  .shotbox .connrow{ display:flex; justify-content:center; margin-bottom:16px; padding-bottom:16px; border-bottom:1px dashed var(--border); }
+  .shotbox .connrow .connframe{ background:#eef0ef; border-radius:10px; padding:8px 14px; max-width:520px; width:100%; overflow-x:auto; }
+  .shotbox .connrow img{ min-width:320px; width:100%; height:auto; display:block; border-radius:6px; }
+  .shotbox .conncap{ font-size:11.5px; font-weight:700; color:var(--accent-dark); text-align:center; margin-top:8px; }
+
+  .demo{ background:var(--surface); border:1px solid var(--border-soft); border-radius:16px; padding:20px; box-shadow:var(--shadow); min-width:0; }
+  .demo h4{ margin:0 0 10px; font-size:14px; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); }
+  .controls{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; align-items:center; }
+  select, input[type=text], input[type=number]{ font-family:inherit; font-size:14px; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text-primary); }
+  input[type=range]{ width:220px; accent-color:var(--accent); }
+  .btn{ font-family:inherit; font-size:14px; font-weight:700; padding:9px 16px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text-primary); cursor:pointer; transition:transform .1s, background .15s; }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn.primary{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+  .btn.toggle.active{ background:var(--accent-tint); border-color:var(--accent); color:var(--accent-dark); }
+  .btn:disabled{ opacity:.5; cursor:default; transform:none; }
+  .resulttext{ font-size:14px; color:var(--text-secondary); margin-top:10px; }
+  .resulttext b{ color:var(--text-primary); }
+
+  table.dt{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  table.dt th, table.dt td{ padding:8px 10px; text-align:right; border-bottom:1px solid var(--border-soft); white-space:nowrap; }
+  table.dt th:first-child, table.dt td:first-child{ text-align:left; }
+  table.dt th{ color:var(--text-secondary); font-weight:700; }
+  .tablewrap{ overflow-x:auto; border-radius:10px; }
+
+  .chartsvg{ width:100%; height:auto; }
+  .axislabel{ font-size:10px; fill:var(--text-muted); font-family:"Noto Sans KR",sans-serif; }
+  .baseline{ stroke:var(--text-muted); stroke-width:1; }
+  #tooltip{ position:fixed; pointer-events:none; background:var(--text-primary); color:var(--bg); font-size:12.5px; padding:6px 10px; border-radius:8px; z-index:200; opacity:0; transform:translate(-50%,-130%); transition:opacity .1s; white-space:nowrap; box-shadow:var(--shadow); }
+  #tooltip.show{ opacity:1; }
+
+  .formulabox{ background:var(--surface-2); border-radius:12px; padding:16px 18px; font-size:15px; text-align:center; margin:12px 0; }
+  .formulabox .expr{ font-family:"Black Han Sans","Noto Sans KR",sans-serif; font-size:19px; color:var(--accent-dark); }
+
+  .mcq{ margin-top:18px; border-top:1px dashed var(--border); padding-top:16px; }
+  .mcq .q{ font-weight:700; font-size:15px; margin-bottom:10px; }
+  .mcq .opts{ display:grid; gap:8px; }
+  .mcq button.opt{ text-align:left; font-family:inherit; font-size:14px; padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text-primary); cursor:pointer; }
+  .mcq button.opt:hover{ border-color:var(--accent); }
+  .mcq button.opt.correct{ background:color-mix(in srgb, var(--good) 16%, var(--surface)); border-color:var(--good); }
+  .mcq button.opt.wrong{ background:color-mix(in srgb, var(--critical) 14%, var(--surface)); border-color:var(--critical); }
+  .mcq .explain{ margin-top:10px; font-size:13.5px; color:var(--text-secondary); background:var(--surface-2); border-radius:10px; padding:10px 14px; display:none; }
+  .mcq .explain.show{ display:block; }
+
+  .donebar{ display:flex; align-items:center; justify-content:space-between; margin-top:20px; padding-top:16px; border-top:1px dashed var(--border); }
+  label.donecheck{ display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700; cursor:pointer; color:var(--text-secondary); }
+  label.donecheck input{ width:18px; height:18px; accent-color:var(--good); }
+  label.donecheck.checked{ color:var(--good); }
+  .hintlink{ font-size:13px; color:var(--text-muted); }
+
+  .tip{ background:var(--accent-tint); border-radius:12px; padding:12px 16px; font-size:13.5px; color:var(--accent-dark); margin-top:12px; }
+  .tip b{ font-weight:800; }
+
+  footer{ padding:40px 0 60px; text-align:center; color:var(--text-muted); font-size:13px; }
+
+  .summarygrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-top:20px; }
+  .sumitem{ background:var(--surface); border:1px solid var(--border-soft); border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px; box-shadow:var(--shadow); }
+  .sumitem .n{ width:26px; height:26px; border-radius:8px; flex:0 0 auto; }
+  .sumitem span{ font-size:13.5px; font-weight:700; }
+  .pipelinewrap{ display:flex; justify-content:center; margin-top:20px; }
+  .pipelinewrap .imgframe{ background:#eef0ef; border-radius:14px; padding:14px; max-width:560px; width:100%; }
+  .pipelinewrap img{ width:100%; height:auto; display:block; border-radius:8px; }
+  .pipelinecap{ text-align:center; color:var(--text-muted); font-size:12.5px; margin-top:10px; }
+
+  .predictcard{ display:flex; gap:14px; align-items:center; background:var(--surface-2); border-radius:12px; padding:14px 16px; margin-bottom:10px; }
+  .predictcard .pname{ font-weight:800; font-size:15px; min-width:80px; }
+  .predictcard .pmeta{ font-size:13px; color:var(--text-muted); }
+</style>
+<div id="progressbar"></div>
+<div id="tooltip"></div>
+
+<header class="hero">
+  <div class="wrap">
+    <a class="back-hub" href="./index.html">← 실습 허브로</a>
+    <span class="eyebrow">오렌지(Orange3) 회귀분석</span>
+    <h1 class="title display">회귀분석 해보기</h1>
+    <p class="subtitle"><b>오렌지 연습하기</b>에서 다룬 같은 포켓몬 18마리 데이터로, 이번엔 한 걸음 더 들어가 볼 차례야. 무게로 체력(HP)을 <b>예측하는 식</b>을 오렌지가 실제로 어떻게 만들어내는지, File → Scatter Plot → Linear Regression → Test and Score → Predictions 5단계로 직접 따라가 봐. 전부 실제 Orange3를 실행해서 캡처한 화면이야.</p>
+    <div class="statrow" id="statrow"></div>
+    <div class="chiprow" id="chiprow"></div>
+  </div>
+</header>
+
+<nav id="modnav"><div class="wrap inner" id="modnavinner"></div></nav>
+
+<section>
+  <div class="wrap introgrid">
+    <div>
+      <h2 class="h2">회귀분석이 뭐야?</h2>
+      <p class="lead">Scatter Plot으로 "두 변수가 관계가 있는지"는 이미 확인해봤어(상관계수 r). <b>회귀분석</b>은 거기서 한 걸음 더 나가서, 그 관계를 <b>"이 값을 넣으면 저 값이 나온다"는 구체적인 식</b>으로 만드는 거야. 식이 있으면 데이터에 없던 새로운 경우도 예측할 수 있어.</p>
+      <ol class="steps">
+        <li><b>목표(Target) 정하기</b> — 무엇을 예측하고 싶은지 정해. 여기서는 체력(HP).</li>
+        <li><b>식 학습시키기</b> — Linear Regression 위젯이 데이터에 가장 잘 맞는 직선(식)을 찾아줘.</li>
+        <li><b>성능 확인하기</b> — 그 식이 얼마나 잘 맞는 식인지 Test and Score로 점수를 매겨.</li>
+        <li><b>새 데이터에 적용하기</b> — Predictions 위젯으로 처음 보는 데이터에도 식을 적용해봐.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>이번 실습 관계</h3>
+      <p><b>무게(Weight)</b>로 <b>체력(HP)</b>을 예측해볼 거야. 18마리 데이터에서 두 값의 상관계수는 <b>r = 0.67</b> — 무게가 많이 나갈수록 체력도 대체로 높아지는, 꽤 뚜렷한 양의 관계야. (같은 무게↔방어력 조합보다 더 뚜렷한 관계를 고르기 위해 18마리 데이터의 모든 능력치 조합 상관계수를 직접 계산해서 골랐어.)</p>
+      <div class="tablewrap" style="margin-top:14px;">
+        <table class="dt" id="previewtable"></table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main id="modules"></main>
+
+<section class="alt" id="summary-section">
+  <div class="wrap">
+    <h2 class="h2">전체 파이프라인 한눈에 보기</h2>
+    <p class="lead">지금까지 연습한 5단계를 모두 연결하면, 실제 오렌지 캔버스는 이런 모습이 돼. File(훈련 데이터) 하나에서 Scatter Plot·Linear Regression으로 뻗어나가고, Linear Regression은 다시 Data Table·Test and Score·Predictions 세 갈래로 이어져. Predictions에는 File(새 포켓몬)에서 온 데이터도 함께 들어가. (아래는 실제로 Orange3를 실행해서 캡처한 캔버스 화면이야.)</p>
+    <div class="pipelinewrap">
+      <div>
+        <div class="imgframe"><img src="orange_regression_images/00_pipeline_reg.png" alt="회귀분석 5단계가 모두 연결된 실제 Orange3 캔버스"></div>
+        <div class="pipelinecap">🖥️ 실제 Orange3 캔버스 — File(훈련 데이터)에서 시작해 Linear Regression을 거쳐 Data Table·Test and Score·Predictions로 이어지는 전체 파이프라인</div>
+      </div>
+    </div>
+    <div class="summarygrid" id="summarychecklist"></div>
+    <div class="tip" style="margin-top:22px;"><b>다음 단계 —</b> 이제 실제 오렌지를 켜고 이 5단계를 그대로 따라해봐. 무게↔체력 말고 다른 조합(예: 공격↔방어)으로 바꿔서 회귀식을 다시 만들어보면, r이 낮을 때 회귀분석이 왜 힘을 못 쓰는지도 직접 느껴볼 수 있어.</div>
+  </div>
+</section>
+
+<footer>오렌지(Orange3)로 회귀분석하기 · 소프트웨어와 생활 3단원 실습 자료 · 포켓몬 데이터로 실습, 위젯 화면은 실제 Orange3에서 캡처</footer>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- DATA ---------------- */
+const DATA = [
+  {name:"리자몽",   type:"불",   hp:78,  weight:90.5},
+  {name:"부스터",   type:"불",   hp:65,  weight:25.0},
+  {name:"날쌩마",   type:"불",   hp:65,  weight:95.0},
+  {name:"윈디",     type:"불",   hp:90,  weight:155.0},
+  {name:"거북왕",   type:"물",   hp:79,  weight:85.5},
+  {name:"갸라도스", type:"물",   hp:95,  weight:235.0},
+  {name:"라프라스", type:"물",   hp:130, weight:220.0},
+  {name:"샤미드",   type:"물",   hp:130, weight:29.0},
+  {name:"잉어킹",   type:"물",   hp:20,  weight:10.0},
+  {name:"피카츄",   type:"전기", hp:35,  weight:6.0},
+  {name:"라이츄",   type:"전기", hp:60,  weight:30.0},
+  {name:"쥬피썬더", type:"전기", hp:65,  weight:24.5},
+  {name:"잠만보",   type:"노말", hp:160, weight:460.0},
+  {name:"팬텀",     type:"고스트", hp:60, weight:40.5},
+  {name:"후딘",     type:"에스퍼", hp:55, weight:48.0},
+  {name:"뮤츠",     type:"에스퍼", hp:106,weight:122.0},
+  {name:"롱스톤",   type:"바위", hp:35,  weight:210.0},
+  {name:"메타몽",   type:"노말", hp:48,  weight:4.0},
+];
+const SLOPE = 0.21059160140379993;
+const INTERCEPT = 54.332326297045455;
+const R2_FULL = 0.447;
+const R2_CV = 0.341;
+const RMSE_CV = 28.987;
+const MAE_CV = 19.066;
+
+const NEW_POKEMON = [
+  {name:"이상해씨", weight:6.9, hp:45},
+  {name:"괴력몬", weight:130.0, hp:90},
+];
+
+function predict(weight){ return SLOPE*weight + INTERCEPT; }
+function fmt(n){ return (Math.round(n*10)/10).toLocaleString("ko-KR"); }
+function fmt2(n){ return (Math.round(n*100)/100).toLocaleString("ko-KR"); }
+
+function previewTableHTML(rows){
+  return `<thead><tr><th>이름</th><th>타입</th><th>체력</th><th>무게</th></tr></thead><tbody>${rows.map(d=>`<tr><td>${d.name}</td><td>${d.type}</td><td class="tabular">${fmt(d.hp)}</td><td class="tabular">${fmt(d.weight)}</td></tr>`).join("")}</tbody>`;
+}
+
+/* ---------------- ICONS ---------------- */
+function icon(kind, color, size){
+  size = size || 22;
+  const c = color || "currentColor";
+  const s = `width="${size}" height="${size}" viewBox="0 0 24 24" fill="none"`;
+  switch(kind){
+    case "file":
+      return `<svg ${s}><path d="M5 3h9l5 5v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" stroke="${c}" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 3v5h5" stroke="${c}" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+    case "scatter":
+      return `<svg ${s}><circle cx="6" cy="17" r="1.8" fill="${c}"/><circle cx="11" cy="10" r="1.8" fill="${c}"/><circle cx="15" cy="14" r="1.8" fill="${c}"/><circle cx="19" cy="6" r="1.8" fill="${c}"/><circle cx="9" cy="6" r="1.8" fill="${c}"/></svg>`;
+    case "trend":
+      return `<svg ${s}><circle cx="5" cy="18" r="1.6" fill="${c}"/><circle cx="10" cy="13" r="1.6" fill="${c}"/><circle cx="14" cy="15" r="1.6" fill="${c}"/><circle cx="19" cy="6" r="1.6" fill="${c}"/><path d="M4 19L20 5" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+    case "gauge":
+      return `<svg ${s}><path d="M4 17a8 8 0 0 1 16 0" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/><path d="M12 17L16 10" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17" r="1.4" fill="${c}"/></svg>`;
+    case "predict":
+      return `<svg ${s}><circle cx="12" cy="11" r="6.5" stroke="${c}" stroke-width="1.8"/><path d="M8 21h8M9.5 17.2 L9 21M14.5 17.2 L15 21" stroke="${c}" stroke-width="1.6" stroke-linecap="round"/><path d="M9.5 11a2.5 2.5 0 0 1 5 0c0 1.4-2.5 1.8-2.5 3.4" stroke="${c}" stroke-width="1.5" stroke-linecap="round" fill="none"/><circle cx="12" cy="16.3" r=".5" fill="${c}"/></svg>`;
+    default: return "";
+  }
+}
+
+/* ---------------- MODULE CONFIG ---------------- */
+const MODULES = [
+  {id:"file", num:1, slot:"--s1", icon:"file", cat:"Data 카테고리",
+    widget:"File", title:"목표(Target) 정하기",
+    why:"무엇을 예측할지(Target) 정해야 회귀분석을 시작할 수 있어. File 위젯을 다시 열어서 체력(HP)은 target, 무게는 feature로, 나머지 열은 전부 skip으로 바꿔줘 — 예측에 쓸 재료를 무게 하나로 단순하게 만드는 거야.",
+    shot:"orange_regression_images/01_file_target.png", shotcap:"실제 Orange3 File 위젯 — Columns 표에서 체력=target, 무게=feature, 나머지=skip으로 역할을 바꾼 화면",
+    conn:"orange_regression_images/conn_file.png", conncap:"캔버스 연결 — File은 이번 실습의 시작점이야"},
+  {id:"scatter", num:2, slot:"--s6", icon:"scatter", cat:"Visualize 카테고리",
+    widget:"Scatter Plot", title:"관계 + 회귀선 미리보기",
+    why:"Scatter Plot의 'Show regression line' 옵션을 켜면 점들 사이를 가장 잘 지나가는 직선을 자동으로 그려줘. 이 직선이 바로 회귀분석이 찾아내는 식의 모양이야.",
+    shot:"orange_regression_images/02_scatter_reg.png", shotcap:"실제 Orange3 Scatter Plot 위젯 — 무게(x) × 체력(y), Show regression line 체크, r = 0.67",
+    conn:"orange_regression_images/conn_scatter.png", conncap:"캔버스 연결 — File → Scatter Plot으로 'Data' 선을 연결해"},
+  {id:"linreg", num:3, slot:"--s7", icon:"trend", cat:"Model 카테고리",
+    widget:"Linear Regression", title:"회귀식 학습시키기",
+    why:"Linear Regression 위젯 자체는 옵션 화면만 보여주고 계산된 계수는 안 보여줘. 'Coefficients' 출력을 Data Table에 연결해야 실제 기울기·절편 숫자를 확인할 수 있어.",
+    shot:"orange_regression_images/03_linreg.png", shotcap:"실제 Orange3 Linear Regression 위젯 — 정규화 없음(No regularization), Fit intercept 체크",
+    shot2:"orange_regression_images/03b_coef_table.png", shot2cap:"Coefficients 출력을 Data Table에 연결하면 실제 계수를 볼 수 있어 — intercept 54.33, 무게 0.21",
+    conn:"orange_regression_images/conn_linreg.png", conncap:"캔버스 연결 — File → Linear Regression → Data Table 순서로 이어줘. Linear Regression 혼자서는 계수 숫자가 안 보이니까, 뒤에 Data Table을 붙여야 확인할 수 있어"},
+  {id:"testscore", num:4, slot:"--s4", icon:"gauge", cat:"Evaluate 카테고리",
+    widget:"Test and Score", title:"모델 성능 평가하기",
+    why:"방금 만든 회귀식이 얼마나 믿을만한지 점수로 확인해. Test and Score는 Linear Regression의 'Learner'(학습 방법 자체)를 받아서, 데이터를 여러 번 나눠 학습·평가를 반복(교차검증)한 뒤 평균 점수를 매겨줘.",
+    shot:"orange_regression_images/04_testscore.png", shotcap:"실제 Orange3 Test and Score 위젯 — 5-fold 교차검증, R² = 0.341, RMSE = 28.987",
+    conn:"orange_regression_images/conn_testscore.png", conncap:"캔버스 연결 — File → Linear Regression → Test and Score, 그리고 File → Test and Score('Data')도 따로 연결해. Test and Score는 원본 데이터와 학습 방법(Learner) 둘 다 필요해"},
+  {id:"predictions", num:5, slot:"--s2", icon:"predict", cat:"Evaluate 카테고리",
+    widget:"Predictions", title:"새 포켓몬 예측해보기",
+    why:"진짜 시험대! 훈련 데이터 18마리에는 없던 포켓몬 2마리(이상해씨·괴력몬)의 무게만 주고, 우리가 만든 식이 체력을 얼마나 잘 맞히는지 확인해봐. 실제 체력값도 같이 넣어뒀으니 예측이 얼마나 빗나갔는지(error)도 바로 비교할 수 있어.",
+    shot:"orange_regression_images/05a_file_new.png", shotcap:"실제 Orange3 File 위젯 — new_pokemon.csv(이상해씨·괴력몬), 훈련 데이터와 똑같이 체력=target, 무게=feature로 역할을 맞춤",
+    shot2:"orange_regression_images/05b_predictions.png", shot2cap:"실제 Orange3 Predictions 위젯 — 예측 체력과 실제 체력, 오차(error)까지 한 화면에서 확인",
+    conn:"orange_regression_images/conn_predictions.png", conncap:"캔버스 연결 — File(훈련 데이터) → Linear Regression → Predictions('Model'), 그리고 File(새 포켓몬) → Predictions('Data')도 함께 연결해"},
+];
+
+/* ---------------- STAT TILES / CHIPS / PREVIEW ---------------- */
+function renderIntro(){
+  document.getElementById("statrow").innerHTML = `
+    <div class="stattile"><div class="num tabular">r = 0.67</div><div class="lab">무게↔체력 상관계수</div></div>
+    <div class="stattile"><div class="num tabular">R² = 0.34</div><div class="lab">교차검증 적합도</div></div>
+    <div class="stattile"><div class="num tabular">18마리</div><div class="lab">훈련 데이터</div></div>
+    <div class="stattile"><div class="num tabular" style="font-size:18px;">2마리</div><div class="lab">새로 예측해볼 포켓몬</div></div>`;
+
+  document.getElementById("chiprow").innerHTML = MODULES.map(m=>`
+    <span class="chip"><span class="dot" style="background:var(${m.slot})"></span>${m.widget}</span>`).join("");
+
+  document.getElementById("previewtable").innerHTML = previewTableHTML(DATA);
+}
+
+/* ---------------- NAV ---------------- */
+function renderNav(){
+  const html = MODULES.map(m=>`
+    <a href="#mod-${m.id}" id="nav-${m.id}"><span class="n" style="background:var(${m.slot})">${m.num}</span>${m.widget}</a>`).join("");
+  document.getElementById("modnavinner").innerHTML = html +
+    `<div id="ringwrap"><span id="ringtext">0/${MODULES.length} 완료</span></div>`;
+}
+
+/* ---------------- MCQ helper ---------------- */
+function renderMCQ(container, question, options, correctIdx, explain){
+  const optsHtml = options.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join("");
+  container.innerHTML = `<div class="mcq"><div class="q">✅ 확인 문제 — ${question}</div><div class="opts">${optsHtml}</div><div class="explain"></div></div>`;
+  const buttons = container.querySelectorAll(".opt");
+  const explainBox = container.querySelector(".explain");
+  buttons.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      if(container.dataset.answered) return;
+      container.dataset.answered = "1";
+      const i = parseInt(btn.dataset.i,10);
+      buttons.forEach(b=>b.disabled=true);
+      if(i===correctIdx){ btn.classList.add("correct"); }
+      else{ btn.classList.add("wrong"); buttons[correctIdx].classList.add("correct"); }
+      explainBox.textContent = explain;
+      explainBox.classList.add("show");
+    });
+  });
+}
+
+/* ---------------- DONE TRACKING ---------------- */
+let doneState = {};
+try{ doneState = JSON.parse(localStorage.getItem("orangeRegLabDone")||"{}"); }catch(e){ doneState = {}; }
+function saveDone(){ try{ localStorage.setItem("orangeRegLabDone", JSON.stringify(doneState)); }catch(e){} }
+function updateProgress(){
+  const total = MODULES.length;
+  const doneN = MODULES.filter(m=>doneState[m.id]).length;
+  document.getElementById("progressbar").style.width = (doneN/total*100)+"%";
+  const rt = document.getElementById("ringtext");
+  if(rt) rt.textContent = `${doneN}/${total} 완료`;
+  MODULES.forEach(m=>{
+    const navEl = document.getElementById("nav-"+m.id);
+    if(navEl){
+      navEl.classList.toggle("done", !!doneState[m.id]);
+      const numEl = navEl.querySelector(".n");
+      if(numEl) numEl.textContent = doneState[m.id] ? "✓" : String(m.num);
+    }
+    const chk = document.getElementById("chk-"+m.id);
+    if(chk){ chk.checked = !!doneState[m.id]; chk.closest("label").classList.toggle("checked", !!doneState[m.id]); }
+    const sumEl = document.getElementById("sum-"+m.id);
+    if(sumEl) sumEl.style.opacity = doneState[m.id] ? "1" : ".45";
+  });
+}
+
+/* ---------------- MODULE SHELL ---------------- */
+function buildModuleShell(mod){
+  const el = document.createElement("section");
+  el.className = "module" + (mod.num%2===0 ? " alt":"");
+  el.id = "mod-"+mod.id;
+  el.innerHTML = `
+    <div class="wrap">
+      <div class="modhead">
+        <div class="modbadge" style="background:var(${mod.slot})">${icon(mod.icon,"#fff",26)}</div>
+        <div>
+          <div class="modnum">STEP ${mod.num} · ${mod.widget}</div>
+          <h3 class="modtitle display">${mod.title}</h3>
+          <p class="modwhy">${mod.why}</p>
+          <span class="catlabel" style="color:var(${mod.slot})">${mod.cat}</span>
+        </div>
+      </div>
+      <div class="modbody-stack">
+        <div class="shotbox">
+          <div class="connrow"><div><div class="connframe"><img src="${mod.conn}" alt="${mod.conncap}"></div><div class="conncap">🔗 ${mod.conncap}</div></div></div>
+          <div class="imgframe"><img src="${mod.shot}" alt="${mod.shotcap}"></div>
+          <div class="cap">🖥️ ${mod.shotcap}</div>
+          ${mod.shot2 ? `<div class="imgframe" style="margin-top:14px;"><img src="${mod.shot2}" alt="${mod.shot2cap}"></div><div class="cap">🖥️ ${mod.shot2cap}</div>` : ""}
+        </div>
+        <div class="demo" id="demo-${mod.id}"></div>
+      </div>
+      <div class="donebar">
+        <label class="donecheck"><input type="checkbox" id="chk-${mod.id}"> 이 위젯 연습 완료!</label>
+        <span class="hintlink">실제 오렌지에서도 ${mod.widget} 위젯을 찾아 똑같이 해봐</span>
+      </div>
+    </div>`;
+  document.getElementById("modules").appendChild(el);
+  el.querySelector(`#chk-${mod.id}`).addEventListener("change", (e)=>{
+    doneState[mod.id] = e.target.checked; saveDone(); updateProgress();
+  });
+  return el.querySelector(`#demo-${mod.id}`);
+}
+
+/* ---- 1. File (target 정하기) ---- */
+function buildFile(mod){
+  const demo = buildModuleShell(mod);
+  demo.innerHTML = `
+    <h4>역할 맞히기</h4>
+    <p class="resulttext">회귀식으로 <b>체력(HP)</b>을 예측하고 싶어. 아래 열들의 역할을 생각해보고 문제를 풀어봐.</p>
+    <div id="file-mcq"></div>`;
+  renderMCQ(demo.querySelector("#file-mcq"), "체력(HP)을 예측하고 싶을 때, 체력 열의 역할(Role)은 무엇으로 바꿔야 할까?",
+    ["Target (예측하려는 값)","Feature (예측에 쓰는 재료)","Meta (참고용 이름표)","Skip (사용 안 함)"], 0,
+    "예측하고 싶은 값이 바로 Target(목표)이야. 반대로 예측에 쓸 재료(여기서는 무게)는 Feature로, 나머지 관련 없는 열은 Skip으로 지정해서 식을 단순하게 만들어.");
+}
+
+/* ---- 2. Scatter Plot (회귀선으로 예측해보기) ---- */
+function buildScatter(mod){
+  const demo = buildModuleShell(mod);
+  demo.innerHTML = `
+    <h4>회귀선으로 예측해보기</h4>
+    <p class="resulttext">슬라이더로 무게를 움직이면, 회귀선 위에서 그 무게일 때 예측되는 체력값이 어디인지 바로 보여줘.</p>
+    <div class="controls">
+      <input type="range" id="scWeight" min="0" max="480" step="5" value="150">
+      <span class="resulttext" id="scWeightLabel" style="margin:0;"></span>
+    </div>
+    <svg class="chartsvg" id="scSvg" viewBox="0 0 640 380"></svg>
+    <div class="resulttext" id="scResultText"></div>
+    <div id="scatter-mcq"></div>`;
+  const pad = 50, chartW = 640-pad*2, chartH = 380-pad*2;
+  const xMax = 480, yMax = 175;
+  const X = v => pad + (v/xMax)*chartW;
+  const Y = v => pad + chartH - (v/yMax)*chartH;
+  function draw(){
+    const w = parseFloat(demo.querySelector("#scWeight").value);
+    const predHp = predict(w);
+    demo.querySelector("#scWeightLabel").innerHTML = `무게 = <b>${fmt(w)}</b>`;
+    let svg = `<line x1="${pad}" y1="${pad+chartH}" x2="${pad+chartW}" y2="${pad+chartH}" class="baseline"/><line x1="${pad}" y1="${pad}" x2="${pad}" y2="${pad+chartH}" class="baseline"/>`;
+    svg += `<text x="${pad+chartW/2}" y="${pad+chartH+34}" text-anchor="middle" class="axislabel">무게 →</text>`;
+    svg += `<text x="${pad-34}" y="${pad+chartH/2}" text-anchor="middle" class="axislabel" transform="rotate(-90 ${pad-34} ${pad+chartH/2})">체력 →</text>`;
+    // regression line across full range
+    const y0 = predict(0), y1 = predict(xMax);
+    svg += `<line x1="${X(0)}" y1="${Y(Math.max(0,Math.min(yMax,y0)))}" x2="${X(xMax)}" y2="${Y(Math.max(0,Math.min(yMax,y1)))}" stroke="var(${mod.slot})" stroke-width="2.5" opacity="0.85"/>`;
+    // data points
+    DATA.forEach(d=>{
+      svg += `<circle class="pt" data-name="${d.name}" data-x="${fmt(d.weight)}" data-y="${fmt(d.hp)}" cx="${X(d.weight)}" cy="${Y(Math.min(yMax,d.hp))}" r="5" fill="var(--text-muted)" opacity="0.55" stroke="var(--surface)" stroke-width="1.2" style="cursor:pointer;"/>`;
+    });
+    // moving prediction marker
+    const py = Math.max(0, Math.min(yMax, predHp));
+    svg += `<line x1="${X(w)}" y1="${Y(py)}" x2="${X(w)}" y2="${pad+chartH}" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+    svg += `<circle cx="${X(w)}" cy="${Y(py)}" r="7" fill="var(--accent)" stroke="#fff" stroke-width="2"/>`;
+    demo.querySelector("#scSvg").innerHTML = svg;
+    demo.querySelectorAll("#scSvg .pt").forEach(pt=>{
+      pt.addEventListener("mousemove",(e)=>showTip(e, `<b>${pt.dataset.name}</b> · 무게 ${pt.dataset.x} · 체력 ${pt.dataset.y}`));
+      pt.addEventListener("mouseleave", hideTip);
+    });
+    demo.querySelector("#scResultText").innerHTML = `무게가 <b>${fmt(w)}</b>일 때, 회귀선을 따라가면 예측 체력은 약 <b>${fmt2(predHp)}</b>이야. (주황 점이 회귀선 위의 예측 위치, 회색 점들이 실제 18마리 데이터)`;
+  }
+  demo.querySelector("#scWeight").addEventListener("input", draw);
+  draw();
+  renderMCQ(demo.querySelector("#scatter-mcq"), "Scatter Plot에서 회귀선(regression line)이 하는 역할로 가장 알맞은 것은?",
+    ["점들 사이 관계를 가장 잘 나타내는 직선을 그려서, 새로운 x값의 y값을 짐작하게 해준다","점들을 전부 지나가도록 억지로 이어준다","이상치인 점을 자동으로 지워준다","점들의 색을 타입별로 구분해준다"], 0,
+    "회귀선은 모든 점을 다 지나가지 않아도, 전체적으로 점들과의 거리가 가장 작아지도록 그은 직선이야. 이 직선의 식이 바로 다음 STEP에서 Linear Regression 위젯이 계산해주는 식이야.");
+}
+
+/* ---- 3. Linear Regression (계수 해석) ---- */
+function buildLinreg(mod){
+  const demo = buildModuleShell(mod);
+  demo.innerHTML = `
+    <h4>직접 계산해서 검증하기</h4>
+    <div class="formulabox">예측 체력 = <span class="expr">0.21 × 무게 + 54.33</span></div>
+    <p class="resulttext">위 식은 Orange3 Linear Regression 위젯이 18마리 데이터로 실제로 계산해낸 식이야(기울기 0.21, 절편 54.33). 무게를 입력하면 이 식으로 직접 계산해볼 수 있어.</p>
+    <div class="controls">
+      <input type="number" id="lrWeight" value="90.5" step="0.1" style="width:110px;"> <span class="resulttext" style="margin:0;">kg</span>
+      <button class="btn primary" id="lrCalcBtn">계산하기</button>
+    </div>
+    <div class="resulttext" id="lrResultText"></div>
+    <div id="linreg-mcq"></div>`;
+  function calc(){
+    const w = parseFloat(demo.querySelector("#lrWeight").value);
+    if(isNaN(w)){ demo.querySelector("#lrResultText").innerHTML = `숫자를 입력해줘.`; return; }
+    const pred = predict(w);
+    demo.querySelector("#lrResultText").innerHTML = `0.21 × <b>${fmt(w)}</b> + 54.33 = <b>${fmt2(0.21*w)}</b> + 54.33 ≈ <b>${fmt2(pred)}</b> — 무게 ${fmt(w)}kg인 포켓몬의 예측 체력은 약 <b>${Math.round(pred)}</b>이야.`;
+  }
+  demo.querySelector("#lrCalcBtn").addEventListener("click", calc);
+  calc();
+  renderMCQ(demo.querySelector("#linreg-mcq"), "기울기 0.21의 의미로 가장 알맞은 것은?",
+    ["무게가 1kg 늘어날 때마다, 예측 체력이 평균적으로 약 0.21씩 늘어난다","무게가 1kg 늘어날 때마다, 예측 체력이 0.21배가 된다","체력이 항상 무게의 21%라는 뜻이다","무게와 체력은 아무 관계가 없다는 뜻이다"], 0,
+    "회귀식 y = 기울기 × x + 절편에서 기울기는 'x가 1 늘어날 때 y가 얼마나 변하는지'를 뜻해. 절편(54.33)은 무게가 0일 때의 이론적인 출발값이고, 실제로는 각 데이터의 흩어진 정도(R²=0.34) 때문에 매번 정확히 들어맞진 않아.");
+}
+
+/* ---- 4. Test and Score (R² 비교) ---- */
+function buildTestscore(mod){
+  const demo = buildModuleShell(mod);
+  demo.innerHTML = `
+    <h4>R², 무엇을 재는 점수일까</h4>
+    <p class="resulttext">R²(결정계수)는 0~1 사이 값으로, <b>1에 가까울수록</b> 식이 실제 데이터를 잘 설명한다는 뜻이야. 같은 식인데 재는 방법에 따라 점수가 달라질 수 있어 — 아래 두 가지를 비교해봐.</p>
+    <div class="controls">
+      <button class="btn toggle active" id="r2FullBtn">전체 데이터로 평가</button>
+      <button class="btn toggle" id="r2CvBtn">5-fold 교차검증으로 평가</button>
+    </div>
+    <div id="r2Result"></div>
+    <div id="testscore-mcq"></div>`;
+  const fullBtn = demo.querySelector("#r2FullBtn");
+  const cvBtn = demo.querySelector("#r2CvBtn");
+  function render(mode){
+    fullBtn.classList.toggle("active", mode==="full");
+    cvBtn.classList.toggle("active", mode==="cv");
+    const r2 = mode==="full" ? R2_FULL : R2_CV;
+    const desc = mode==="full"
+      ? `식을 만들 때 썼던 <b>같은 18마리</b>로 다시 채점한 점수야. 식 입장에서는 "이미 본 문제"라서 점수가 좀 후하게 나와.`
+      : `18마리를 5묶음으로 나눠서, <b>매번 4묶음으로 학습하고 나머지 1묶음(처음 보는 데이터)으로 채점</b>하길 5번 반복한 평균 점수야. RMSE ≈ ${fmt2(RMSE_CV)}, MAE ≈ ${fmt2(MAE_CV)}. "처음 보는 문제"로 채점하니 더 정직한 점수에 가까워.`;
+    demo.querySelector("#r2Result").innerHTML = `
+      <div class="tip"><b>R² = ${r2}</b> — ${desc}</div>`;
+  }
+  fullBtn.addEventListener("click", ()=>render("full"));
+  cvBtn.addEventListener("click", ()=>render("cv"));
+  render("full");
+  renderMCQ(demo.querySelector("#testscore-mcq"), "전체 데이터로 평가한 R²(0.45)가 교차검증 R²(0.34)보다 더 높게 나온 이유로 가장 알맞은 것은?",
+    ["식을 만들 때 이미 봤던 데이터로 다시 채점했기 때문에 점수가 후하게 나온다","교차검증 계산이 잘못됐기 때문이다","데이터 개수가 부족해서 항상 이렇게 나온다","R²는 원래 클수록 나쁜 점수이기 때문이다"], 0,
+    "이미 공부한 문제로 시험을 보면 점수가 잘 나오는 것과 같은 이치야. 교차검증은 '한 번도 안 본 데이터'로 채점해서, 실제로 새 데이터를 만났을 때의 성능에 더 가까운 정직한 점수를 알려줘.");
+}
+
+/* ---- 5. Predictions (예측 게임) ---- */
+function buildPredictions(mod){
+  const demo = buildModuleShell(mod);
+  demo.innerHTML = `
+    <h4>예측 게임 — 실제 값과 비교하기</h4>
+    <p class="resulttext">훈련 데이터 18마리에는 없던 포켓몬 2마리야. 무게만 보고 버튼을 눌러 우리 식의 예측값과 실제값을 비교해봐.</p>
+    <div id="predictCards"></div>
+    <div id="predictions-mcq"></div>`;
+  const wrap = demo.querySelector("#predictCards");
+  NEW_POKEMON.forEach((p, i)=>{
+    const card = document.createElement("div");
+    card.className = "predictcard";
+    const pred = predict(p.weight);
+    const err = p.hp - Math.round(pred);
+    card.innerHTML = `
+      <span class="pname">${p.name}</span>
+      <span class="pmeta">무게 ${fmt(p.weight)}kg</span>
+      <button class="btn primary" data-i="${i}">예측·정답 보기</button>
+      <span class="resulttext reveal" style="display:none; margin:0;"></span>`;
+    wrap.appendChild(card);
+    card.querySelector("button").addEventListener("click", (e)=>{
+      const btn = e.target;
+      btn.disabled = true;
+      const rev = card.querySelector(".reveal");
+      rev.style.display = "inline";
+      rev.innerHTML = `예측 체력 <b>${Math.round(pred)}</b> · 실제 체력 <b>${p.hp}</b> · 오차 <b style="color:${err>=0?'var(--good)':'var(--critical)'}">${err>=0?"+":""}${err}</b>`;
+    });
+  });
+  renderMCQ(demo.querySelector("#predictions-mcq"), "이상해씨는 예측 체력(56)보다 실제 체력(45)이 더 낮았어. 이 오차(error = 실제 − 예측 = −11)가 뜻하는 것은?",
+    ["우리 식이 이상해씨의 체력을 실제보다 높게 예측했다","우리 식이 이상해씨의 체력을 실제보다 낮게 예측했다","이상해씨 데이터에 오류가 있다는 뜻이다","무게와 체력은 아무 관계가 없다는 뜻이다"], 0,
+    "error = 실제값 − 예측값이니까, 음수라는 건 '실제보다 높게 예측했다'는 뜻이야. 무게만으로 체력을 예측하는 식이라 한계가 있는 거고, R²=0.34 정도의 적합도라면 이런 오차는 자연스러운 일이야.");
+}
+
+/* ---------------- TOOLTIP ---------------- */
+const tipEl = document.getElementById("tooltip");
+function showTip(e, html){ tipEl.innerHTML = html; tipEl.style.left = e.clientX+"px"; tipEl.style.top = e.clientY+"px"; tipEl.classList.add("show"); }
+function hideTip(){ tipEl.classList.remove("show"); }
+
+/* ---------------- SUMMARY CHECKLIST ---------------- */
+function renderSummaryChecklist(){
+  document.getElementById("summarychecklist").innerHTML = MODULES.map(m=>`
+    <div class="sumitem" id="sum-${m.id}" style="opacity:.45;"><div class="n" style="background:var(${m.slot})"></div><span>${m.widget}</span></div>`).join("");
+}
+
+/* ---------------- INIT ---------------- */
+renderIntro();
+renderNav();
+buildFile(MODULES[0]);
+buildScatter(MODULES[1]);
+buildLinreg(MODULES[2]);
+buildTestscore(MODULES[3]);
+buildPredictions(MODULES[4]);
+renderSummaryChecklist();
+updateProgress();
+})();
+</script>
+</body></html>
