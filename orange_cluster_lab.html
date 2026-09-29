@@ -1,0 +1,785 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>오렌지(Orange3)로 이미지 군집분석하기 (포켓몬 아트워크)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: light;
+    --bg:#faf7f2;
+    --page:#f3efe7;
+    --surface:#ffffff;
+    --surface-2:#f6f2ea;
+    --text-primary:#201d18;
+    --text-secondary:#5b564d;
+    --text-muted:#938d80;
+    --border:rgba(32,29,24,0.12);
+    --border-soft:rgba(32,29,24,0.07);
+    --accent:#3a6bd6;
+    --accent-dark:#2650a8;
+    --accent-tint:#dde6fb;
+    --accent-ink:#ffffff;
+    --good:#0ca30c;
+    --warning:#fab219;
+    --critical:#d03b3b;
+    --shadow: 0 1px 2px rgba(32,29,24,0.06), 0 8px 24px -12px rgba(32,29,24,0.18);
+
+    --s1:#2a78d6; /* blue    - Import Images */
+    --s2:#eb6834; /* orange  - Image Viewer */
+    --s3:#1baf7a; /* aqua    - Image Embedding */
+    --s4:#eda100; /* yellow  - Data Table */
+    --s5:#e87ba4; /* magenta - cluster C5 */
+    --s6:#008300; /* green   - Hierarchical Clustering */
+    --s7:#4a3aa7; /* violet  - cluster C4 / bonus gallery */
+    --s8:#e34948; /* red     - Distances */
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      color-scheme: dark;
+      --bg:#141311;
+      --page:#0d0d0c;
+      --surface:#1c1a17;
+      --surface-2:#242119;
+      --text-primary:#faf8f4;
+      --text-secondary:#c7c1b5;
+      --text-muted:#928c7f;
+      --border:rgba(250,248,244,0.12);
+      --border-soft:rgba(250,248,244,0.07);
+      --accent:#6f97ea;
+      --accent-dark:#a7c0f5;
+      --accent-tint:#1c2740;
+      --accent-ink:#0d1220;
+      --good:#0ca30c;
+      --warning:#fab219;
+      --critical:#e66767;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 28px -12px rgba(0,0,0,0.55);
+
+      --s1:#3987e5; --s2:#e2793f; --s3:#199e70; --s4:#c98500;
+      --s5:#d55181; --s6:#2fae2f; --s7:#9085e9; --s8:#e66767;
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme: dark;
+    --bg:#141311; --page:#0d0d0c; --surface:#1c1a17; --surface-2:#242119;
+    --text-primary:#faf8f4; --text-secondary:#c7c1b5; --text-muted:#928c7f;
+    --border:rgba(250,248,244,0.12); --border-soft:rgba(250,248,244,0.07);
+    --accent:#6f97ea; --accent-dark:#a7c0f5; --accent-tint:#1c2740; --accent-ink:#0d1220;
+    --good:#0ca30c; --warning:#fab219; --critical:#e66767;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 28px -12px rgba(0,0,0,0.55);
+    --s1:#3987e5; --s2:#e2793f; --s3:#199e70; --s4:#c98500;
+    --s5:#d55181; --s6:#2fae2f; --s7:#9085e9; --s8:#e66767;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; overflow-x:hidden; }
+  body{
+    margin:0; background:var(--page); color:var(--text-primary);
+    font-family:"Noto Sans KR", system-ui, -apple-system, sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+    word-break:keep-all; overflow-wrap:break-word;
+  }
+  .back-hub{ display:flex; width:max-content; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--text-muted); text-decoration:none; margin-bottom:14px; }
+  .back-hub:hover{ color:var(--accent-dark); }
+  .display{ font-family:"Black Han Sans","Noto Sans KR",sans-serif; letter-spacing:.01em; }
+  img,svg{ display:block; }
+  .wrap{ max-width:920px; margin:0 auto; padding:0 20px; }
+  .tabular{ font-variant-numeric: tabular-nums; }
+
+  #progressbar{ position:fixed; top:0; left:0; height:4px; width:0%; background:var(--accent); z-index:100; transition:width .3s ease; }
+
+  header.hero{ padding:64px 0 36px; background:
+      radial-gradient(circle at 12% 0%, var(--accent-tint), transparent 55%), var(--bg); }
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:700; color:var(--accent-dark); text-transform:uppercase; letter-spacing:.08em; background:var(--accent-tint); border-radius:999px; padding:6px 14px; }
+  h1.title{ font-size:clamp(34px,5.4vw,52px); margin:18px 0 10px; line-height:1.15; text-wrap:balance; }
+  .subtitle{ font-size:17px; color:var(--text-secondary); max-width:660px; margin:0 0 28px; }
+
+  .statrow{ display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-top:8px; }
+  .stattile{ background:var(--surface); border:1px solid var(--border-soft); border-radius:14px; padding:14px 16px; box-shadow:var(--shadow); }
+  .stattile .num{ font-size:24px; font-weight:800; font-family:"Black Han Sans"; }
+  .stattile .lab{ font-size:12.5px; color:var(--text-muted); margin-top:2px; }
+
+  .chiprow{ display:flex; flex-wrap:wrap; gap:8px; margin-top:22px; }
+  .chip{ display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600; padding:7px 12px; border-radius:999px; background:var(--surface); border:1px solid var(--border); color:var(--text-secondary); }
+  .chip .dot{ width:8px; height:8px; border-radius:50%; }
+
+  #modnav{ position:sticky; top:0; z-index:50; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--border-soft); }
+  #modnav .inner{ display:flex; align-items:center; gap:6px; padding:10px 0; overflow-x:auto; scrollbar-width:none; }
+  #modnav .inner::-webkit-scrollbar{ display:none; }
+  #modnav a{ flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; text-decoration:none; font-size:12.5px; font-weight:700; color:var(--text-secondary); background:var(--surface); border:1px solid var(--border-soft); border-radius:999px; padding:6px 12px; white-space:nowrap; transition:transform .15s; }
+  #modnav a:hover{ transform:translateY(-1px); }
+  #modnav a .n{ width:16px; height:16px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:10px; color:#fff; }
+  #modnav a.done{ opacity:.55; }
+  #ringwrap{ margin-left:auto; flex:0 0 auto; display:flex; align-items:center; gap:8px; padding-left:10px; }
+  #ringtext{ font-size:12px; font-weight:700; color:var(--text-secondary); }
+
+  section{ padding:52px 0; }
+  section.alt{ background:var(--surface-2); border-top:1px solid var(--border-soft); border-bottom:1px solid var(--border-soft); }
+  h2.h2{ font-size:26px; margin:0 0 6px; }
+  p.lead{ color:var(--text-secondary); font-size:15.5px; max-width:640px; }
+
+  .introgrid{ display:grid; grid-template-columns: 1.1fr 1fr; gap:28px; align-items:start; margin-top:20px;}
+  .introgrid > *{ min-width:0; }
+  @media (max-width:760px){ .introgrid{ grid-template-columns:1fr; } }
+  .card{ background:var(--surface); border:1px solid var(--border-soft); border-radius:18px; padding:22px; box-shadow:var(--shadow); min-width:0; }
+  .card h3{ margin:0 0 8px; font-size:16px; }
+  .card p{ margin:0; color:var(--text-secondary); font-size:14.5px; }
+  ol.steps{ margin:14px 0 0; padding-left:0; list-style:none; counter-reset:step; }
+  ol.steps li{ counter-increment:step; padding:10px 0 10px 34px; position:relative; font-size:14.5px; color:var(--text-secondary); border-top:1px solid var(--border-soft); }
+  ol.steps li:first-child{ border-top:none; }
+  ol.steps li::before{ content:counter(step); position:absolute; left:0; top:9px; width:22px; height:22px; border-radius:50%; background:var(--accent-tint); color:var(--accent-dark); font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; }
+  ol.steps b{ color:var(--text-primary); }
+
+  .spritegrid{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px; }
+  .spritecell{ background:var(--surface-2); border-radius:12px; padding:8px; text-align:center; }
+  .spritecell img{ width:56px; height:56px; margin:0 auto; object-fit:contain; }
+  .spritecell .sname{ font-size:11.5px; font-weight:700; margin-top:4px; font-variant-numeric:tabular-nums; }
+
+  .module{ scroll-margin-top:64px; }
+  .modhead{ display:flex; align-items:flex-start; gap:16px; margin-bottom:18px; }
+  .modbadge{ flex:0 0 auto; width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow); }
+  .modnum{ font-size:12.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); }
+  .modtitle{ font-size:23px; margin:2px 0 4px; }
+  .modwhy{ color:var(--text-secondary); font-size:14.5px; max-width:640px; }
+  .catlabel{ display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px; border:1px solid currentColor; margin-top:6px; }
+
+  .modbody-stack{ display:flex; flex-direction:column; gap:20px; }
+  .shotbox{ background:var(--surface); border:1px solid var(--border-soft); border-radius:18px; padding:18px; box-shadow:var(--shadow); }
+  .shotbox .imgframe{ background:#eef0ef; border-radius:12px; padding:10px; overflow-x:auto; }
+  .shotbox img{ display:block; width:100%; height:auto; min-width:360px; border-radius:6px; }
+  .shotbox .cap{ font-size:12.5px; color:var(--text-muted); text-align:center; margin-top:10px; }
+  .shotbox .connrow{ display:flex; justify-content:center; margin-bottom:16px; padding-bottom:16px; border-bottom:1px dashed var(--border); }
+  .shotbox .connrow .connframe{ background:#eef0ef; border-radius:10px; padding:8px 14px; max-width:520px; width:100%; overflow-x:auto; }
+  .shotbox .connrow img{ min-width:320px; width:100%; height:auto; display:block; border-radius:6px; }
+  .shotbox .conncap{ font-size:11.5px; font-weight:700; color:var(--accent-dark); text-align:center; margin-top:8px; }
+
+  .glossary{ margin-top:14px; padding-top:14px; border-top:1px dashed var(--border); }
+  .glossary-toggle{ width:100%; text-align:left; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .glossary-toggle .chev{ transition:transform .15s; flex:0 0 auto; }
+  .glossary-toggle.open .chev{ transform:rotate(180deg); }
+  .glossary-panel{ display:none; margin-top:12px; }
+  .glossary-panel.open{ display:grid; gap:10px; }
+  .gterm{ background:var(--surface-2); border-radius:10px; padding:10px 14px; }
+  .gterm .headrow{ display:flex; flex-wrap:wrap; align-items:baseline; gap:8px; }
+  .gterm .en{ font-weight:800; color:var(--accent-dark); font-size:13.5px; letter-spacing:.01em; }
+  .gterm .ko{ font-weight:700; color:var(--text-primary); font-size:13px; }
+  .gterm .desc{ color:var(--text-secondary); font-size:13px; margin-top:4px; line-height:1.55; }
+
+  .demo{ background:var(--surface); border:1px solid var(--border-soft); border-radius:16px; padding:20px; box-shadow:var(--shadow); min-width:0; }
+  .demo h4{ margin:0 0 10px; font-size:14px; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); }
+  .controls{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; align-items:center; }
+  select, input[type=text], input[type=number]{ font-family:inherit; font-size:14px; padding:8px 12px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text-primary); }
+  input[type=range]{ width:220px; accent-color:var(--accent); }
+  .btn{ font-family:inherit; font-size:14px; font-weight:700; padding:9px 16px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text-primary); cursor:pointer; transition:transform .1s, background .15s; }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn.primary{ background:var(--accent); border-color:var(--accent); color:var(--accent-ink); }
+  .btn.toggle.active{ background:var(--accent-tint); border-color:var(--accent); color:var(--accent-dark); }
+  .btn:disabled{ opacity:.5; cursor:default; transform:none; }
+  .resulttext{ font-size:14px; color:var(--text-secondary); margin-top:10px; }
+  .resulttext b{ color:var(--text-primary); }
+
+  table.dt{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  table.dt th, table.dt td{ padding:8px 10px; text-align:right; border-bottom:1px solid var(--border-soft); white-space:nowrap; }
+  table.dt th:first-child, table.dt td:first-child{ text-align:left; }
+  table.dt th{ color:var(--text-secondary); font-weight:700; }
+  table.dt tr.best td{ color:var(--good); font-weight:700; }
+  table.dt tr.worst td{ color:var(--critical); font-weight:700; }
+  .tablewrap{ overflow-x:auto; border-radius:10px; }
+
+  .chartsvg{ width:100%; height:auto; }
+  .axislabel{ font-size:10px; fill:var(--text-muted); font-family:"Noto Sans KR",sans-serif; }
+  .baseline{ stroke:var(--text-muted); stroke-width:1; }
+  #tooltip{ position:fixed; pointer-events:none; background:var(--text-primary); color:var(--bg); font-size:12.5px; padding:6px 10px; border-radius:8px; z-index:200; opacity:0; transform:translate(-50%,-130%); transition:opacity .1s; white-space:nowrap; box-shadow:var(--shadow); }
+  #tooltip.show{ opacity:1; }
+
+  .formulabox{ background:var(--surface-2); border-radius:12px; padding:16px 18px; font-size:15px; text-align:center; margin:12px 0; }
+  .formulabox .expr{ font-family:"Black Han Sans","Noto Sans KR",sans-serif; font-size:19px; color:var(--accent-dark); }
+
+  .mcq{ margin-top:18px; border-top:1px dashed var(--border); padding-top:16px; }
+  .mcq .q{ font-weight:700; font-size:15px; margin-bottom:10px; }
+  .mcq .opts{ display:grid; gap:8px; }
+  .mcq button.opt{ text-align:left; font-family:inherit; font-size:14px; padding:10px 14px; border-radius:10px; border:1px solid var(--border); background:var(--surface-2); color:var(--text-primary); cursor:pointer; }
+  .mcq button.opt:hover{ border-color:var(--accent); }
+  .mcq button.opt.correct{ background:color-mix(in srgb, var(--good) 16%, var(--surface)); border-color:var(--good); }
+  .mcq button.opt.wrong{ background:color-mix(in srgb, var(--critical) 14%, var(--surface)); border-color:var(--critical); }
+  .mcq .explain{ margin-top:10px; font-size:13.5px; color:var(--text-secondary); background:var(--surface-2); border-radius:10px; padding:10px 14px; display:none; }
+  .mcq .explain.show{ display:block; }
+
+  .donebar{ display:flex; align-items:center; justify-content:space-between; margin-top:20px; padding-top:16px; border-top:1px dashed var(--border); }
+  label.donecheck{ display:flex; align-items:center; gap:8px; font-size:14px; font-weight:700; cursor:pointer; color:var(--text-secondary); }
+  label.donecheck input{ width:18px; height:18px; accent-color:var(--good); }
+  label.donecheck.checked{ color:var(--good); }
+  .hintlink{ font-size:13px; color:var(--text-muted); }
+
+  .tip{ background:var(--accent-tint); border-radius:12px; padding:12px 16px; font-size:13.5px; color:var(--accent-dark); margin-top:12px; }
+  .tip b{ font-weight:800; }
+
+  footer{ padding:40px 0 60px; text-align:center; color:var(--text-muted); font-size:13px; }
+
+  .summarygrid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-top:20px; }
+  .sumitem{ background:var(--surface); border:1px solid var(--border-soft); border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px; box-shadow:var(--shadow); }
+  .sumitem .n{ width:26px; height:26px; border-radius:8px; flex:0 0 auto; }
+  .sumitem span{ font-size:13.5px; font-weight:700; }
+  .pipelinewrap{ display:flex; justify-content:center; margin-top:20px; }
+  .pipelinewrap .imgframe{ background:#eef0ef; border-radius:14px; padding:14px; max-width:800px; width:100%; }
+  .pipelinewrap img{ width:100%; height:auto; display:block; border-radius:8px; }
+  .pipelinecap{ text-align:center; color:var(--text-muted); font-size:12.5px; margin-top:10px; }
+
+  .legend{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
+  .legend .litem{ display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-secondary); }
+  .legend .ldot{ width:10px; height:10px; border-radius:50%; }
+
+  .gallerywrap{ display:flex; flex-direction:column; gap:16px; margin-top:16px; }
+  .clustergroup{ background:var(--surface-2); border-radius:14px; padding:14px 16px; }
+  .clustergroup-head{ display:flex; align-items:baseline; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+  .clustergroup-head .gdot{ width:11px; height:11px; border-radius:50%; flex:0 0 auto; align-self:center; }
+  .clustergroup-head b{ font-size:15px; }
+  .clustergroup-head .gcount{ font-size:12.5px; color:var(--text-muted); }
+  .clustergroup-grid{ display:flex; flex-wrap:wrap; gap:8px; }
+  .gitem{ width:50px; height:50px; border-radius:10px; border:2px solid; background:var(--surface); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform .12s ease; overflow:hidden; }
+  .gitem:hover{ transform:translateY(-3px) scale(1.1); }
+  .gitem img{ width:100%; height:100%; object-fit:cover; }
+  .gallery-note{ font-size:12px; color:var(--text-muted); margin-top:2px; }
+</style>
+<div id="progressbar"></div>
+<div id="tooltip"></div>
+
+<header class="hero">
+  <div class="wrap">
+    <a class="back-hub" href="./index.html">← 실습 허브로</a>
+    <span class="eyebrow">오렌지(Orange3) 군집분석</span>
+    <h1 class="title display">이미지 군집분석 해보기</h1>
+    <p class="subtitle"><b>오렌지 연습하기</b>·<b>회귀분석 해보기</b>에서는 정답(target)이 있는 데이터로 "예측하는 식"을 만들었어. 이번엔 반대야 — <b>정답을 하나도 안 알려주고</b>, 실제 포켓몬 공식 아트워크 이미지 125장을 컴퓨터가 스스로 비슷한 것끼리 묶게 해볼 거야. Import Images → Image Embedding → Data Table / Distances → Hierarchical Clustering → Image Viewer, 전부 실제 Orange3를 실행해서 캡처한 화면이고, 이미지에는 이름표를 전혀 붙이지 않아서 오렌지 화면에 보이는 그대로 파일 이름만 표시돼.</p>
+    <div class="statrow" id="statrow"></div>
+    <div class="chiprow" id="chiprow"></div>
+  </div>
+</header>
+
+<nav id="modnav"><div class="wrap inner" id="modnavinner"></div></nav>
+
+<section>
+  <div class="wrap introgrid">
+    <div>
+      <h2 class="h2">군집분석이 뭐야?</h2>
+      <p class="lead">회귀분석은 <b>지도학습(supervised learning)</b>이었어 — "무게로 체력을 맞혀봐"처럼 정답(target)을 미리 알려주고 식을 학습시켰지. <b>군집분석(clustering)</b>은 <b>비지도학습(unsupervised learning)</b>이야. "이건 몇 번 그룹이야"라는 정답을 아예 안 줘. 대신 컴퓨터가 데이터끼리 서로 얼마나 비슷한지만 보고 스스로 무리를 지어.</p>
+      <ol class="steps">
+        <li><b>숫자로 바꾸기</b> — 이미지는 그 자체로는 비교하기 어려워. Image Embedding으로 각 이미지를 숫자 1,000개짜리 목록(벡터)으로 바꿔.</li>
+        <li><b>표로 확인하기</b> — 바뀐 숫자들이 진짜 데이터인지 Data Table로 직접 눈으로 확인해.</li>
+        <li><b>거리 재기</b> — 벡터끼리 얼마나 다른지 Distances로 계산해. 가까울수록 비슷한 이미지야.</li>
+        <li><b>묶어 나가기</b> — Hierarchical Clustering이 가장 가까운 것부터 차례로 묶어서 나무 모양(덴드로그램)을 만들어.</li>
+        <li><b>진짜 이미지로 검산하기</b> — Image Viewer로 한 그룹을 골라 실제 이미지를 눈으로 직접 확인해. 마지막엔 125장 전부를 그룹별로 늘어놓고 비교해봐.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h3>이번 실습 데이터</h3>
+      <p>선생님 컴퓨터에 있던 <b>포켓몬 공식 아트워크 이미지 897장</b> 중에서 균등한 간격으로 골라낸 <b>125장</b>이야. 이름표나 종류 같은 정보는 전혀 주지 않았고, 파일 이름도 도감 번호와는 무관해 — 오렌지 화면에 실제로 보이는 것처럼 <b>파일 이름 그대로</b>(예: "0 (105)") 표시할 거야. 아래는 그중 8장의 샘플이야.</p>
+      <div class="spritegrid" id="samplegrid"></div>
+    </div>
+  </div>
+</section>
+
+<main id="modules"></main>
+
+<section class="alt" id="summary-section">
+  <div class="wrap">
+    <h2 class="h2">전체 파이프라인 한눈에 보기</h2>
+    <p class="lead">지금까지 연습한 6단계를 모두 연결하면, 실제 오렌지 캔버스는 이런 모습이 돼. Import Images에서 시작해 Image Embedding을 거친 뒤 Data Table과 Distances 두 갈래로 나뉘고, Distances → Hierarchical Clustering → Image Viewer로 다시 합쳐져. (아래는 실제로 Orange3를 실행해서 캡처한 캔버스 화면이야.)</p>
+    <div class="pipelinewrap">
+      <div>
+        <div class="imgframe"><img src="orange_cluster_images/00_pipeline.png" alt="군집분석 6단계가 모두 연결된 실제 Orange3 캔버스"></div>
+        <div class="pipelinecap">🖥️ 실제 Orange3 캔버스 — Import Images에서 시작해 Data Table, Distances → Hierarchical Clustering → Image Viewer로 이어지는 전체 파이프라인</div>
+      </div>
+    </div>
+    <div class="summarygrid" id="summarychecklist"></div>
+    <div class="tip" style="margin-top:22px;"><b>다음 단계 —</b> 이제 실제 오렌지를 켜고 이 6단계를 그대로 따라해봐. 이미지 개수를 바꾸거나, Hierarchical Clustering에서 그룹 개수(Top N)를 다르게 잘라보면, 그룹이 어떻게 달라지는지 — 그리고 실루엣 점수가 왜 항상 "그룹이 많을수록 좋다"가 아닌지도 직접 느껴볼 수 있어.</div>
+  </div>
+</section>
+
+<footer>오렌지(Orange3)로 이미지 군집분석하기 · 소프트웨어와 생활 3단원 실습 자료 · 포켓몬 공식 아트워크 이미지로 실습, 위젯 화면은 실제 Orange3에서 캡처</footer>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- DATA (전부 실제 Orange3 실행 결과) ---------------- */
+/* 선생님 컴퓨터의 포켓몬 아트워크 897장 중 균등 샘플링한 125장을 SqueezeNet으로
+   임베딩 → Cosine distance → Complete 연결법 Hierarchical Clustering(Max depth 7 가지치기,
+   Top N=5)으로 묶은 결과. file: 오렌지 화면에 실제로 표시되는 파일 이름(도감번호 아님) /
+   cluster: C1~C5 / sil: 실루엣 점수(개별) — 전부 실제 계산값임 */
+const RECORDS = [{"file": "0 (567)", "cluster": "C5", "sil": 0.317, "img": "p567.jpg"}, {"file": "0 (761)", "cluster": "C4", "sil": 0.079, "img": "p761.jpg"}, {"file": "0 (223)", "cluster": "C4", "sil": 0.11, "img": "p223.jpg"}, {"file": "0 (747)", "cluster": "C3", "sil": -0.062, "img": "p747.jpg"}, {"file": "0 (783)", "cluster": "C4", "sil": 0.287, "img": "p783.jpg"}, {"file": "0 (546)", "cluster": "C4", "sil": 0.0, "img": "p546.jpg"}, {"file": "0 (503)", "cluster": "C3", "sil": 0.209, "img": "p503.jpg"}, {"file": "0 (180)", "cluster": "C4", "sil": -0.011, "img": "p180.jpg"}, {"file": "0 (646)", "cluster": "C4", "sil": -0.036, "img": "p646.jpg"}, {"file": "0 (661)", "cluster": "C5", "sil": 0.039, "img": "p661.jpg"}, {"file": "0 (840)", "cluster": "C5", "sil": 0.235, "img": "p840.jpg"}, {"file": "0 (209)", "cluster": "C1", "sil": 0.288, "img": "p209.jpg"}, {"file": "0 (833)", "cluster": "C4", "sil": 0.195, "img": "p833.jpg"}, {"file": "0 (740)", "cluster": "C5", "sil": 0.212, "img": "p740.jpg"}, {"file": "0 (768)", "cluster": "C4", "sil": 0.107, "img": "p768.jpg"}, {"file": "0 (654)", "cluster": "C5", "sil": 0.264, "img": "p654.jpg"}, {"file": "0 (359)", "cluster": "C5", "sil": 0.331, "img": "p359.jpg"}, {"file": "0 (869)", "cluster": "C4", "sil": 0.036, "img": "p869.jpg"}, {"file": "0", "cluster": "C4", "sil": 0.049, "img": "p0.jpg"}, {"file": "0 (173)", "cluster": "C3", "sil": 0.125, "img": "p173.jpg"}, {"file": "0 (259)", "cluster": "C4", "sil": -0.088, "img": "p259.jpg"}, {"file": "0 (732)", "cluster": "C4", "sil": -0.051, "img": "p732.jpg"}, {"file": "0 (402)", "cluster": "C5", "sil": 0.112, "img": "p402.jpg"}, {"file": "0 (790)", "cluster": "C5", "sil": 0.24, "img": "p790.jpg"}, {"file": "0 (395)", "cluster": "C5", "sil": 0.175, "img": "p395.jpg"}, {"file": "0 (288)", "cluster": "C4", "sil": 0.064, "img": "p288.jpg"}, {"file": "0 (596)", "cluster": "C5", "sil": 0.085, "img": "p596.jpg"}, {"file": "0 (575)", "cluster": "C5", "sil": 0.18, "img": "p575.jpg"}, {"file": "0 (517)", "cluster": "C5", "sil": 0.332, "img": "p517.jpg"}, {"file": "0 (417)", "cluster": "C3", "sil": 0.11, "img": "p417.jpg"}, {"file": "0 (352)", "cluster": "C5", "sil": 0.348, "img": "p352.jpg"}, {"file": "0 (539)", "cluster": "C4", "sil": 0.075, "img": "p539.jpg"}, {"file": "0 (582)", "cluster": "C5", "sil": 0.315, "img": "p582.jpg"}, {"file": "0 (51)", "cluster": "C4", "sil": 0.246, "img": "p51.jpg"}, {"file": "0 (201)", "cluster": "C5", "sil": 0.266, "img": "p201.jpg"}, {"file": "0 (108)", "cluster": "C4", "sil": 0.058, "img": "p108.jpg"}, {"file": "0 (338)", "cluster": "C5", "sil": 0.381, "img": "p338.jpg"}, {"file": "0 (194)", "cluster": "C3", "sil": 0.136, "img": "p194.jpg"}, {"file": "0 (704)", "cluster": "C5", "sil": 0.242, "img": "p704.jpg"}, {"file": "0 (603)", "cluster": "C4", "sil": -0.055, "img": "p603.jpg"}, {"file": "0 (345)", "cluster": "C4", "sil": 0.117, "img": "p345.jpg"}, {"file": "0 (122)", "cluster": "C5", "sil": 0.295, "img": "p122.jpg"}, {"file": "0 (811)", "cluster": "C4", "sil": -0.124, "img": "p811.jpg"}, {"file": "0 (266)", "cluster": "C5", "sil": 0.234, "img": "p266.jpg"}, {"file": "0 (79)", "cluster": "C3", "sil": 0.199, "img": "p79.jpg"}, {"file": "0 (610)", "cluster": "C4", "sil": 0.099, "img": "p610.jpg"}, {"file": "0 (560)", "cluster": "C5", "sil": -0.05, "img": "p560.jpg"}, {"file": "0 (72)", "cluster": "C5", "sil": 0.389, "img": "p72.jpg"}, {"file": "0 (854)", "cluster": "C5", "sil": 0.115, "img": "p854.jpg"}, {"file": "0 (804)", "cluster": "C3", "sil": 0.267, "img": "p804.jpg"}, {"file": "0 (862)", "cluster": "C4", "sil": 0.164, "img": "p862.jpg"}, {"file": "0 (144)", "cluster": "C3", "sil": 0.234, "img": "p144.jpg"}, {"file": "0 (689)", "cluster": "C5", "sil": 0.349, "img": "p689.jpg"}, {"file": "0 (216)", "cluster": "C4", "sil": 0.178, "img": "p216.jpg"}, {"file": "0 (65)", "cluster": "C1", "sil": 0.2, "img": "p65.jpg"}, {"file": "0 (675)", "cluster": "C5", "sil": 0.069, "img": "p675.jpg"}, {"file": "0 (632)", "cluster": "C4", "sil": 0.087, "img": "p632.jpg"}, {"file": "0 (467)", "cluster": "C5", "sil": 0.164, "img": "p467.jpg"}, {"file": "0 (237)", "cluster": "C3", "sil": 0.328, "img": "p237.jpg"}, {"file": "0 (115)", "cluster": "C5", "sil": 0.203, "img": "p115.jpg"}, {"file": "0 (488)", "cluster": "C3", "sil": 0.089, "img": "p488.jpg"}, {"file": "0 (244)", "cluster": "C5", "sil": 0.062, "img": "p244.jpg"}, {"file": "0 (618)", "cluster": "C5", "sil": -0.103, "img": "p618.jpg"}, {"file": "0 (316)", "cluster": "C1", "sil": 0.308, "img": "p316.jpg"}, {"file": "0 (589)", "cluster": "C5", "sil": 0.201, "img": "p589.jpg"}, {"file": "0 (524)", "cluster": "C5", "sil": -0.195, "img": "p524.jpg"}, {"file": "0 (481)", "cluster": "C5", "sil": 0.244, "img": "p481.jpg"}, {"file": "0 (36)", "cluster": "C5", "sil": 0.18, "img": "p36.jpg"}, {"file": "0 (101)", "cluster": "C5", "sil": 0.175, "img": "p101.jpg"}, {"file": "0 (847)", "cluster": "C4", "sil": -0.039, "img": "p847.jpg"}, {"file": "0 (309)", "cluster": "C4", "sil": 0.011, "img": "p309.jpg"}, {"file": "0 (431)", "cluster": "C5", "sil": 0.269, "img": "p431.jpg"}, {"file": "0 (438)", "cluster": "C5", "sil": 0.159, "img": "p438.jpg"}, {"file": "0 (130)", "cluster": "C5", "sil": 0.254, "img": "p130.jpg"}, {"file": "0 (424)", "cluster": "C5", "sil": -0.024, "img": "p424.jpg"}, {"file": "0 (410)", "cluster": "C4", "sil": 0.053, "img": "p410.jpg"}, {"file": "0 (639)", "cluster": "C4", "sil": -0.014, "img": "p639.jpg"}, {"file": "0 (682)", "cluster": "C5", "sil": 0.069, "img": "p682.jpg"}, {"file": "0 (453)", "cluster": "C4", "sil": -0.058, "img": "p453.jpg"}, {"file": "0 (252)", "cluster": "C4", "sil": -0.188, "img": "p252.jpg"}, {"file": "0 (94)", "cluster": "C5", "sil": 0.326, "img": "p94.jpg"}, {"file": "0 (625)", "cluster": "C4", "sil": -0.042, "img": "p625.jpg"}, {"file": "0 (187)", "cluster": "C2", "sil": 0.396, "img": "p187.jpg"}, {"file": "0 (445)", "cluster": "C4", "sil": -0.032, "img": "p445.jpg"}, {"file": "0 (22)", "cluster": "C5", "sil": 0.3, "img": "p22.jpg"}, {"file": "0 (8)", "cluster": "C4", "sil": -0.043, "img": "p8.jpg"}, {"file": "0 (87)", "cluster": "C5", "sil": 0.235, "img": "p87.jpg"}, {"file": "0 (151)", "cluster": "C5", "sil": -0.141, "img": "p151.jpg"}, {"file": "0 (819)", "cluster": "C3", "sil": 0.267, "img": "p819.jpg"}, {"file": "0 (725)", "cluster": "C4", "sil": -0.149, "img": "p725.jpg"}, {"file": "0 (29)", "cluster": "C4", "sil": 0.149, "img": "p29.jpg"}, {"file": "0 (776)", "cluster": "C4", "sil": 0.08, "img": "p776.jpg"}, {"file": "0 (890)", "cluster": "C4", "sil": -0.01, "img": "p890.jpg"}, {"file": "0 (137)", "cluster": "C2", "sil": 0.244, "img": "p137.jpg"}, {"file": "0 (44)", "cluster": "C5", "sil": 0.322, "img": "p44.jpg"}, {"file": "0 (460)", "cluster": "C5", "sil": 0.087, "img": "p460.jpg"}, {"file": "0 (273)", "cluster": "C5", "sil": 0.107, "img": "p273.jpg"}, {"file": "0 (553)", "cluster": "C5", "sil": 0.11, "img": "p553.jpg"}, {"file": "0 (331)", "cluster": "C4", "sil": 0.052, "img": "p331.jpg"}, {"file": "0 (510)", "cluster": "C5", "sil": -0.141, "img": "p510.jpg"}, {"file": "0 (474)", "cluster": "C5", "sil": 0.098, "img": "p474.jpg"}, {"file": "0 (280)", "cluster": "C4", "sil": -0.017, "img": "p280.jpg"}, {"file": "0 (366)", "cluster": "C5", "sil": 0.111, "img": "p366.jpg"}, {"file": "0 (797)", "cluster": "C4", "sil": 0.08, "img": "p797.jpg"}, {"file": "0 (532)", "cluster": "C5", "sil": 0.135, "img": "p532.jpg"}, {"file": "0 (374)", "cluster": "C5", "sil": 0.28, "img": "p374.jpg"}, {"file": "0 (496)", "cluster": "C5", "sil": 0.314, "img": "p496.jpg"}, {"file": "0 (711)", "cluster": "C5", "sil": 0.211, "img": "p711.jpg"}, {"file": "0 (668)", "cluster": "C4", "sil": -0.123, "img": "p668.jpg"}, {"file": "0 (826)", "cluster": "C4", "sil": 0.172, "img": "p826.jpg"}, {"file": "0 (58)", "cluster": "C4", "sil": -0.009, "img": "p58.jpg"}, {"file": "0 (697)", "cluster": "C1", "sil": 0.182, "img": "p697.jpg"}, {"file": "0 (754)", "cluster": "C3", "sil": 0.28, "img": "p754.jpg"}, {"file": "0 (718)", "cluster": "C5", "sil": 0.264, "img": "p718.jpg"}, {"file": "0 (323)", "cluster": "C4", "sil": -0.099, "img": "p323.jpg"}, {"file": "0 (166)", "cluster": "C3", "sil": 0.338, "img": "p166.jpg"}, {"file": "0 (295)", "cluster": "C5", "sil": 0.086, "img": "p295.jpg"}, {"file": "0 (15)", "cluster": "C5", "sil": -0.019, "img": "p15.jpg"}, {"file": "0 (158)", "cluster": "C4", "sil": 0.24, "img": "p158.jpg"}, {"file": "0 (388)", "cluster": "C2", "sil": 0.464, "img": "p388.jpg"}, {"file": "0 (876)", "cluster": "C4", "sil": 0.082, "img": "p876.jpg"}, {"file": "0 (230)", "cluster": "C5", "sil": 0.134, "img": "p230.jpg"}, {"file": "0 (302)", "cluster": "C4", "sil": -0.112, "img": "p302.jpg"}, {"file": "0 (883)", "cluster": "C5", "sil": 0.134, "img": "p883.jpg"}, {"file": "0 (381)", "cluster": "C4", "sil": 0.021, "img": "p381.jpg"}];
+const CLUSTER_MEANS = {"C2": 0.368, "C5": 0.174, "C4": 0.034, "C3": 0.194, "C1": 0.244};
+const OVERALL_MEAN_SIL = 0.13;
+const SWEEP = [{"n": 2, "mean_sil": 0.217, "sizes": [105, 20]}, {"n": 3, "mean_sil": 0.149, "sizes": [58, 47, 20]}, {"n": 4, "mean_sil": 0.136, "sizes": [58, 47, 16, 4]}, {"n": 5, "mean_sil": 0.13, "sizes": [58, 47, 13, 4, 3]}, {"n": 6, "mean_sil": 0.091, "sizes": [47, 30, 28, 13, 4, 3]}, {"n": 7, "mean_sil": 0.097, "sizes": [33, 30, 28, 14, 13, 4, 3]}, {"n": 8, "mean_sil": 0.094, "sizes": [33, 30, 20, 14, 13, 8, 4, 3]}];
+const DIST_SAMPLE = {"pairs": [{"a": "0 (567)", "b": "0 (761)", "d": 0.089}, {"a": "0 (567)", "b": "0 (747)", "d": 0.148}, {"a": "0 (567)", "b": "0 (783)", "d": 0.105}, {"a": "0 (761)", "b": "0 (783)", "d": 0.078}, {"a": "0 (223)", "b": "0 (567)", "d": 0.091}, {"a": "0 (223)", "b": "0 (761)", "d": 0.077}, {"a": "0 (223)", "b": "0 (747)", "d": 0.131}, {"a": "0 (223)", "b": "0 (783)", "d": 0.093}, {"a": "0 (223)", "b": "0 (546)", "d": 0.069}, {"a": "0 (747)", "b": "0 (761)", "d": 0.096}, {"a": "0 (747)", "b": "0 (783)", "d": 0.065}, {"a": "0 (546)", "b": "0 (567)", "d": 0.088}, {"a": "0 (546)", "b": "0 (761)", "d": 0.073}, {"a": "0 (546)", "b": "0 (747)", "d": 0.099}, {"a": "0 (546)", "b": "0 (783)", "d": 0.071}]};
+const EMBED_SNIPPET = {"file": "0 (567)", "vals": [-0.922, 2.773, 7.422, 6.002, 9.179, 17.322, 16.595, -2.854, 2.639, -0.039, -1.702, 0.854, -1.497, 3.587, 3.803, 1.72, -1.16, 0.835, 3.082, -0.62]};
+const TABLE_DEMO = {"dims": 1000, "shown_dims": 8, "rows": [{"file": "0 (567)", "vals": [-0.92, 2.77, 7.42, 6.0, 9.18, 17.32, 16.59, -2.85]}, {"file": "0 (761)", "vals": [3.11, 3.13, 9.69, 6.17, 5.54, 12.93, 12.17, 0.17]}, {"file": "0 (223)", "vals": [5.78, 3.41, 6.17, 5.9, 9.37, 9.54, 10.95, -1.79]}, {"file": "0 (747)", "vals": [3.09, 0.54, 9.71, 6.55, 9.85, 16.07, 13.11, 1.14]}, {"file": "0 (783)", "vals": [2.15, -2.74, 7.32, 5.88, 7.5, 11.83, 10.15, -3.18]}, {"file": "0 (546)", "vals": [2.02, 1.19, 5.71, 5.05, 6.71, 15.12, 11.53, -2.69]}, {"file": "0 (503)", "vals": [2.77, 2.17, 6.3, 4.52, 8.2, 13.51, 9.31, 2.0]}, {"file": "0 (180)", "vals": [1.49, 1.67, 8.45, 5.44, 6.71, 14.11, 10.88, -1.76]}]};
+const FOCUS_CLUSTER = "C3";
+const N_FEATURES = 1000;
+
+const CLUSTER_COLOR = {C1:"--s1", C2:"--s8", C3:"--s6", C4:"--s7", C5:"--s5"};
+function imgPath(img){ return `orange_cluster_images/poke/${img}`; }
+function byFile(f){ return RECORDS.find(r=>r.file===f); }
+
+/* ---------------- STAT TILES / CHIPS / PREVIEW ---------------- */
+function renderIntro(){
+  document.getElementById("statrow").innerHTML = `
+    <div class="stattile"><div class="num tabular">${RECORDS.length}장</div><div class="lab">실제 포켓몬 아트워크</div></div>
+    <div class="stattile"><div class="num tabular">5개</div><div class="lab">묶인 그룹 수 (C1~C5)</div></div>
+    <div class="stattile"><div class="num tabular">${OVERALL_MEAN_SIL}</div><div class="lab">평균 실루엣 점수</div></div>
+    <div class="stattile"><div class="num tabular" style="font-size:16px;">Cosine</div><div class="lab">사용한 거리(distance) 방식</div></div>`;
+
+  document.getElementById("chiprow").innerHTML = MODULES.map(m=>`
+    <span class="chip"><span class="dot" style="background:var(${m.slot})"></span>${m.widget}</span>`).join("");
+
+  const sampleFiles = ["0 (567)","0 (761)","0 (223)","0 (747)","0 (804)","0 (388)","0 (166)","0 (137)"];
+  document.getElementById("samplegrid").innerHTML = sampleFiles.map(f=>{
+    const r = byFile(f);
+    return `<div class="spritecell"><img src="${imgPath(r.img)}" alt="${r.file}"><div class="sname tabular">${r.file}</div></div>`;
+  }).join("");
+}
+
+/* ---------------- NAV ---------------- */
+function renderNav(){
+  const html = MODULES.map(m=>`
+    <a href="#mod-${m.id}" id="nav-${m.id}"><span class="n" style="background:var(${m.slot})">${m.num}</span>${m.widget}</a>`).join("");
+  document.getElementById("modnavinner").innerHTML = html +
+    `<div id="ringwrap"><span id="ringtext">0/${MODULES.length} 완료</span></div>`;
+}
+
+/* ---------------- MCQ helper ---------------- */
+function renderMCQ(container, question, options, correctIdx, explain){
+  const optsHtml = options.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join("");
+  container.innerHTML = `<div class="mcq"><div class="q">✅ 확인 문제 — ${question}</div><div class="opts">${optsHtml}</div><div class="explain"></div></div>`;
+  const buttons = container.querySelectorAll(".opt");
+  const explainBox = container.querySelector(".explain");
+  buttons.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      if(container.dataset.answered) return;
+      container.dataset.answered = "1";
+      const i = parseInt(btn.dataset.i,10);
+      buttons.forEach(b=>b.disabled=true);
+      if(i===correctIdx){ btn.classList.add("correct"); }
+      else{ btn.classList.add("wrong"); buttons[correctIdx].classList.add("correct"); }
+      explainBox.textContent = explain;
+      explainBox.classList.add("show");
+    });
+  });
+}
+
+/* ---------------- DONE TRACKING (in-memory only, this session) ---------------- */
+let doneState = {};
+function updateProgress(){
+  const total = MODULES.length;
+  const doneN = MODULES.filter(m=>doneState[m.id]).length;
+  document.getElementById("progressbar").style.width = (doneN/total*100)+"%";
+  const rt = document.getElementById("ringtext");
+  if(rt) rt.textContent = `${doneN}/${total} 완료`;
+  MODULES.forEach(m=>{
+    const navEl = document.getElementById("nav-"+m.id);
+    if(navEl){
+      navEl.classList.toggle("done", !!doneState[m.id]);
+      const numEl = navEl.querySelector(".n");
+      if(numEl) numEl.textContent = doneState[m.id] ? "✓" : String(m.num);
+    }
+    const chk = document.getElementById("chk-"+m.id);
+    if(chk){ chk.checked = !!doneState[m.id]; chk.closest("label").classList.toggle("checked", !!doneState[m.id]); }
+    const sumEl = document.getElementById("sum-"+m.id);
+    if(sumEl) sumEl.style.opacity = doneState[m.id] ? "1" : ".45";
+  });
+}
+
+/* ---------------- WIDGET 용어 설명(GLOSSARY) ---------------- */
+const GLOSSARY = {
+  import: [
+    {en:"Recent path", ko:"최근 불러온 경로", desc:"최근에 이미지를 불러온 폴더 목록. 드롭다운에서 골라 다시 불러올 수 있어."},
+    {en:"Open/Load Images", ko:"폴더 열기", desc:"폴더 아이콘을 눌러 이미지가 들어있는 폴더를 새로 선택해."},
+    {en:"Reload", ko:"다시 불러오기", desc:"같은 폴더의 이미지를 처음부터 다시 스캔해."},
+    {en:"Info", ko:"정보", desc:"몇 장의 이미지를 불러왔는지 보여줘."},
+  ],
+  embed: [
+    {en:"Image attribute", ko:"이미지 열 선택", desc:"데이터의 여러 열 중 실제 이미지 파일 경로가 들어있는 열을 골라."},
+    {en:"Embedder", ko:"임베딩 모델 선택", desc:"이미지를 숫자 벡터로 바꿀 때 쓸 딥러닝 모델을 골라. 이 실습은 인터넷 연결 없이도 작동하는 SqueezeNet(local)을 사용했어."},
+    {en:"Apply Automatically", ko:"자동 적용", desc:"체크해두면 입력이 바뀔 때마다 자동으로 다시 계산해."},
+  ],
+  table: [
+    {en:"Info", ko:"정보", desc:"몇 개의 행(이미지)과 열(특징 숫자)이 있는지, 결측치는 없는지 보여줘."},
+    {en:"Variables", ko:"변수 보기 옵션", desc:"변수 이름표 표시, 숫자를 색으로 시각화하기 등 표를 보는 방식을 조절해."},
+    {en:"Restore Original Order", ko:"원래 순서로", desc:"열 머리글을 눌러서 정렬했던 걸 원래 순서로 되돌려."},
+  ],
+  dist: [
+    {en:"Compare", ko:"비교 기준", desc:"행(Rows, 이미지끼리)을 비교할지 열(Columns, 특징끼리)을 비교할지 정해. 이 실습은 이미지끼리 비교하는 Rows를 사용했어."},
+    {en:"Distance Metric", ko:"거리 계산 방식", desc:"두 벡터가 얼마나 다른지 계산하는 여러 방식 중 하나를 골라. 이 실습은 이미지 임베딩 벡터에 자주 쓰이는 Cosine을 사용했어."},
+    {en:"Cosine", ko:"코사인 거리", desc:"두 벡터의 '방향'이 얼마나 다른지를 재는 방식. 0에 가까우면 거의 같은 방향(=비슷한 이미지), 값이 클수록 방향이 많이 다른(=다른 이미지) 거야."},
+  ],
+  hclust: [
+    {en:"Linkage", ko:"연결 방식", desc:"그룹과 그룹을 합칠 때 어떤 기준으로 '가까움'을 잴지 정해. 이 실습은 그룹 사이의 가장 먼 거리 기준으로 합치는 Complete 방식을 사용했어."},
+    {en:"Annotations", ko:"라벨 표시", desc:"덴드로그램(나무 그림) 옆에 각 이미지를 어떤 이름으로 표시할지 정해. 여기서는 실제 파일 이름(image name)으로 표시했어."},
+    {en:"Pruning · Max depth", ko:"가지치기 · 최대 깊이", desc:"나무가 너무 복잡하면 일정 깊이까지만 보이도록 잘라서 표시해. 이 실습은 Max depth = 7로 잘랐어."},
+    {en:"Selection · Top N", ko:"그룹 자르기 · 개수로 선택", desc:"나무를 몇 개의 그룹으로 자를지 직접 개수(N)로 정하는 방식. 이 실습은 Top N = 5로 5개 그룹을 만들었어."},
+    {en:"Selection · Manual / Height ratio", ko:"그룹 자르기 · 직접 클릭 / 높이로 선택", desc:"Manual은 나무의 가지를 직접 클릭해서 원하는 그룹만 고르는 방식이고, Height ratio는 특정 높이에서 수평으로 잘라 그룹을 나누는 방식이야."},
+    {en:"Zoom", ko:"확대/축소", desc:"나무 그림을 가로로 늘리거나 줄여서 라벨이 더 잘 보이게 조절해."},
+  ],
+  viewer: [
+    {en:"Image Attribute", ko:"이미지 열 선택", desc:"어떤 열에 들어있는 값을 실제 이미지로 보여줄지 정해."},
+    {en:"Title Attribute", ko:"제목으로 쓸 열", desc:"이미지 아래에 표시할 글자를 어떤 열에서 가져올지 정해. 이 실습은 실제 파일 이름(image name)을 사용했어."},
+    {en:"Image Size", ko:"이미지 크기", desc:"슬라이더로 썸네일 크기를 키우거나 줄여."},
+  ],
+};
+
+function buildGlossary(shotboxEl, key){
+  const terms = GLOSSARY[key];
+  if(!terms || !terms.length) return;
+  const wrap = document.createElement("div");
+  wrap.className = "glossary";
+  const labelClosed = `📖 이 위젯 용어 설명 보기 (${terms.length}개)`;
+  const labelOpen = `📕 용어 설명 접기`;
+  wrap.innerHTML = `<button type="button" class="btn glossary-toggle">${labelClosed}<span class="chev">⌄</span></button><div class="glossary-panel"></div>`;
+  const panel = wrap.querySelector(".glossary-panel");
+  panel.innerHTML = terms.map(t=>`<div class="gterm"><div class="headrow"><span class="en">${t.en}</span><span class="ko">${t.ko}</span></div><div class="desc">${t.desc}</div></div>`).join("");
+  const btn = wrap.querySelector(".glossary-toggle");
+  btn.addEventListener("click", ()=>{
+    const willOpen = !panel.classList.contains("open");
+    panel.classList.toggle("open", willOpen);
+    btn.classList.toggle("open", willOpen);
+    btn.innerHTML = (willOpen ? labelOpen : labelClosed) + `<span class="chev">⌄</span>`;
+  });
+  shotboxEl.appendChild(wrap);
+}
+
+/* ---------------- ICONS ---------------- */
+function icon(kind, color, size){
+  size = size || 22;
+  const c = color || "currentColor";
+  const s = `width="${size}" height="${size}" viewBox="0 0 24 24" fill="none"`;
+  switch(kind){
+    case "images":
+      return `<svg ${s}><rect x="3" y="5" width="15" height="13" rx="2" stroke="${c}" stroke-width="1.8"/><path d="M3 15l4-4 3 3 4-5 4 4" stroke="${c}" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"/><circle cx="8" cy="9" r="1.3" fill="${c}"/></svg>`;
+    case "vector":
+      return `<svg ${s}><rect x="4" y="4" width="4" height="4" rx="1" fill="${c}"/><rect x="10" y="4" width="4" height="4" rx="1" fill="${c}" opacity=".65"/><rect x="16" y="4" width="4" height="4" rx="1" fill="${c}" opacity=".35"/><rect x="4" y="10" width="4" height="4" rx="1" fill="${c}" opacity=".65"/><rect x="10" y="10" width="4" height="4" rx="1" fill="${c}"/><rect x="16" y="10" width="4" height="4" rx="1" fill="${c}" opacity=".5"/><rect x="4" y="16" width="4" height="4" rx="1" fill="${c}" opacity=".35"/><rect x="10" y="16" width="4" height="4" rx="1" fill="${c}" opacity=".5"/><rect x="16" y="16" width="4" height="4" rx="1" fill="${c}"/></svg>`;
+    case "table":
+      return `<svg ${s}><rect x="3" y="4" width="18" height="16" rx="2" stroke="${c}" stroke-width="1.8"/><line x1="3" y1="9.5" x2="21" y2="9.5" stroke="${c}" stroke-width="1.6"/><line x1="9.5" y1="4" x2="9.5" y2="20" stroke="${c}" stroke-width="1.6"/><line x1="15.2" y1="4" x2="15.2" y2="20" stroke="${c}" stroke-width="1.6"/></svg>`;
+    case "ruler":
+      return `<svg ${s}><circle cx="5" cy="12" r="2.6" stroke="${c}" stroke-width="1.8"/><circle cx="19" cy="12" r="2.6" stroke="${c}" stroke-width="1.8"/><line x1="7.6" y1="12" x2="16.4" y2="12" stroke="${c}" stroke-width="1.6" stroke-dasharray="2.5,2.5"/></svg>`;
+    case "tree":
+      return `<svg ${s}><circle cx="19" cy="5" r="1.6" fill="${c}"/><circle cx="19" cy="12" r="1.6" fill="${c}"/><circle cx="19" cy="19" r="1.6" fill="${c}"/><circle cx="12" cy="8.5" r="1.6" fill="${c}"/><circle cx="5" cy="12" r="1.8" fill="${c}"/><path d="M17.6 5H14M17.6 12H14M14 5v7M12 8.5H9M9 5v7M9 8.5H6.6M17.6 19H9M9 19v-7" stroke="${c}" stroke-width="1.4" fill="none"/></svg>`;
+    case "grid":
+      return `<svg ${s}><rect x="3" y="3" width="7" height="7" rx="1.6" stroke="${c}" stroke-width="1.8"/><rect x="14" y="3" width="7" height="7" rx="1.6" stroke="${c}" stroke-width="1.8"/><rect x="3" y="14" width="7" height="7" rx="1.6" stroke="${c}" stroke-width="1.8"/><rect x="14" y="14" width="7" height="7" rx="1.6" fill="${c}"/></svg>`;
+    default: return "";
+  }
+}
+
+/* ---------------- MODULE CONFIG ---------------- */
+const MODULES = [
+  {id:"import", num:1, slot:"--s1", icon:"images", cat:"Image Analytics 카테고리",
+    widget:"Import Images", title:"이미지 125장 불러오기 — 정답은 없어",
+    why:"Import Images 위젯으로 포켓몬 아트워크 이미지가 들어있는 폴더를 통째로 불러와. 회귀분석 때 쓴 File 위젯과 달리, 여기엔 target(정답) 같은 개념이 아예 없어 — 그냥 이미지 125장뿐이야.",
+    shot:"orange_cluster_images/01_import.png", shotcap:"실제 Orange3 Import Images 위젯 — 포켓몬 아트워크 125장이 들어있는 폴더를 불러온 화면",
+    conn:"orange_cluster_images/conn_import.png", conncap:"캔버스 연결 — Import Images는 이번 실습의 시작점이야"},
+  {id:"embed", num:2, slot:"--s3", icon:"vector", cat:"Image Analytics 카테고리",
+    widget:"Image Embedding", title:"이미지를 숫자로 바꾸기",
+    why:"컴퓨터는 픽셀 그림 자체로는 '비슷함'을 계산하지 못해. Image Embedding은 미리 학습된 딥러닝 모델(SqueezeNet)에 이미지를 통과시켜서, 각 이미지를 숫자 1,000개짜리 목록(벡터)으로 바꿔줘. 이 벡터가 이미지의 '특징 지문' 역할을 해.",
+    shot:"orange_cluster_images/02_embedding.png", shotcap:"실제 Orange3 Image Embedding 위젯 — SqueezeNet(local) 모델로 125장 전부를 임베딩한 화면",
+    conn:"orange_cluster_images/conn_embed.png", conncap:"캔버스 연결 — Import Images → Image Embedding으로 'Images' 선을 연결해"},
+  {id:"table", num:3, slot:"--s4", icon:"table", cat:"Data 카테고리",
+    widget:"Data Table", title:"바뀐 숫자, 진짜인지 표로 확인하기",
+    why:"임베딩이 정말로 숫자 목록을 만들어냈는지 눈으로 확인해보자. Data Table 위젯은 Image Embedding의 출력을 그대로 표로 보여줘 — 행은 이미지 125장, 열은 숫자 1,000개(n0~n999)야.",
+    shot:"orange_cluster_images/03_datatable.png", shotcap:"실제 Orange3 Data Table 위젯 — 이미지 125개 × 특징 1,000개짜리 임베딩 표",
+    conn:"orange_cluster_images/conn_table.png", conncap:"캔버스 연결 — Image Embedding → Data Table로 'Embeddings → Data' 선을 연결해"},
+  {id:"dist", num:4, slot:"--s8", icon:"ruler", cat:"Unsupervised 카테고리",
+    widget:"Distances", title:"임베딩끼리 거리 재기",
+    why:"이제 모든 이미지가 숫자 1,000개짜리 벡터가 됐으니, 두 벡터가 얼마나 떨어져 있는지 계산할 수 있어. Distances 위젯은 이미지 임베딩에 자주 쓰이는 Cosine(코사인) 방식으로 모든 쌍(125×125)의 거리를 한 번에 계산해줘.",
+    shot:"orange_cluster_images/04_distances.png", shotcap:"실제 Orange3 Distances 위젯 — Rows(이미지끼리) 비교, Cosine 거리로 125×125 거리 행렬 계산",
+    conn:"orange_cluster_images/conn_dist.png", conncap:"캔버스 연결 — Image Embedding → Distances로 'Embeddings → Data' 선을 연결해"},
+  {id:"hclust", num:5, slot:"--s6", icon:"tree", cat:"Unsupervised 카테고리",
+    widget:"Hierarchical Clustering", title:"가까운 것부터 묶어 나가기",
+    why:"Hierarchical Clustering은 거리가 가장 가까운 이미지 쌍부터 차례로 묶고, 묶인 그룹끼리 또 묶으면서 나무 모양(덴드로그램)을 완성해. 이 실습은 Complete 연결법으로 나무를 만들고 Max depth = 7로 가지치기한 뒤, Top N = 5로 잘라서 5개 그룹(C1~C5)을 만들었어.",
+    shot:"orange_cluster_images/05_hclust.png", shotcap:"실제 Orange3 Hierarchical Clustering 위젯 — Complete 연결법, Max depth 7 가지치기, Top N = 5로 자른 덴드로그램(파일 이름 라벨)",
+    conn:"orange_cluster_images/conn_hclust.png", conncap:"캔버스 연결 — Distances → Hierarchical Clustering으로 'Distances' 선을 연결해"},
+  {id:"viewer", num:6, slot:"--s2", icon:"grid", cat:"Image Analytics 카테고리",
+    widget:"Image Viewer", title:"한 그룹만 골라, 진짜 이미지로 확인하기",
+    why:`Hierarchical Clustering이 나눠준 5개 그룹 중 하나(${FOCUS_CLUSTER})를 골라 'Selected Data → Data'로 Image Viewer에 연결하면, 그 그룹에 묶인 이미지들을 실제로 눈으로 볼 수 있어. 컴퓨터가 계산으로 묶은 그룹이 우리 눈에도 정말 비슷해 보이는지 확인하는 단계야.`,
+    shot:"orange_cluster_images/06_imageviewer.png", shotcap:`실제 Orange3 Image Viewer 위젯 — ${FOCUS_CLUSTER} 그룹에 묶인 이미지를 실제로 불러온 화면`,
+    conn:"orange_cluster_images/conn_viewer.png", conncap:"캔버스 연결 — Hierarchical Clustering → Image Viewer로 'Selected Data → Data' 선을 연결해"},
+  {id:"gallery", num:7, slot:"--s7", icon:"grid", cat:"직접 비교하기",
+    widget:"클러스터 갤러리", title:"125장 전부, 5개 그룹으로 늘어놓고 비교하기",
+    why:"Image Viewer로는 한 번에 그룹 하나만 볼 수 있었지. 이번엔 125장 전부를 C1~C5 그룹별로 한 화면에 늘어놓고, 컴퓨터가 스스로 묶은 결과가 우리 눈에도 정말 비슷해 보이는지 검산해봐. (이 단계는 특정 Orange3 위젯 화면이 아니라, 지금까지의 실제 계산 결과를 이미지로 다시 정리해서 보여주는 코너야.)",
+    hint:"실제 오렌지에서는 Image Viewer를 여러 개 이어붙이거나, Hierarchical Clustering의 Manual 선택으로 그룹을 하나씩 바꿔가며 볼 수 있어"},
+];
+
+/* ---------------- MODULE SHELL ---------------- */
+function buildModuleShell(mod){
+  const el = document.createElement("section");
+  el.className = "module" + (mod.num%2===0 ? " alt":"");
+  el.id = "mod-"+mod.id;
+  el.innerHTML = `
+    <div class="wrap">
+      <div class="modhead">
+        <div class="modbadge" style="background:var(${mod.slot})">${icon(mod.icon,"#fff",28)}</div>
+        <div>
+          <div class="modnum">STEP ${mod.num} · ${mod.widget}</div>
+          <h3 class="modtitle">${mod.title}</h3>
+          <p class="modwhy">${mod.why}</p>
+          <span class="catlabel" style="color:var(${mod.slot})">${mod.cat}</span>
+        </div>
+      </div>
+      <div class="modbody-stack">
+        ${mod.shot ? `<div class="shotbox">
+          <div class="connrow">
+            <div>
+              <div class="connframe"><img src="${mod.conn}" alt="${mod.conncap}"></div>
+              <div class="conncap">🔗 ${mod.conncap}</div>
+            </div>
+          </div>
+          <div class="imgframe"><img src="${mod.shot}" alt="${mod.shotcap}"></div>
+          <div class="cap">🖥️ ${mod.shotcap}</div>
+        </div>` : ""}
+        <div class="demo" id="demo-${mod.id}"></div>
+      </div>
+      <div class="donebar">
+        <label class="donecheck"><input type="checkbox" id="chk-${mod.id}"> ${mod.shot ? "이 위젯 연습 완료!" : "이 코너 확인 완료!"}</label>
+        <span class="hintlink">${mod.hint || `실제 오렌지에서도 ${mod.widget} 위젯을 찾아 똑같이 해봐`}</span>
+      </div>
+    </div>`;
+  document.getElementById("modules").appendChild(el);
+  if(el.querySelector(".shotbox")) buildGlossary(el.querySelector(".shotbox"), mod.id);
+  el.querySelector(`#chk-${mod.id}`).addEventListener("change", (e)=>{
+    doneState[mod.id] = e.target.checked; updateProgress();
+  });
+  return el.querySelector(`#demo-${mod.id}`);
+}
+
+/* ---------------- STEP 1. Import Images ---------------- */
+function buildImport(mod){
+  const demo = buildModuleShell(mod);
+  demo.innerHTML = `
+    <h4>이미지 8장 미리보기</h4>
+    <p class="resulttext">이름표도, 종류도, 도감 번호도 없어 — 그냥 <b>이미지 파일 125장</b>뿐이야. 파일 이름도 뒤죽박죽이라(예: "0 (567)") 오렌지가 자동으로 붙여준 순서일 뿐, 아무 의미가 없어.</p>
+    <div class="spritegrid" id="import-sample" style="margin-top:14px;"></div>
+    <div id="import-mcq"></div>`;
+  const sampleFiles = ["0 (567)","0 (223)","0 (517)","0 (352)","0 (804)","0 (187)","0 (166)","0 (338)"];
+  demo.querySelector("#import-sample").innerHTML = sampleFiles.map(f=>{
+    const r = byFile(f);
+    return `<div class="spritecell"><img src="${imgPath(r.img)}" alt="${r.file}"><div class="sname tabular">${r.file}</div></div>`;
+  }).join("");
+  renderMCQ(demo.querySelector("#import-mcq"),
+    "Import Images로 불러온 데이터에는 무엇이 빠져 있을까?",
+    ["target(정답) — 이 이미지가 '몇 번 그룹'인지 알려주는 정답 라벨", "이미지 파일 자체", "이미지의 가로·세로 크기 정보", "이미지 파일 이름"], 0,
+    "Import Images는 이미지 파일·크기 같은 정보는 자동으로 기록하지만, '이건 몇 번 그룹이야'라는 정답(target)은 애초에 없어. 그게 바로 비지도학습이야 — 정답 없이 컴퓨터가 스스로 무리를 찾아야 해.");
+}
+
+/* ---------------- STEP 2. Image Embedding ---------------- */
+function buildEmbedding(mod){
+  const demo = buildModuleShell(mod);
+  const W=560, H=200, PAD=30, barW = (W-2*PAD)/EMBED_SNIPPET.vals.length - 4;
+  const maxAbs = Math.max(...EMBED_SNIPPET.vals.map(v=>Math.abs(v)));
+  const midY = PAD + (H-2*PAD)/2;
+  const scale = (H-2*PAD)/2 / (maxAbs*1.15);
+  const bars = EMBED_SNIPPET.vals.map((v,i)=>{
+    const x = PAD + i*((W-2*PAD)/EMBED_SNIPPET.vals.length);
+    const h = Math.abs(v)*scale;
+    const y = v>=0 ? midY-h : midY;
+    const color = v>=0 ? `var(${mod.slot})` : "var(--critical)";
+    return `<rect x="${x}" y="${y}" width="${barW}" height="${Math.max(h,1)}" fill="${color}" rx="2"/>`;
+  }).join("");
+  demo.innerHTML = `
+    <h4>실제 이미지 한 장의 임베딩 벡터 (처음 20개 값)</h4>
+    <p class="resulttext">이미지 <b class="tabular">${EMBED_SNIPPET.file}</b>를 SqueezeNet에 통과시키면 숫자 1,000개가 나와. 그중 처음 20개만 막대그래프로 그려봤어 — 양수(파란색)와 음수(빨간색)가 섞여 있는 게 보이지? 이 숫자들의 조합이 이미지의 '특징 지문'이야.</p>
+    <svg class="chartsvg" viewBox="0 0 ${W} ${H}">
+      <line class="baseline" x1="${PAD}" y1="${midY}" x2="${W-PAD}" y2="${midY}"/>
+      ${bars}
+    </svg>
+    <div id="embed-mcq"></div>`;
+  renderMCQ(demo.querySelector("#embed-mcq"),
+    "임베딩 벡터의 숫자 하나하나는 정확히 무슨 뜻일까?",
+    ["사람이 이해할 수 있는 '빨간색 정도', '동그란 정도' 같은 명확한 의미는 아니고, 딥러닝 모델이 스스로 학습한 추상적인 특징값이다", "이미지의 가로 좌표값이다", "이미지 파일의 용량(KB)이다", "이미지 속 픽셀 개수다"], 0,
+    "임베딩 벡터의 숫자 하나하나가 '이건 색', '이건 모양'처럼 사람이 딱 집어 설명할 수 있는 값은 아니야. SqueezeNet이 수백만 장의 이미지를 학습하면서 스스로 찾아낸 추상적인 특징이라, 사람은 직접 해석하기 어려워. 다만 비슷한 이미지끼리는 이 벡터들이 서로 가까워진다는 게 핵심이야.");
+}
+
+/* ---------------- STEP 3. Data Table ---------------- */
+function buildTable(mod){
+  const demo = buildModuleShell(mod);
+  const dims = Array.from({length:TABLE_DEMO.shown_dims}, (_,i)=>`n${i}`);
+  const rowsHtml = TABLE_DEMO.rows.map(r=>{
+    const cells = r.vals.map(v=>`<td class="tabular">${v.toFixed(2)}</td>`).join("");
+    return `<tr><td class="tabular">${r.file}</td>${cells}</tr>`;
+  }).join("");
+  demo.innerHTML = `
+    <h4>임베딩 표, 실제 숫자로 보기 (${TABLE_DEMO.rows.length}장 × 처음 ${TABLE_DEMO.shown_dims}열)</h4>
+    <p class="resulttext">실제로는 <b>${N_FEATURES}개</b>의 열(n0~n${N_FEATURES-1})이 있지만, 화면에는 처음 ${TABLE_DEMO.shown_dims}개만 보여줄게. 행 하나가 이미지 한 장이고, 숫자 하나하나가 그 이미지의 특징값이야 — 전부 실제 SqueezeNet이 계산한 값이야.</p>
+    <div class="tablewrap"><table class="dt">
+      <thead><tr><th>파일 이름</th>${dims.map(d=>`<th>${d}</th>`).join("")}</tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table></div>
+    <div id="table-mcq"></div>`;
+  renderMCQ(demo.querySelector("#table-mcq"),
+    "이 표를 보고 알 수 있는 사실은?",
+    ["이미지가 전부 똑같은 개수(1,000개)의 숫자로 표현되기 때문에, 어떤 두 이미지든 컴퓨터가 같은 기준으로 비교할 수 있다", "표에 있는 숫자들은 전부 0~1 사이의 값이다", "행 순서가 곧 포켓몬 도감 번호 순서다", "열 이름(n0, n1...)이 색상 이름을 의미한다"], 0,
+    "이미지마다 크기와 생김새가 전부 달라도, 임베딩을 거치면 모두 똑같이 숫자 1,000개짜리 벡터가 돼. 그래서 컴퓨터는 '이미지 A와 B가 얼마나 비슷한가'를 이 숫자들의 거리로 통일해서 계산할 수 있는 거야 — 이게 다음 단계인 Distances의 재료가 돼.");
+}
+
+/* ---------------- STEP 4. Distances ---------------- */
+function buildDistances(mod){
+  const demo = buildModuleShell(mod);
+  const files = [...new Set(DIST_SAMPLE.pairs.flatMap(p=>[p.a,p.b]))];
+  const dmap = {};
+  DIST_SAMPLE.pairs.forEach(p=>{ dmap[p.a+"|"+p.b]=p.d; dmap[p.b+"|"+p.a]=p.d; });
+  let minP=DIST_SAMPLE.pairs[0], maxP=DIST_SAMPLE.pairs[0];
+  DIST_SAMPLE.pairs.forEach(p=>{ if(p.d<minP.d) minP=p; if(p.d>maxP.d) maxP=p; });
+  const rowsHtml = files.map(fa=>{
+    const cells = files.map(fb=>{
+      if(fa===fb) return `<td class="tabular">—</td>`;
+      const d = dmap[fa+"|"+fb];
+      const isMin = (fa===minP.a&&fb===minP.b)||(fa===minP.b&&fb===minP.a);
+      const isMax = (fa===maxP.a&&fb===maxP.b)||(fa===maxP.b&&fb===maxP.a);
+      return `<td class="tabular" style="${isMin?"color:var(--good);font-weight:700;":isMax?"color:var(--critical);font-weight:700;":""}">${d.toFixed(3)}</td>`;
+    }).join("");
+    return `<tr><td class="tabular">${fa}</td>${cells}</tr>`;
+  }).join("");
+  demo.innerHTML = `
+    <h4>실제 이미지 ${files.length}장의 코사인 거리표</h4>
+    <div class="tablewrap"><table class="dt">
+      <thead><tr><th>파일</th>${files.map(f=>`<th class="tabular">${f}</th>`).join("")}</tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table></div>
+    <p class="resulttext"><span style="color:var(--good);font-weight:700;">가장 가까운 쌍</span> — <b class="tabular">${minP.a}</b> · <b class="tabular">${minP.b}</b> (거리 ${minP.d}) &nbsp;·&nbsp; <span style="color:var(--critical);font-weight:700;">가장 먼 쌍</span> — <b class="tabular">${maxP.a}</b> · <b class="tabular">${maxP.b}</b> (거리 ${maxP.d})</p>
+    <div id="dist-mcq"></div>`;
+  renderMCQ(demo.querySelector("#dist-mcq"),
+    "코사인 거리 값이 작을수록 무슨 뜻일까?",
+    ["두 이미지의 임베딩 벡터 방향이 비슷하다 → 임베딩 모델 기준으로 두 이미지가 서로 닮았다", "두 이미지의 파일 용량이 비슷하다", "두 이미지가 폴더 안에서 서로 가까운 순서에 있다", "두 이미지의 가로세로 비율이 같다"], 0,
+    "코사인 거리는 두 벡터의 방향 차이를 재는 값이야. 값이 0에 가까울수록 두 벡터가 거의 같은 방향을 가리킨다는 뜻이고, 그건 곧 임베딩 모델이 두 이미지를 비슷하게 봤다는 의미야. 이 거리들을 전부 모은 125×125 표가 다음 단계인 Hierarchical Clustering의 재료가 돼.");
+}
+
+/* ---------------- STEP 5. Hierarchical Clustering ---------------- */
+function buildHClust(mod){
+  const demo = buildModuleShell(mod);
+  demo.innerHTML = `
+    <h4>Top N을 바꾸면 그룹이 어떻게 달라질까?</h4>
+    <div class="controls">
+      <input type="range" id="hc-slider" min="2" max="8" step="1" value="5">
+      <span class="resulttext" id="hc-n-label" style="margin:0;"></span>
+    </div>
+    <div id="hc-result"></div>
+    <div id="hc-mcq"></div>`;
+  const slider = demo.querySelector("#hc-slider");
+  const label = demo.querySelector("#hc-n-label");
+  const resultBox = demo.querySelector("#hc-result");
+  function render(n){
+    const row = SWEEP.find(s=>s.n===n);
+    label.textContent = `Top N = ${n}`;
+    const maxSize = Math.max(...SWEEP.map(s=>Math.max(...s.sizes)));
+    const bars = row.sizes.map((sz,i)=>{
+      const w = (sz/maxSize*100).toFixed(1);
+      const colorKeys = ["--s1","--s8","--s6","--s7","--s5","--s3","--s4","--s2"];
+      return `<div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+        <span style="width:34px;font-size:12px;color:var(--text-muted);">C${i+1}</span>
+        <div style="flex:1;background:var(--surface-2);border-radius:6px;overflow:hidden;">
+          <div style="width:${w}%;background:var(${colorKeys[i%colorKeys.length]});height:16px;border-radius:6px;"></div>
+        </div>
+        <span class="tabular" style="width:34px;font-size:12px;text-align:right;">${sz}장</span>
+      </div>`;
+    }).join("");
+    resultBox.innerHTML = `
+      <p class="resulttext"><b>${n}개 그룹</b>으로 나눴을 때 평균 실루엣 점수는 <b class="tabular">${row.mean_sil}</b>이야.</p>
+      ${bars}`;
+  }
+  render(5);
+  slider.addEventListener("input", ()=>render(parseInt(slider.value,10)));
+  renderMCQ(demo.querySelector("#hc-mcq"),
+    "슬라이더를 움직여보면, N=2일 때 평균 실루엣(0.217)이 N=5일 때(0.13)보다 더 높아. 그런데 왜 이 실습은 N=5를 골랐을까?",
+    ["N=2는 105장과 20장, 단 두 덩어리로만 뭉뚱그려져서 그룹별 특징을 살펴보기엔 정보가 너무 적기 때문에", "N=2는 컴퓨터가 계산하는 데 시간이 더 오래 걸리기 때문에", "Orange3가 N=5 이상은 지원하지 않기 때문에", "실루엣 점수는 N이 커질수록 항상 낮아지기 때문에"], 0,
+    "실루엣 점수만 보면 N=2가 제일 높지만, 그건 그냥 크게 두 덩어리(105장·20장)로 뭉뚱그린 것뿐이라 그룹 안에 다양한 이미지가 섞여 있어. N=5처럼 그룹을 더 세분화하면 평균 실루엣은 조금 낮아지지만, 대신 '이 그룹은 어떤 이미지들이 모였는지' 훨씬 더 구체적으로 살펴볼 수 있어. 그래서 실루엣 점수는 높을수록 무조건 좋은 게 아니라, 해석 가능성과 함께 봐야 해.");
+}
+
+/* ---------------- STEP 6. Image Viewer ---------------- */
+function buildViewer(mod){
+  const demo = buildModuleShell(mod);
+  const members = RECORDS.filter(r=>r.cluster===FOCUS_CLUSTER).slice().sort((a,b)=>b.sil-a.sil);
+  const items = members.map(r=>
+    `<div class="gitem" data-file="${r.file}" style="border-color:var(${CLUSTER_COLOR[FOCUS_CLUSTER]})"><img src="${imgPath(r.img)}" alt="${r.file}"></div>`
+  ).join("");
+  demo.innerHTML = `
+    <h4>${FOCUS_CLUSTER} 그룹 실제 이미지 (${members.length}장, 실루엣 높은 순)</h4>
+    <p class="resulttext">Hierarchical Clustering의 'Selected Data' 출력을 그대로 Image Viewer에 연결하면 나오는 화면이야. 이미지 위에 마우스를 올려서 실루엣 점수를 확인해봐.</p>
+    <div class="clustergroup-grid" style="margin-top:12px;">${items}</div>
+    <div id="viewer-mcq"></div>`;
+  demo.querySelectorAll(".gitem").forEach(el=>{
+    const r = byFile(el.dataset.file);
+    el.addEventListener("mousemove",(e)=>showTip(e, `<b class="tabular">${r.file}</b> · ${r.cluster} · 실루엣 ${r.sil}`));
+    el.addEventListener("mouseleave", hideTip);
+  });
+  renderMCQ(demo.querySelector("#viewer-mcq"),
+    `${FOCUS_CLUSTER} 그룹은 ${members.length}장인데, 전체 5개 그룹 크기는 58·47·13·4·3장으로 서로 많이 달라. 왜 이렇게 그룹 크기가 들쭉날쭉할까?`,
+    ["Hierarchical Clustering은 미리 '그룹마다 몇 장씩'을 정해두지 않고, 가까운 것부터 자연스럽게 묶어가기 때문에", "이미지를 잘못 불러와서 일부가 누락됐기 때문에", "Top N을 5보다 더 크게 설정해야 하는 실수이기 때문에", "코사인 거리 계산이 이미지 개수에 따라 달라지기 때문에"], 0,
+    "Hierarchical Clustering은 '각 그룹은 몇 장씩'이라고 미리 정하지 않아. 가장 가까운 이미지끼리 차례로 묶이다 보니, 서로 닮은 이미지가 많으면 큰 그룹이 되고(C4=47장, C5=58장), 아주 소수의 이미지만 유독 비슷하게 묶이면 아주 작은 그룹도 생겨(C1=4장, C2=3장). 그룹 크기 자체가 '이 그룹이 얼마나 뚜렷한 특징으로 묶였는지'를 보여주는 단서가 되기도 해.");
+}
+
+/* ---------------- STEP 7 (bonus). 클러스터 갤러리 ---------------- */
+function buildGallery(mod){
+  const demo = buildModuleShell(mod);
+  const order = ["C1","C2","C3","C4","C5"];
+  const groups = order.map(c=>{
+    const members = RECORDS.filter(r=>r.cluster===c).slice().sort((a,b)=>b.sil-a.sil);
+    const items = members.map(r=>
+      `<div class="gitem" data-file="${r.file}" style="border-color:var(${CLUSTER_COLOR[c]})"><img src="${imgPath(r.img)}" alt="${r.file}"></div>`
+    ).join("");
+    return `<div class="clustergroup">
+      <div class="clustergroup-head"><span class="gdot" style="background:var(${CLUSTER_COLOR[c]})"></span><b>${c}</b><span class="gcount">${members.length}장 · 평균 실루엣 ${CLUSTER_MEANS[c]}</span></div>
+      <div class="clustergroup-grid">${items}</div>
+    </div>`;
+  }).join("");
+  demo.innerHTML = `
+    <h4>125장 전부, 그룹별로 늘어놓고 보기</h4>
+    <p class="resulttext">각 그룹 안에서는 실루엣 점수가 높은 순서로 놓았어 — <b>왼쪽일수록</b> "이 그룹답게" 뚜렷하게 묶인 이미지, <b>오른쪽일수록</b> 다른 그룹과 경계에 걸친 애매한 이미지야. 이미지 위에 마우스를 올려봐.</p>
+    <div class="gallerywrap">${groups}</div>
+    <p class="gallery-note">💡 C4는 47장이나 모였는데 평균 실루엣은 0.034로 가장 낮아 — 크기만 크고 서로 애매하게 섞인 그룹이라는 뜻이야. 반대로 C2는 3장뿐이지만 평균 실루엣이 0.368로 가장 높아 — 적지만 확실하게 닮은 이미지끼리 뭉친 거지.</p>
+    <div id="gallery-mcq"></div>`;
+  demo.querySelectorAll(".gitem").forEach(el=>{
+    const r = byFile(el.dataset.file);
+    el.addEventListener("mousemove",(e)=>showTip(e, `<b class="tabular">${r.file}</b> · ${r.cluster} · 실루엣 ${r.sil}`));
+    el.addEventListener("mouseleave", hideTip);
+  });
+  renderMCQ(demo.querySelector("#gallery-mcq"),
+    "갤러리를 직접 보니, 같은 그룹인데 우리 눈에는 잘 안 닮아 보이는 이미지도 섞여 있어. 왜 그럴까?",
+    ["임베딩 모델이 색 분포·질감·윤곽선 같은 시각적 특징의 조합으로 '비슷함'을 계산하기 때문에, 사람이 느끼는 의미적 유사함과 항상 일치하지는 않는다",
+     "컴퓨터가 계산을 틀렸기 때문에 처음부터 다시 돌려야 한다",
+     "이미지 파일 순서가 중간에 뒤섞였기 때문이다",
+     "이미지가 125장보다 많아지면 이런 일이 절대 생기지 않는다"], 0,
+    "SqueezeNet 같은 임베딩 모델은 픽셀에서 색·질감·윤곽선 같은 시각적 특징을 뽑아 벡터로 만든 것이지, '이건 무슨 포켓몬이다'라고 사람처럼 의미를 이해하고 묶는 게 아니야. 그래서 사람 눈에는 안 닮아 보여도 모델 기준으로는 비슷하게 계산될 수 있어 — 이게 비지도학습 군집분석의 실제 한계이자 특징이야. 실루엣 점수가 낮았던(오른쪽에 놓인) 이미지일수록 이런 경계 사례일 가능성이 커.");
+}
+
+/* ---------------- TOOLTIP ---------------- */
+function showTip(evt, html){
+  const tip = document.getElementById("tooltip");
+  tip.innerHTML = html;
+  tip.style.left = evt.clientX + "px";
+  tip.style.top = evt.clientY + "px";
+  tip.classList.add("show");
+}
+function hideTip(){ document.getElementById("tooltip").classList.remove("show"); }
+
+/* ---------------- SUMMARY CHECKLIST ---------------- */
+function renderSummaryChecklist(){
+  document.getElementById("summarychecklist").innerHTML = MODULES.map(m=>`
+    <div class="sumitem" id="sum-${m.id}" style="opacity:.45;">
+      <div class="n" style="background:var(${m.slot})"></div>
+      <span>${m.widget}</span>
+    </div>`).join("");
+}
+
+/* ---------------- THEME TOGGLE (system-driven; no manual toggle needed) ---------------- */
+
+/* ---------------- INIT ---------------- */
+renderIntro();
+renderNav();
+buildImport(MODULES[0]);
+buildEmbedding(MODULES[1]);
+buildTable(MODULES[2]);
+buildDistances(MODULES[3]);
+buildHClust(MODULES[4]);
+buildViewer(MODULES[5]);
+buildGallery(MODULES[6]);
+renderSummaryChecklist();
+updateProgress();
+
+})();
+</script>
+</body></html>
