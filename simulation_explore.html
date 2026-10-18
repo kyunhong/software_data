@@ -339,6 +339,30 @@ details.anatomy[open] summary svg{transform:rotate(90deg);}
 .whycard.open .whyhint{display:none;}
 .whycard.open{border-color:var(--wc, var(--accent));}
 
+
+/* ---------- 4 PARTS ---------- */
+.partshead{margin:6px 0 16px;}
+.partshead h3{font-size:19px; color:var(--ink); margin-bottom:6px;}
+.partshead p{font-size:14.6px; color:var(--ink-2); margin:0; line-height:1.75;}
+.partshead b{color:var(--ink);}
+.parts{display:grid; grid-template-columns:1fr 26px 1fr 26px 1fr 26px 1fr; gap:6px; align-items:stretch;}
+.part{
+  background:var(--surface); border:1px solid var(--border); border-top:4px solid var(--pc); border-radius:14px;
+  padding:14px 14px 12px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:6px;
+}
+.part .pn{font-family:"Black Han Sans",sans-serif; font-size:22px; color:var(--pc); display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+.part .ptag{font-family:"Noto Sans KR",sans-serif; font-size:11px; font-weight:700; color:#fff; background:var(--pc); padding:1px 7px; border-radius:6px;}
+.part .pd{font-size:13.4px; color:var(--ink); font-weight:600; line-height:1.6;}
+.part .pe{font-size:12.8px; color:var(--ink-2); line-height:1.6; background:var(--surface-2); border-radius:9px; padding:8px 10px; margin-top:auto;}
+.part .pe b{display:block; font-size:11.8px; color:var(--muted); margin-bottom:2px;}
+.parrow{display:flex; align-items:center; justify-content:center; color:var(--muted);}
+.partsnote{font-size:13px; color:var(--muted); margin:12px 0 30px;}
+.partsnote b{color:var(--ink-2);}
+@media (max-width:760px){
+  .parts{grid-template-columns:1fr;}
+  .parrow{transform:rotate(90deg); height:22px;}
+}
+
 /* ---------- WHY CARDS ---------- */
 .whygrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px;}
 .whycard{
@@ -671,7 +695,7 @@ footer{padding:40px 0 60px; text-align:center; color:var(--muted); font-size:13p
     <div class="sechead">
       <span class="sectag">개념</span>
       <h2>시뮬레이션이 뭐야?</h2>
-      <p>방금 돌려본 교통 정체 실험이 바로 시뮬레이션이야. 이제 그게 정확히 뭔지 한 문장으로 정리하고, 시뮬레이션을 만드는 다섯 단계로 뜯어보자.</p>
+      <p>방금 돌려본 교통 정체 실험이 바로 시뮬레이션이야. 이제 그게 정확히 뭔지 한 문장으로 정리하고, 무엇으로 이루어져 있는지, 어떤 단계로 만드는지 뜯어보자.</p>
     </div>
 
     <div class="defbox">
@@ -679,6 +703,38 @@ footer{padding:40px 0 60px; text-align:center; color:var(--muted); font-size:13p
       <div class="dv">현실의 현상이나 시스템을 <mark>핵심만 남겨 모델로 만들고</mark>, 컴퓨터에서 <mark>조건을 바꿔가며 실행</mark>해 결과를 관찰하고 예측하는 것</div>
     </div>
 
+    <div class="partshead">
+      <h3>시뮬레이션은 네 부분으로 이루어져 있어</h3>
+      <p>어떤 시뮬레이션이든 <b>입력</b>을 넣으면, 정해진 <b>규칙</b>이 <b>시간</b>에 따라 한 걸음씩 반복되고, 그 결과가 <b>출력</b>으로 나와. 방금 돌려본 교통 정체 시뮬레이션에서 하나씩 찾아보자.</p>
+    </div>
+    <div class="parts">
+      <div class="part" style="--pc:var(--c3)">
+        <div class="pn">입력</div>
+        <div class="pd">실행 전에 내가 정하는 조건</div>
+        <div class="pe"><b>교통 정체에서는</b>차량 수, 브레이크 확률, 제한 속도 슬라이더와 내 차 브레이크 버튼</div>
+      </div>
+      <div class="parrow" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      <div class="part" style="--pc:var(--c1)">
+        <div class="pn">규칙 <span class="ptag">화면에 안 보여</span></div>
+        <div class="pd">한 걸음마다 무엇이 어떻게 되는지 정한 것. 시뮬레이션의 알맹이</div>
+        <div class="pe"><b>교통 정체에서는</b>앞이 비면 속도를 올린다, 앞이 가까우면 줄인다, 가끔 이유 없이 줄인다</div>
+      </div>
+      <div class="parrow" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      <div class="part" style="--pc:var(--c4)">
+        <div class="pn">시간</div>
+        <div class="pd">규칙을 한 번 적용하는 단위. 1초, 하루, 1년 등 무엇이든 될 수 있어</div>
+        <div class="pe"><b>교통 정체에서는</b>한 걸음 = 1초. 결과 칸의 '흐른 시간'이 한 걸음씩 늘어나</div>
+      </div>
+      <div class="parrow" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      <div class="part" style="--pc:var(--c5)">
+        <div class="pn">출력</div>
+        <div class="pd">지금 상태를 보여 주는 화면과, 시간에 따라 쌓이는 그래프</div>
+        <div class="pe"><b>교통 정체에서는</b>움직이는 도로 화면, 평균 속도 그래프, 멈춘 차 수</div>
+      </div>
+    </div>
+    <p class="partsnote">교과서의 넷로고 화면에서는 입력을 <b>버튼·슬라이더</b>, 출력을 <b>플롯·모니터</b>, 시간 단위를 <b>tick</b>이라고 불러.</p>
+
+    <div class="partshead"><h3>시뮬레이션은 다섯 단계로 만들어</h3></div>
     <div class="steptl">
       <div class="stepitem">
         <div class="stepnum">1</div>
