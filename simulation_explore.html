@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>시뮬레이션 탐험하기</title>
+<meta name="description" content="시뮬레이션의 개념과 필요성, 활용 분야를 익히고, 회원가입 없이 바로 실행되는 시뮬레이션을 직접 체험한 뒤 가장 흥미롭고 유용한 시뮬레이션을 골라 공유하는 탐구 페이지">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f3ea;
+  --surface:#ffffff;
+  --surface-2:#efe9da;
+  --surface-3:#e5ddc9;
+  --ink:#1d2430;
+  --ink-2:#565f6d;
+  --muted:#8a8f7c;
+  --border:rgba(29,36,48,0.12);
+  --border-strong:rgba(29,36,48,0.22);
+  --accent:#0d6b6f;
+  --accent-2:#0a5457;
+  --accent-ink:#ffffff;
+  --amber:#c9781f;
+  --amber-2:#a35f14;
+  --good:#0ca30c;
+  --bad:#c23b3b;
+  --shadow:0 10px 30px -14px rgba(20,30,25,0.28);
+  --c1:#c23b3b;
+  --c2:#c9781f;
+  --c3:#2a78d6;
+  --c4:#7a4fc9;
+  --c5:#1baf7a;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12161b;
+    --surface:#1b2129;
+    --surface-2:#232a33;
+    --surface-3:#2c3440;
+    --ink:#f1efe6;
+    --ink-2:#bcc3cf;
+    --muted:#8992a1;
+    --border:rgba(255,255,255,0.12);
+    --border-strong:rgba(255,255,255,0.22);
+    --accent:#3fb8ad;
+    --accent-2:#2d9089;
+    --accent-ink:#0b1210;
+    --amber:#e6a34a;
+    --amber-2:#c4842f;
+    --good:#3fc23f;
+    --bad:#e5716f;
+    --shadow:0 10px 34px -14px rgba(0,0,0,0.55);
+    --c1:#e5716f;
+    --c2:#e6a34a;
+    --c3:#3987e5;
+    --c4:#a283e8;
+    --c5:#199e70;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12161b;
+  --surface:#1b2129;
+  --surface-2:#232a33;
+  --surface-3:#2c3440;
+  --ink:#f1efe6;
+  --ink-2:#bcc3cf;
+  --muted:#8992a1;
+  --border:rgba(255,255,255,0.12);
+  --border-strong:rgba(255,255,255,0.22);
+  --accent:#3fb8ad;
+  --accent-2:#2d9089;
+  --accent-ink:#0b1210;
+  --amber:#e6a34a;
+  --amber-2:#c4842f;
+  --good:#3fc23f;
+  --bad:#e5716f;
+  --shadow:0 10px 34px -14px rgba(0,0,0,0.55);
+  --c1:#e5716f;
+  --c2:#e6a34a;
+  --c3:#3987e5;
+  --c4:#a283e8;
+  --c5:#199e70;
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Noto Sans KR",system-ui,sans-serif;
+  line-height:1.62;
+  word-break:keep-all;
+  overflow-wrap:break-word;
+  -webkit-font-smoothing:antialiased;
+}
+.display{font-family:"Black Han Sans","Noto Sans KR",sans-serif; letter-spacing:0.01em;}
+h1,h2,h3,h4,h5{text-wrap:balance; margin:0;}
+.wrap{max-width:960px; margin:0 auto; padding:0 20px;}
+a{color:inherit;}
+
+/* ---------- HERO ---------- */
+.hero{
+  padding:64px 0 46px;
+  background:
+    radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 55%),
+    radial-gradient(circle at 88% 6%, color-mix(in srgb, var(--amber) 18%, transparent), transparent 50%),
+    var(--surface);
+  border-bottom:1px solid var(--border);
+}
+.back-hub{
+  display:flex; width:max-content; align-items:center; gap:6px;
+  font-size:13px; font-weight:700; color:var(--ink-2); text-decoration:none; margin-bottom:14px;
+}
+.back-hub:hover{color:var(--accent);}
+.eyebrow{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:13px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:16px;
+}
+.eyebrow .dot{width:7px; height:7px; border-radius:50%; background:var(--amber);}
+.hero h1{font-size:clamp(32px,5.4vw,54px); line-height:1.16; color:var(--ink); max-width:16ch;}
+.hero .lead{margin-top:18px; max-width:60ch; font-size:17px; color:var(--ink-2); line-height:1.85;}
+.hero .lead b{color:var(--ink); font-weight:700;}
+.hero-facts{display:flex; flex-wrap:wrap; gap:12px; margin-top:28px;}
+.factchip{
+  display:flex; align-items:center; gap:9px;
+  background:var(--surface-2); border:1px solid var(--border);
+  border-radius:999px; padding:9px 16px 9px 10px; font-size:14px; color:var(--ink-2); font-weight:600;
+}
+.factchip .n{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:24px; height:24px; padding:0 6px; border-radius:999px;
+  background:var(--accent); color:var(--accent-ink);
+  font-family:"Black Han Sans",sans-serif; font-size:13px;
+}
+
+/* ---------- SECTION SHELL ---------- */
+section.block{padding:56px 0;}
+section.block.alt{background:var(--surface-2); border-top:1px solid var(--border); border-bottom:1px solid var(--border);}
+.sechead{max-width:640px; margin-bottom:32px;}
+.sectag{
+  display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--amber-2); background:color-mix(in srgb, var(--amber) 16%, transparent);
+  padding:5px 12px; border-radius:999px; margin-bottom:14px;
+}
+.sechead h2{font-size:clamp(24px,3.4vw,32px); color:var(--ink);}
+.sechead p{margin-top:10px; color:var(--ink-2); font-size:15.5px; line-height:1.8;}
+
+/* ---------- DEFINITION ---------- */
+.defbox{
+  background:var(--surface); border:1px solid var(--border); border-left:5px solid var(--accent);
+  border-radius:14px; padding:20px 22px; box-shadow:var(--shadow); margin-bottom:30px;
+}
+.defbox .dk{font-size:12.5px; font-weight:700; color:var(--accent); letter-spacing:.06em; margin-bottom:6px;}
+.defbox .dv{font-size:17.5px; color:var(--ink); font-weight:600; line-height:1.7;}
+.defbox .dv mark{background:color-mix(in srgb, var(--amber) 24%, transparent); color:inherit; padding:0 3px; border-radius:4px;}
+
+/* ---------- STEP TIMELINE ---------- */
+.steptl{display:flex; flex-direction:column;}
+.stepitem{display:grid; grid-template-columns:52px 1fr; gap:18px; padding:20px 0; border-top:1px solid var(--border); cursor:default;}
+.stepitem:first-child{border-top:none;}
+.stepnum{
+  width:44px; height:44px; border-radius:12px; background:var(--accent); color:var(--accent-ink);
+  display:flex; align-items:center; justify-content:center; font-family:"Black Han Sans",sans-serif; font-size:18px;
+}
+.stepbody h4{font-size:16.5px; color:var(--ink); margin-bottom:6px;}
+.stepbody p{font-size:14.3px; color:var(--ink-2); margin:0; line-height:1.75;}
+.stepbody p b{color:var(--ink);}
+.stepbody .stip{
+  display:inline-block; margin-top:10px; font-size:12.8px; color:var(--accent-2); font-weight:700;
+  background:color-mix(in srgb, var(--accent) 12%, transparent); padding:4px 10px; border-radius:8px;
+}
+.everyday{display:flex; flex-wrap:wrap; gap:8px; margin-top:26px;}
+.everyday .elabel{width:100%; font-size:13px; font-weight:700; color:var(--muted); margin-bottom:2px;}
+.echip{
+  font-size:13.4px; padding:7px 13px; border-radius:999px; background:var(--surface);
+  border:1px solid var(--border); color:var(--ink-2);
+}
+.echip b{color:var(--ink);}
+
+/* ---------- TRAFFIC SIM ---------- */
+.predict{
+  background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:18px 20px;
+  box-shadow:var(--shadow); margin-bottom:20px;
+}
+.predict .pq{font-weight:700; font-size:15px; color:var(--ink); margin-bottom:4px;}
+.predict .psub{font-size:13.3px; color:var(--ink-2); margin-bottom:12px;}
+.predict .popts{display:flex; flex-wrap:wrap; gap:8px;}
+.predict .popt{
+  font-family:inherit; font-size:13.6px; padding:9px 14px; border-radius:10px; cursor:pointer;
+  border:1px solid var(--border); background:var(--surface-2); color:var(--ink);
+}
+.predict .popt.sel{border-color:var(--accent); background:color-mix(in srgb, var(--accent) 14%, var(--surface)); font-weight:700;}
+.simgrid{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:18px; align-items:start;}
+@media (max-width:760px){ .simgrid{grid-template-columns:1fr;} }
+.simpanel{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:18px; box-shadow:var(--shadow);}
+.simpanel h5{font-size:13.4px; color:var(--muted); font-weight:700; margin-bottom:10px;}
+#roadCanvas{width:100%; height:auto; display:block; border-radius:10px;}
+.watch{margin-top:14px; background:var(--surface-2); border-radius:12px; padding:13px 16px; font-size:13.6px; color:var(--ink-2); line-height:1.75; display:flex; flex-direction:column; gap:4px;}
+.watch b{color:var(--ink);}
+.mecar{display:inline-block; font-size:12px; font-weight:700; color:var(--ink); border:2px solid var(--ink); border-radius:6px; padding:0 6px; line-height:1.5;}
+.jamtag{display:inline-block; font-size:12px; font-weight:700; color:#fff; background:var(--bad); border-radius:6px; padding:0 7px; line-height:1.6;}
+.roadhead{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:10px;}
+.roadhead h5{margin:0;}
+.roadhead .legend{margin:0;}
+.stats{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:12px;}
+.stat{background:var(--surface-2); border-radius:10px; padding:9px 10px; text-align:center;}
+.stat .sv{font-family:"Black Han Sans",sans-serif; font-size:20px; color:var(--ink); line-height:1.2;}
+.stat .sl{font-size:11.8px; color:var(--muted); font-weight:600;}
+.legend{display:flex; justify-content:center; gap:14px; margin-top:10px; font-size:12px; color:var(--ink-2);}
+.legend span{display:inline-flex; align-items:center; gap:5px;}
+.legend i{width:12px; height:8px; border-radius:2px; display:inline-block;}
+.ctrl{margin-bottom:14px;}
+.ctrl .ch{display:flex; justify-content:space-between; font-size:13.6px; font-weight:700; color:var(--ink); margin-bottom:4px;}
+.ctrl .ch output{color:var(--accent); font-family:"Black Han Sans",sans-serif; font-weight:400;}
+.ctrl .cd{font-size:12.2px; color:var(--muted); margin-top:2px;}
+.ctrl input[type=range]{width:100%; accent-color:var(--accent);}
+.simbtns{display:flex; flex-wrap:wrap; gap:8px; margin:4px 0 16px;}
+.btn.warn{background:transparent; color:var(--bad); border-color:var(--bad);}
+.chartbox{margin-top:6px;}
+.chartbox canvas{width:100%; display:block; border-radius:8px; background:var(--surface-2);}
+.chartcap{font-size:12.2px; color:var(--muted); margin-top:5px; line-height:1.55;}
+.missions{margin-top:20px; display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px;}
+.mcard{background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:14px 16px; font-size:13.4px; color:var(--ink-2); line-height:1.65;}
+.mcard .mt{font-size:12px; font-weight:700; color:var(--amber-2); margin-bottom:4px;}
+.mcard b{color:var(--ink);}
+.mcard .mset{
+  margin-top:8px; font-family:inherit; font-size:12.6px; font-weight:700; color:var(--accent);
+  background:transparent; border:1px solid var(--accent); border-radius:8px; padding:4px 10px; cursor:pointer;
+}
+.reveal{
+  display:block; margin-top:18px; background:var(--surface); border:1px solid var(--border); border-left:5px solid var(--amber);
+  border-radius:14px; padding:18px 20px; font-size:14px; color:var(--ink-2); line-height:1.8; box-shadow:var(--shadow);
+}
+.reveal.show{display:block;}
+.reveal b{color:var(--ink);}
+details.anatomy{
+  margin-top:18px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:4px 20px; box-shadow:var(--shadow);
+}
+details.anatomy summary{cursor:pointer; padding:14px 0; font-weight:700; font-size:14.6px; color:var(--accent); list-style:none; display:flex; align-items:center; gap:8px;}
+details.anatomy summary::-webkit-details-marker{display:none;}
+details.anatomy summary svg{transition:transform .2s ease;}
+details.anatomy[open] summary svg{transform:rotate(90deg);}
+.anarow{display:grid; grid-template-columns:110px 1fr; gap:12px; padding:11px 0; border-top:1px solid var(--border); font-size:13.6px;}
+.anarow .ak{font-weight:700; color:var(--ink);}
+.anarow .ak small{display:block; font-weight:500; color:var(--muted); font-size:11.8px;}
+.anarow .av{color:var(--ink-2);}
+.anarow ol{margin:0; padding-left:18px;}
+
+.legend .lg-tail{width:14px; height:6px; border-radius:2px; background:#ff2a2a; box-shadow:0 0 6px #ff2a2a;}
+.legend .lg-dot{width:10px; height:10px; border-radius:50%; background:var(--amber);}
+.roadhead .legend{flex-wrap:wrap; align-items:center;}
+.nightbtn{
+  font-family:inherit; font-size:12.6px; font-weight:700; padding:5px 12px; border-radius:999px; cursor:pointer;
+  border:1px solid var(--border-strong); background:var(--surface-2); color:var(--ink);
+}
+.nightbtn[aria-pressed="true"]{background:#1b1f27; color:#ffd36b; border-color:#1b1f27;}
+.roadpanel{width:min(1240px, calc(100vw - 32px)); margin-left:calc(50% - min(620px, 50vw - 16px));}
+.brakebar{display:grid; grid-template-columns:200px 1fr; gap:14px; margin-top:16px; align-items:stretch;}
+@media (max-width:640px){ .brakebar{grid-template-columns:1fr;} }
+.brakebtn{
+  font-family:inherit; border:none; border-radius:16px; cursor:pointer; color:#fff;
+  background:var(--bad); box-shadow:0 6px 0 color-mix(in srgb, var(--bad) 60%, #000); padding:16px 12px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+  user-select:none; -webkit-user-select:none; touch-action:none; transition:transform .05s, box-shadow .05s;
+}
+.brakebtn span{font-family:"Black Han Sans",sans-serif; font-size:21px;}
+.brakebtn small{font-size:12.4px; opacity:.9;}
+.brakebtn.down{transform:translateY(5px); box-shadow:0 1px 0 color-mix(in srgb, var(--bad) 60%, #000);}
+.impact{background:var(--surface-2); border-radius:14px; padding:13px 16px;}
+.impt{font-size:12.6px; font-weight:700; color:var(--muted); margin-bottom:6px;}
+.impnums{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
+.impnums div{display:flex; flex-direction:column;}
+.impnums b{font-family:"Black Han Sans",sans-serif; font-weight:400; font-size:26px; color:var(--bad); line-height:1.15;}
+.impnums span{font-size:11.8px; color:var(--muted); font-weight:600;}
+.impmsg{margin-top:8px; font-size:13.4px; color:var(--ink-2); line-height:1.65;}
+.impmsg b{color:var(--ink);}
+
+
+/* ---------- CHAPTER LOCKS ---------- */
+.ch-hidden{display:none !important;}
+.ch-reveal{animation:chIn .6s ease both;}
+@keyframes chIn{from{opacity:0; transform:translateY(18px);} to{opacity:1; transform:none;}}
+.roadmap{display:flex; flex-wrap:wrap; gap:10px; margin-top:26px;}
+.rm{
+  display:flex; align-items:center; gap:9px; text-decoration:none; padding:8px 16px 8px 8px; border-radius:999px;
+  background:var(--surface-2); border:1px solid var(--border); color:var(--ink-2); font-size:14px; font-weight:600;
+}
+.rm .rn{
+  width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-family:"Black Han Sans",sans-serif; font-size:13px; background:var(--accent); color:var(--accent-ink);
+}
+.rm.locked{opacity:.55; pointer-events:none;}
+.rm.locked .rn{background:var(--muted);}
+.rm.locked .rl::after{content:" (잠김)"; font-weight:500; color:var(--muted);}
+.lockbox{
+  margin-top:26px; display:flex; gap:16px; align-items:flex-start;
+  background:var(--surface); border:2px dashed var(--accent); border-radius:16px; padding:20px 22px; box-shadow:var(--shadow);
+}
+.lockicon{
+  flex:none; width:46px; height:46px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+  background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent);
+}
+.lockmain{flex:1; min-width:0;}
+.locktag{font-size:12.5px; font-weight:700; color:var(--accent); letter-spacing:.04em; margin-bottom:4px;}
+.lockq{font-size:16px; font-weight:700; color:var(--ink); line-height:1.6;}
+.lockform{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;}
+.lockinput{
+  flex:1; min-width:160px; font-family:inherit; font-size:16px; padding:10px 14px; border-radius:10px;
+  border:1px solid var(--border-strong); background:var(--surface-2); color:var(--ink);
+}
+.lockinput:focus{outline:2px solid color-mix(in srgb, var(--accent) 45%, transparent); border-color:var(--accent);}
+.lockmsg{margin-top:8px; font-size:13.4px; color:var(--muted);}
+.lockmsg.bad{color:var(--bad); font-weight:600;}
+.lockmsg.good{color:var(--good); font-weight:700;}
+.lockbox.shake{animation:shake .35s;}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.lockbox.done{border-style:solid; border-color:var(--good);}
+.lockbox.done .lockicon{background:color-mix(in srgb, var(--good) 14%, transparent); color:var(--good);}
+.lockbox.done .lockform{display:none;}
+.blank{display:inline-block; min-width:2.6em; text-align:center; border-bottom:2px solid currentColor; padding:0 4px; letter-spacing:.06em;}
+.blank.filled{border-bottom-color:transparent; color:var(--bad); font-weight:800; letter-spacing:0;}
+
+.extrahead{margin:30px 0 12px; font-size:15px; font-weight:700; color:var(--ink-2);}
+.whygrid.extra .whycard{padding:16px 18px 14px; box-shadow:none;}
+.whygrid.extra .whycard h4{font-size:16px; margin-bottom:8px;}
+/* why cards: flip to answer */
+.whycard{position:relative; transition:transform .15s;}
+.whycard:hover{transform:translateY(-2px);}
+.whyans{display:none;}
+.whycard.open .whyans{display:block; animation:chIn .35s ease both;}
+.whyhint{
+  margin-top:10px; font-size:12.8px; font-weight:700; color:var(--wc, var(--accent));
+  border:1px dashed var(--wc, var(--accent)); border-radius:9px; padding:8px 10px; text-align:center;
+}
+.whycard.open .whyhint{display:none;}
+.whycard.open{border-color:var(--wc, var(--accent));}
+
+/* ---------- WHY CARDS ---------- */
+.whygrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px;}
+.whycard{
+  background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px 22px 18px;
+  box-shadow:var(--shadow); border-top:4px solid var(--wc, var(--accent)); cursor:pointer;
+}
+.whycard .wtag{font-size:12.5px; font-weight:700; color:var(--wc, var(--accent)); letter-spacing:.04em; margin-bottom:4px;}
+.whycard h4{font-size:18px; color:var(--ink); margin-bottom:12px;}
+.whyrow{display:grid; grid-template-columns:92px 1fr; gap:10px; font-size:13.4px; margin-bottom:8px;}
+.whyrow .k{color:var(--muted); font-weight:700;}
+.whyrow .v{color:var(--ink-2);}
+.whyex{
+  margin-top:10px; background:var(--surface-2); border-radius:11px; padding:11px 13px; font-size:13.2px; color:var(--ink-2);
+  border:1px solid var(--border); line-height:1.65;
+}
+.whyex b{color:var(--ink);}
+.readbox{
+  margin-top:22px; background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:18px 20px; font-size:13.8px; color:var(--ink-2); line-height:1.8; cursor:pointer;
+}
+.readbox b{color:var(--ink);}
+
+/* ---------- FIELD CARDS ---------- */
+.fieldwrap{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px;}
+.fcard{
+  background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 20px;
+  box-shadow:var(--shadow); display:flex; gap:13px;
+}
+.fcard .ficon{
+  flex:none; width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+  background:color-mix(in srgb, var(--accent) 14%, transparent); font-size:14px; color:var(--accent); font-family:"Black Han Sans",sans-serif;
+}
+.fcard h5{font-size:14.8px; color:var(--ink); margin-bottom:4px;}
+.fcard p{font-size:13.3px; color:var(--ink-2); margin:0;}
+
+/* ---------- MCQ ---------- */
+.mcq .q{font-weight:700; font-size:15px; margin-bottom:12px; color:var(--ink);}
+.mcq .opts{display:flex; flex-direction:column; gap:9px;}
+.mcq .opt{
+  text-align:left; padding:12px 14px; border-radius:11px; border:1px solid var(--border);
+  background:var(--surface); color:var(--ink); font-size:14.3px; font-family:inherit; cursor:pointer;
+}
+.mcq .opt:hover{border-color:var(--border-strong);}
+.mcq .opt.correct{border-color:var(--good); background:color-mix(in srgb, var(--good) 12%, var(--surface)); font-weight:700;}
+.mcq .opt.wrong{border-color:var(--bad); background:color-mix(in srgb, var(--bad) 10%, var(--surface));}
+.mcq .opt[disabled]{cursor:default;}
+.mcq .explain{
+  margin-top:12px; padding:13px 16px; border-radius:12px; background:var(--surface-2);
+  border:1px solid var(--border); font-size:13.8px; color:var(--ink-2); display:none;
+}
+.mcq .explain.show{display:block;}
+.mcq .explain b{color:var(--ink);}
+.mcqgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:22px; margin-top:34px;}
+
+/* ---------- GALLERY ---------- */
+.howto{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px; margin-bottom:26px;
+}
+.howto div{
+  background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px 14px;
+  font-size:13.4px; color:var(--ink-2); display:flex; gap:10px; align-items:flex-start;
+}
+.howto .hn{
+  flex:none; width:24px; height:24px; border-radius:50%; background:var(--amber); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-family:"Black Han Sans",sans-serif; font-size:12.5px;
+}
+.howto b{color:var(--ink);}
+.dirtools{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px;}
+.dirtab{
+  padding:8px 15px; border-radius:999px; border:1px solid var(--border); background:var(--surface);
+  color:var(--ink-2); font-size:13.6px; font-weight:600; cursor:pointer; font-family:inherit;
+}
+.dirtab.active{background:var(--accent); border-color:var(--accent); color:var(--accent-ink);}
+.dircat{margin-bottom:28px;}
+.dircat h4{font-size:15px; color:var(--ink); margin-bottom:12px; display:flex; align-items:center; gap:8px;}
+.dircat h4 .cdot{width:9px; height:9px; border-radius:50%; background:var(--accent);}
+.sitegrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:12px;}
+.sitecard{
+  display:flex; flex-direction:column; text-decoration:none; background:var(--surface); border:1px solid var(--border);
+  border-radius:13px; padding:15px 16px; box-shadow:var(--shadow);
+}
+.sitecard:hover{border-color:var(--accent);}
+.sitecard.tried{border-color:var(--good); box-shadow:0 0 0 2px color-mix(in srgb, var(--good) 22%, transparent), var(--shadow);}
+.sitecard .sname{font-size:15px; font-weight:700; color:var(--ink); display:flex; align-items:center; justify-content:space-between; gap:8px;}
+.sitecard .sname svg{flex:none; color:var(--muted);}
+.sitecard .surl{font-size:12.4px; color:var(--accent); margin-top:3px; font-family:monospace; overflow-wrap:anywhere;}
+.badges{display:flex; flex-wrap:wrap; gap:5px; margin-top:8px;}
+.badge{font-size:11.5px; font-weight:700; padding:2px 8px; border-radius:6px; border:1px solid var(--border);}
+.badge.ko{color:var(--good); background:color-mix(in srgb, var(--good) 12%, transparent); border-color:transparent;}
+.badge.en{color:var(--ink-2); background:var(--surface-2);}
+.badge.heavy{color:var(--bad); background:color-mix(in srgb, var(--bad) 10%, transparent); border-color:transparent;}
+.badge.text{color:var(--c4); background:color-mix(in srgb, var(--c4) 12%, transparent); border-color:transparent;}
+.sitecard .sdesc{font-size:13.3px; color:var(--ink-2); margin-top:9px; line-height:1.6;}
+.sitecard .mission{
+  margin-top:10px; font-size:12.9px; color:var(--amber-2); font-weight:600; line-height:1.6;
+  background:color-mix(in srgb, var(--amber) 11%, transparent); padding:8px 10px; border-radius:9px;
+}
+.sitecard .mission::before{
+  content:"미션"; display:inline-block; margin-right:7px; font-size:11px; font-weight:700; color:#fff;
+  background:var(--amber); padding:1px 7px; border-radius:5px; vertical-align:1px;
+}
+.otherwrap{display:none; margin-top:8px; gap:8px; flex-direction:column;}
+.otherwrap.show{display:flex;}
+.gallerynote{font-size:13px; color:var(--muted); margin-top:-4px; margin-bottom:22px;}
+
+details.moreplat{
+  margin-top:8px; background:var(--surface); border:1px solid var(--border); border-radius:14px;
+  padding:4px 20px; box-shadow:var(--shadow);
+}
+details.moreplat summary{
+  cursor:pointer; padding:14px 0; font-weight:700; font-size:14.6px; color:var(--accent);
+  display:flex; align-items:center; gap:8px; list-style:none;
+}
+details.moreplat summary::-webkit-details-marker{display:none;}
+details.moreplat summary svg{transition:transform .2s ease;}
+details.moreplat[open] summary svg{transform:rotate(90deg);}
+.platlist{
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:6px 16px;
+  padding:4px 0 18px; border-top:1px dashed var(--border-strong);
+}
+.platlist a{display:block; padding:9px 2px; font-size:13.4px; color:var(--ink-2); text-decoration:none; border-bottom:1px solid var(--border);}
+.platlist a:hover{color:var(--accent);}
+.platlist a span{color:var(--muted); font-size:12px; margin-left:6px;}
+
+/* ---------- SHARE BUILDER ---------- */
+.sharegrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px; align-items:start;}
+.formcard{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:20px 22px; box-shadow:var(--shadow);}
+.field{margin-bottom:14px;}
+.field label{display:block; font-size:13.6px; font-weight:700; color:var(--ink); margin-bottom:6px;}
+.field label .hint{font-weight:500; color:var(--muted); font-size:12.4px; margin-left:4px;}
+.field input, .field select, .field textarea{
+  width:100%; font-family:inherit; font-size:14px; color:var(--ink); background:var(--surface-2);
+  border:1px solid var(--border); border-radius:10px; padding:10px 12px;
+}
+.field textarea{min-height:68px; resize:vertical; line-height:1.6;}
+.field input:focus, .field select:focus, .field textarea:focus{outline:2px solid color-mix(in srgb, var(--accent) 45%, transparent); border-color:var(--accent);}
+.whypick{display:flex; flex-wrap:wrap; gap:6px;}
+.whypick label{
+  display:inline-flex; align-items:center; gap:5px; font-size:13px; font-weight:600; color:var(--ink-2);
+  padding:6px 11px; border-radius:999px; border:1px solid var(--border); background:var(--surface-2); cursor:pointer; margin:0;
+}
+.whypick input{width:auto; accent-color:var(--accent);}
+.preview{
+  background:var(--surface); border:1px dashed var(--border-strong); border-radius:16px; padding:20px 22px;
+  white-space:pre-wrap; font-size:14px; color:var(--ink-2); line-height:1.8; min-height:220px;
+}
+.preview .ph{color:var(--muted);}
+.btnrow{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; align-items:center;}
+.btn{
+  font-family:inherit; font-size:14px; font-weight:700; border-radius:10px; padding:10px 18px; cursor:pointer;
+  border:1px solid var(--accent); background:var(--accent); color:var(--accent-ink);
+}
+.btn.ghost{background:transparent; color:var(--accent);}
+.copied{font-size:13px; color:var(--good); font-weight:700; opacity:0; transition:opacity .2s;}
+.copied.show{opacity:1;}
+
+/* ---------- BRIDGE / FOOTER ---------- */
+.bridge{
+  background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:22px 24px;
+  box-shadow:var(--shadow); display:flex; gap:16px; align-items:flex-start;
+}
+.bridge .bicon{
+  flex:none; width:40px; height:40px; border-radius:11px; background:color-mix(in srgb, var(--accent) 16%, transparent);
+  color:var(--accent); display:flex; align-items:center; justify-content:center;
+}
+.bridge p{font-size:14.3px; color:var(--ink-2); margin:0;}
+.bridge b{color:var(--ink);}
+footer{padding:40px 0 60px; text-align:center; color:var(--muted); font-size:13px;}
+
+/* progress ring (self-check) */
+.checkwrap{display:flex; flex-wrap:wrap; gap:12px 28px; align-items:center;}
+.ringbox{position:relative; width:78px; height:78px; flex:none;}
+.ringbox svg{width:100%; height:100%; transform:rotate(-90deg);}
+.ringbox circle{fill:none; stroke-width:8;}
+.ringbox .bgc{stroke:var(--surface-3);}
+.ringbox .fgc{stroke:var(--accent); stroke-linecap:round; transition:stroke-dashoffset .35s ease;}
+.ringtext{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:"Black Han Sans",sans-serif; font-size:13px; color:var(--ink);}
+.checklist{display:flex; flex-direction:column; gap:8px; flex:1; min-width:220px;}
+.checkitem{display:flex; align-items:center; gap:9px; font-size:13.8px; color:var(--ink-2);}
+.checkitem input{width:17px; height:17px; accent-color:var(--accent); flex:none;}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <a class="back-hub" href="./index.html">← 실습 허브로</a>
+    <span class="eyebrow"><span class="dot"></span>소프트웨어와 생활 · 4단원 · 모의 실험하는 소프트웨어</span>
+    <h1 class="display">시뮬레이션 탐험하기</h1>
+    <p class="lead">일기예보의 "내일 비 올 확률 70%"도 <b>시뮬레이션</b>의 결과야. 이 페이지는 <b>네 개의 챕터</b>로 되어 있어. 먼저 시뮬레이션을 직접 돌려보고, 챕터 끝에서 <b>선생님 설명을 듣고 정답을 입력하면</b> 다음 챕터가 열려. 마지막엔 여러 분야의 시뮬레이션을 탐험하고, 가장 마음에 드는 하나를 골라 친구들과 공유하자.</p>
+    <div class="roadmap" id="roadmap">
+      <a class="rm" data-ch="1" href="#trafficsim"><span class="rn">1</span><span class="rl">직접 돌려보기</span></a>
+      <a class="rm" data-ch="2" href="#reveal"><span class="rn">2</span><span class="rl">시뮬레이션이란?</span></a>
+      <a class="rm" data-ch="3" href="#why"><span class="rn">3</span><span class="rl">왜 필요할까?</span></a>
+      <a class="rm" data-ch="4" href="#gallery"><span class="rn">4</span><span class="rl">시뮬레이션 탐험</span></a>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== A2. TRAFFIC SIM ===================== -->
+<section class="block alt chapter-start" id="trafficsim" data-ch="1">
+  <div class="wrap">
+    <div class="sechead">
+      <span class="sectag">직접 실행해보기</span>
+      <h2>시뮬레이션 체험: 고속도로는 왜 갑자기 막힐까?</h2>
+      <p>사고도 없고, 신호등도 없고, 공사 구간도 없는 1차선 도로가 있어. 이 도로는 끝과 처음이 이어져 있어서, 차가 빠져나가거나 새로 들어오지 않아. 차들은 그냥 앞차와 부딪히지 않게 달리기만 해. 그런데도 정체가 생길까? 말로 설명하는 대신 직접 돌려보자.</p>
+    </div>
+
+    <div class="predict" id="predict">
+      <div class="pq">실행하기 전에 먼저 예측해봐</div>
+      <div class="psub">차가 많아지면 이 도로에서 어떤 일이 일어날까?</div>
+      <div class="popts">
+        <button class="popt" data-p="0">모두 조금씩 느려질 뿐, 멈추는 차는 없을 거야</button>
+        <button class="popt" data-p="1">아무 이유 없이 멈춰 서는 구간이 생길 거야</button>
+        <button class="popt" data-p="2">차가 많아도 속도는 그대로일 거야</button>
+      </div>
+    </div>
+
+    <div class="simpanel roadpanel">
+      <div class="roadhead">
+        <h5>도로 (위에서 내려다본 모습)</h5>
+        <div class="legend">
+          <span><i class="lg-tail"></i>빨간 브레이크등: 속도를 줄이는 중</span>
+          <span><i class="lg-dot"></i>내 브레이크 때문에 속도를 줄인 차</span>
+          <button class="nightbtn" id="btnNight" aria-pressed="false">야간 모드</button>
+        </div>
+      </div>
+      <canvas id="roadCanvas" width="1840" height="240"></canvas>
+      <div class="chartcap">오른쪽 터널로 나간 차는 왼쪽 터널에서 다시 나와. 도로 끝과 처음이 이어진 하나의 고리라서, 차가 빠져나가거나 새로 들어오지 않아.</div>
+
+      <div class="brakebar">
+        <button class="brakebtn" id="btnMyBrake"><span>내 차 브레이크</span><small>누르고 있는 동안 밟아</small></button>
+        <div class="impact">
+          <div class="impt">내 브레이크의 영향</div>
+          <div class="impnums">
+            <div><b id="imSlow">0</b><span>속도를 줄인 뒤차 (대)</span></div>
+            <div><b id="imStop">0</b><span>완전히 멈춘 뒤차 (대)</span></div>
+            <div><b id="imTime">0</b><span>영향이 퍼진 시간 (초)</span></div>
+          </div>
+          <div class="impmsg" id="impMsg">차들이 달리는 중에 버튼을 1~2초 눌렀다 떼봐. 내 뒤에 있는 차들이 어떻게 되는지 지켜봐.</div>
+        </div>
+      </div>
+
+      <div class="watch">
+        <div><b>이렇게 관찰해봐</b></div>
+        <div>1. <span class="mecar">내 차</span>(노란 차)만 눈으로 따라가봐. 빠르게 달리다가 어디서 갇히고, 언제 빠져나와?</div>
+        <div>2. 멈춘 차가 몰리면 도로 위에 <span class="jamtag">정체</span> 표시가 떠. 차들은 오른쪽으로 가는데, 이 정체 표시는 어느 쪽으로 움직여?</div>
+        <div>3. 내 차 브레이크를 밟으면 뒤차들의 빨간 브레이크등이 어느 방향으로 번져? <b>야간 모드</b>로 보면 더 잘 보여.</div>
+      </div>
+    </div>
+
+    <div class="simgrid" style="margin-top:18px">
+      <div class="simpanel">
+        <h5>조작 패널 (변수)</h5>
+        <div class="ctrl">
+          <div class="ch"><label for="slN">차량 수</label><output id="oN">8대</output></div>
+          <input type="range" id="slN" min="2" max="30" value="8">
+          <div class="cd">바꾸면 도로가 처음 상태로 돌아가</div>
+        </div>
+        <div class="ctrl">
+          <div class="ch"><label for="slP">괜히 브레이크 밟을 확률</label><output id="oP">20%</output></div>
+          <input type="range" id="slP" min="0" max="50" value="20">
+          <div class="cd">딴짓·졸음·과한 조심 때문에 이유 없이 속도를 줄이는 운전자</div>
+        </div>
+        <div class="ctrl">
+          <div class="ch"><label for="slV">제한 속도</label><output id="oV">100km/h</output></div>
+          <input type="range" id="slV" min="3" max="6" value="5">
+        </div>
+        <div class="simbtns" style="margin-bottom:0">
+          <button class="btn" id="btnRun">실행</button>
+          <button class="btn ghost" id="btnReset">초기화</button>
+        </div>
+      </div>
+      <div class="simpanel">
+        <h5>결과</h5>
+        <div class="stats" style="margin-top:0">
+          <div class="stat"><div class="sv" id="stSpeed">0</div><div class="sl">평균 속도 (km/h)</div></div>
+          <div class="stat"><div class="sv" id="stStop">0</div><div class="sl">멈춘 차 (대)</div></div>
+          <div class="stat"><div class="sv" id="stTime">0</div><div class="sl">흐른 시간 (초)</div></div>
+        </div>
+        <div class="chartbox" style="margin-top:14px">
+          <canvas id="speedCanvas" width="800" height="260" style="height:auto"></canvas>
+          <div class="chartcap">평균 속도 변화 (오른쪽이 최근)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="missions">
+      <div class="mcard"><div class="mt">실험 1</div>차량 <b>6대</b>, 브레이크 확률 <b>20%</b>. 차가 적을 땐 어때? 내 차 브레이크를 밟아도 정체가 생겨?<br><button class="mset" data-n="6" data-p="20">이 조건으로 맞추기</button></div>
+      <div class="mcard"><div class="mt">실험 2</div>차량 <b>14대</b>, 브레이크 확률 <b>20%</b>. 사고가 없는데도 멈춘 차가 생기는지 30초 이상 지켜봐.<br><button class="mset" data-n="14" data-p="20">이 조건으로 맞추기</button></div>
+      <div class="mcard"><div class="mt">실험 3</div>차량 <b>14대</b>, 브레이크 확률 <b>0%</b>. 모두가 완벽하게 운전해서 정체가 없어. 이때 <b>내 차 브레이크</b>를 딱 2초만 밟아봐. 정체가 다시 사라질까?<br><button class="mset" data-n="14" data-p="0">이 조건으로 맞추기</button></div>
+    </div>
+
+    <div class="lockbox" id="lockA">
+      <div class="lockicon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 018 0v3.5"/></svg></div>
+      <div class="lockmain">
+        <div class="locktag">다음 챕터 열기 · 2 / 4</div>
+        <div class="lockq">방금 본 현상처럼, 사고도 신호도 없는데 작은 브레이크가 뒤로 전달되며 생기는 정체를 뭐라고 부를까?</div>
+        <div class="lockform">
+          <input type="text" class="lockinput" placeholder="정답 입력" autocomplete="off" aria-label="정답 입력">
+          <button class="btn lockbtn">열기</button>
+        </div>
+        <div class="lockmsg" aria-live="polite">선생님 설명을 듣고 정답을 입력하면 다음 챕터가 열려.</div>
+      </div>
+    </div>
+  </div>
+  <div class="wrap" data-ch="2">
+    <div class="reveal" id="reveal">
+      <b>이런 현상을 '유령 정체(phantom traffic jam)'라고 해.</b> 사고도 신호도 없는데, 한 운전자가 살짝 브레이크를 밟으면 뒤차는 더 세게, 그 뒤차는 더 세게 밟게 돼. 이 작은 흔들림이 차가 많을 때는 사라지지 않고 <b>뒤쪽으로 전달되면서</b> 정체 덩어리를 만들어. <b>정체</b> 표시가 차의 진행 방향과 <b>반대쪽(왼쪽)</b>으로 움직이는 거 봤지? <b>내 차</b>는 정체 맨 뒤에 붙었다가 앞쪽으로 빠져나가지만, 그 사이 뒤에서 새 차가 계속 붙으니까 정체 덩어리는 뒤로 이동하는 거야.<br><br>
+      실제 도로에서 이걸 실험하려면 수십 대의 차와 넓은 도로가 필요하고 위험하기도 해. 시뮬레이션은 같은 실험을 <b>안전하게, 비용 없이, 몇 초 만에, 조건을 바꿔가며 수십 번</b> 해볼 수 있어. 시뮬레이션이 왜 필요한지는 3챕터에서 자세히 알아보자.
+      <div id="predictResult" style="margin-top:10px"></div>
+    </div>
+
+    <details class="anatomy">
+      <summary><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M9 6l6 6-6 6"/></svg>이 시뮬레이션은 무엇으로 이루어져 있을까?</summary>
+      <div class="anarow"><div class="ak">객체<small>누가 등장해?</small></div><div class="av">자동차</div></div>
+      <div class="anarow"><div class="ak">속성<small>객체의 특징</small></div><div class="av">위치, 현재 속도, 브레이크등 켜짐 여부</div></div>
+      <div class="anarow"><div class="ak">규칙<small>매초 반복되는 행동</small></div><div class="av"><ol><li>제한 속도보다 느리면 속도를 한 칸만큼 올린다</li><li>앞차와의 거리보다 빠르면 부딪히지 않게 감속한다</li><li>정해진 확률로 이유 없이 속도를 한 칸만큼 줄인다</li><li>정해진 속도만큼 앞으로 이동한다</li></ol></div></div>
+      <div class="anarow"><div class="ak">변수<small>사용자가 바꾸는 값</small></div><div class="av">차량 수, 브레이크 확률, 제한 속도, 내 차 브레이크(사용자가 직접 개입)</div></div>
+      <div class="anarow"><div class="ak">환경<small>객체가 사는 곳</small></div><div class="av">40칸짜리 1차선 도로 (오른쪽 끝과 왼쪽 처음이 이어져 있어)</div></div>
+      <div class="anarow" style="border-bottom:none"><div class="ak">한계<small>현실과 다른 점</small></div><div class="av">차선이 하나뿐이고, 차선 변경·진입로·운전자 성격 차이가 없어. 모델은 현실을 일부러 단순하게 만든 거라는 걸 기억해.</div></div>
+    </details>
+    <p class="chartcap" style="margin-top:12px">이 시뮬레이션은 1992년 독일 물리학자 나겔(Nagel)과 슈레켄베르크(Schreckenberg)가 만든 교통 모델을 바탕으로 했어.</p>
+  </div>
+</section>
+
+<!-- ===================== A. CONCEPT ===================== -->
+<section class="block" id="concept" data-ch="2">
+  <div class="wrap">
+    <div class="sechead">
+      <span class="sectag">개념</span>
+      <h2>시뮬레이션이 뭐야?</h2>
+      <p>방금 돌려본 교통 정체 실험이 바로 시뮬레이션이야. 이제 그게 정확히 뭔지 한 문장으로 정리하고, 시뮬레이션을 만드는 다섯 단계로 뜯어보자.</p>
+    </div>
+
+    <div class="defbox">
+      <div class="dk">시뮬레이션(Simulation, 모의 실험)</div>
+      <div class="dv">현실의 현상이나 시스템을 <mark>핵심만 남겨 모델로 만들고</mark>, 컴퓨터에서 <mark>조건을 바꿔가며 실행</mark>해 결과를 관찰하고 예측하는 것</div>
+    </div>
+
+    <div class="steptl">
+      <div class="stepitem">
+        <div class="stepnum">1</div>
+        <div class="stepbody">
+          <h4>문제 정의</h4>
+          <p>현실을 관찰하고, 시뮬레이션하고 싶은 주제를 정해 문제를 정의해. 예를 들어 <b>"사고도 없는데 고속도로는 왜 갑자기 막힐까?"</b>처럼 현실에서 직접 실험하기 어려운 질문이 출발점이야.</p>
+        </div>
+      </div>
+      <div class="stepitem">
+        <div class="stepnum">2</div>
+        <div class="stepbody">
+          <h4>개념적 모델링 (<span class="blank" data-k="B">???</span>)</h4>
+          <p>현실의 모든 걸 다 넣을 순 없어. 차의 색깔·브랜드는 빼고 <b>속도, 앞차와의 거리, 이유 없이 브레이크를 밟는 습관</b>처럼 결과에 영향을 주는 핵심 요소만 뽑아 현실을 단순하게 만들고, 시뮬레이션의 기능을 계획해.</p>
+          <span class="stip">무엇을 남기고 무엇을 뺄지 고르는 과정을 '<span class="blank" data-k="B">???</span>'라고 해</span>
+        </div>
+      </div>
+      <div class="stepitem">
+        <div class="stepnum">3</div>
+        <div class="stepbody">
+          <h4>화면 구성</h4>
+          <p>조건을 입력하는 <b>버튼과 슬라이더</b>, 결과를 보여 주는 <b>그래프와 숫자</b>로 화면을 꾸며. 교통 정체 시뮬레이션의 차량 수 슬라이더, 평균 속도 그래프가 여기에 해당해.</p>
+        </div>
+      </div>
+      <div class="stepitem">
+        <div class="stepnum">4</div>
+        <div class="stepbody">
+          <h4>시뮬레이션 모델 구현</h4>
+          <p>시뮬레이션이 어떻게 움직일지 <b>알고리즘으로 설계하고 프로그램으로 작성</b>해. "앞차가 가까우면 속도를 줄인다" 같은 규칙을 코드로 만드는 단계야.</p>
+        </div>
+      </div>
+      <div class="stepitem">
+        <div class="stepnum">5</div>
+        <div class="stepbody">
+          <h4>모델 실행 및 결과 해석</h4>
+          <p>조건을 다르게 설정해 <b>여러 번 실행</b>하고 결과를 해석해. "차가 일정 수를 넘으면 작은 브레이크 하나가 뒤로 퍼져 정체가 생긴다"는 걸 발견했다면, <b>진입 신호등 설치</b> 같은 해결책을 미리 검토할 수 있어.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="everyday">
+      <div class="elabel">사실 이미 매일 쓰고 있는 시뮬레이션</div>
+      <span class="echip"><b>일기예보</b>: 대기 모델 계산</span>
+      <span class="echip"><b>내비 도착 예정 시간</b>: 교통 흐름 예측</span>
+      <span class="echip"><b>게임 속 물리 엔진</b>: 중력·충돌 계산</span>
+      <span class="echip"><b>운전면허 연습기</b>: 주행 상황 재현</span>
+      <span class="echip"><b>건물 내진 설계</b>: 지진 흔들림 실험</span>
+    </div>
+    <div class="lockbox" id="lockB">
+      <div class="lockicon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 018 0v3.5"/></svg></div>
+      <div class="lockmain">
+        <div class="locktag">다음 챕터 열기 · 3 / 4</div>
+        <div class="lockq">현실의 모든 것을 다 넣지 않고, 결과에 영향을 주는 핵심만 남겨 모델로 만드는 과정을 뭐라고 할까?</div>
+        <div class="lockform">
+          <input type="text" class="lockinput" placeholder="정답 입력" autocomplete="off" aria-label="정답 입력">
+          <button class="btn lockbtn">열기</button>
+        </div>
+        <div class="lockmsg" aria-live="polite">선생님 설명을 듣고 정답을 입력하면 다음 챕터가 열려.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== B. WHY ===================== -->
+<section class="block alt" id="why" data-ch="3">
+  <div class="wrap">
+    <div class="sechead">
+      <span class="sectag">필요성</span>
+      <h2>왜 굳이 시뮬레이션을 할까?</h2>
+      <p>시뮬레이션의 목적은 <b>현상이나 원리를 탐구하고, 가상으로 실험해 결과를 예측</b>하는 거야. 그 덕분에 얻을 수 있는 가치를 세 가지로 정리했어. 카드마다 현실에서 어떤 문제가 있는지 먼저 읽고, 시뮬레이션은 그걸 어떻게 해결할지 예상한 다음 카드를 눌러 확인해봐.</p>
+    </div>
+    <div class="whygrid" id="whygrid"></div>
+    <div class="extrahead">이런 이유도 있어</div>
+    <div class="whygrid extra" id="whygrid2"></div>
+    <div class="readbox" id="limitbox"><b>그럼 시뮬레이션 결과는 항상 정답일까?</b> 아니야. 모델은 현실을 <b>단순화</b>한 것이라서, 무엇을 빼먹었는지에 따라 결과가 현실과 달라질 수 있어. 그래서 전문가들은 시뮬레이션 결과를 실제 관측 데이터와 비교하는 <b>'<span class="blank" data-k="C">??</span>'</b> 과정을 꼭 거쳐. 시뮬레이션은 미래를 '보장'하는 게 아니라, 더 나은 판단을 하도록 '도와주는' 도구야. (같은 이유로 "내 미래 직업을 정확히 예측하는 시뮬레이션"은 아직 불가능해. 변수가 너무 많고 불확실하거든.)</div>
+    <div class="lockbox" id="lockC">
+      <div class="lockicon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 018 0v3.5"/></svg></div>
+      <div class="lockmain">
+        <div class="locktag">다음 챕터 열기 · 4 / 4</div>
+        <div class="lockq">시뮬레이션 결과를 실제 관측 데이터와 비교해서 믿을 만한지 확인하는 과정을 뭐라고 할까?</div>
+        <div class="lockform">
+          <input type="text" class="lockinput" placeholder="정답 입력" autocomplete="off" aria-label="정답 입력">
+          <button class="btn lockbtn">열기</button>
+        </div>
+        <div class="lockmsg" aria-live="polite">선생님 설명을 듣고 정답을 입력하면 마지막 챕터가 열려.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== C. FIELDS + QUIZ ===================== -->
+<section class="block" data-ch="4">
+  <div class="wrap">
+    <div class="sechead">
+      <span class="sectag">활용 분야</span>
+      <h2>어디에서 쓰이고 있을까?</h2>
+      <p>시뮬레이션은 과학 실험실에만 있는 게 아니야. 아래 분야들은 잠시 뒤 갤러리에서 직접 체험해볼 분야와 그대로 이어져.</p>
+    </div>
+    <div class="fieldwrap" id="fieldwrap"></div>
+
+    <div class="mcqgrid">
+      <div class="mcq" id="mcq1"></div>
+      <div class="mcq" id="mcq2"></div>
+      <div class="mcq" id="mcq3"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== D. GALLERY ===================== -->
+<section class="block alt" id="gallery" data-ch="4">
+  <div class="wrap">
+    <div class="sechead">
+      <span class="sectag">이제 직접 실행해보기</span>
+      <h2>시뮬레이션 갤러리</h2>
+      <p>전부 <b>회원가입 없이</b> 브라우저에서 바로 실행돼. 카드를 누르면 새 탭으로 열려. 최소 <b>세 개 이상</b> 돌려보고, 각 카드의 미션을 해결해봐.</p>
+    </div>
+
+    <div class="howto">
+      <div><span class="hn">1</span><span>관심 가는 <b>분야 탭</b>을 골라</span></div>
+      <div><span class="hn">2</span><span>카드를 눌러 실행하고 <b> 미션</b>부터 해봐</span></div>
+      <div><span class="hn">3</span><span>내가 <b>바꾼 조건</b>과 <b>달라진 결과</b>를 기억해둬</span></div>
+      <div><span class="hn">4</span><span>세 개 이상 해보고 <b>가장 마음에 드는 시뮬레이션</b>을 골라</span></div>
+    </div>
+    <p class="gallerynote"><span class="badge ko">한국어</span> 바로 이용 가능 · <span class="badge en">영어</span> 크롬에서 우클릭 후 "한국어로 번역" 추천 · <span class="badge heavy">고사양</span> 3D라 학교 컴퓨터에서 느릴 수 있음 · <span class="badge text">읽으며 진행</span> 설명을 읽으며 단계별로 진행 · 한 번 연 카드는 초록 테두리로 표시돼</p>
+
+    <div class="dirtools" id="dirtools"></div>
+    <div id="dirbody"></div>
+
+    <details class="moreplat">
+      <summary><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M9 6l6 6-6 6"/></svg>더 찾아보기: 시뮬레이션 모음 사이트 &amp; 추가 추천</summary>
+      <div class="platlist" id="platlist"></div>
+    </details>
+  </div>
+</section>
+
+<!-- ===================== E. SHARE ===================== -->
+<section class="block" data-ch="4">
+  <div class="wrap">
+    <div class="sechead">
+      <span class="sectag">공유하기</span>
+      <h2>내가 고른 시뮬레이션 소개하기</h2>
+      <p>가장 관심 있고, 흥미롭고, 유용하다고 느낀 시뮬레이션 <b>하나</b>를 골라 아래 칸을 채워봐. 오른쪽에 공유용 글이 자동으로 완성되니까, 복사해서 패들렛에 붙여넣으면 돼.</p>
+    </div>
+    <div class="sharegrid">
+      <div class="formcard">
+        <div class="field">
+          <label for="f-sim">① 내가 고른 시뮬레이션</label>
+          <select id="f-sim"><option value="">갤러리에서 골라줘</option></select>
+          <div class="otherwrap" id="otherwrap">
+            <input id="f-other-name" type="text" placeholder="시뮬레이션 이름 (예: Sandspiel)">
+            <input id="f-other-field" type="text" placeholder="분야 (예: 과학 · 물리)">
+            <input id="f-other-url" type="text" placeholder="주소 (예: https://sandspiel.club)">
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-change">② 내가 바꿔본 조건 <span class="hint">어떤 변수를 어떻게?</span></label>
+          <textarea id="f-change" placeholder="예) 늑대 수를 50에서 150으로 늘려봤다"></textarea>
+        </div>
+        <div class="field">
+          <label for="f-result">③ 관찰한 결과 <span class="hint">무엇이 어떻게 달라졌어?</span></label>
+          <textarea id="f-result" placeholder="예) 처음엔 양이 급격히 줄었지만, 먹이가 부족해진 늑대도 곧 함께 줄어들었다"></textarea>
+        </div>
+        <div class="field">
+          <label>④ 이 시뮬레이션이 필요한 이유 <span class="hint">해당하는 것 모두</span></label>
+          <div class="whypick" id="f-why"></div>
+        </div>
+        <div class="field">
+          <label for="f-best">⑤ 가장 흥미롭거나 유용하다고 생각한 이유</label>
+          <textarea id="f-best" placeholder="예) 생태계에서 한 종이 늘어나면 다른 종에게 연쇄적으로 영향을 준다는 걸 눈으로 볼 수 있어서"></textarea>
+        </div>
+        <div class="field">
+          <label for="f-who">⑥ 누구에게, 어떻게 도움이 될까?</label>
+          <textarea id="f-who" placeholder="예) 멸종위기종 보호 정책을 세우는 사람이 정책 효과를 미리 실험해볼 수 있다"></textarea>
+        </div>
+        <div class="field">
+          <label for="f-idea">⑦ 내가 만든다면? <span class="hint">이런 시뮬레이션을 만들고 싶다</span></label>
+          <textarea id="f-idea" placeholder="예) 급식실 배식 줄이 가장 빨리 줄어드는 배식대 배치를 찾는 시뮬레이션"></textarea>
+        </div>
+      </div>
+      <div>
+        <div class="preview" id="preview"></div>
+        <div class="btnrow">
+          <button class="btn" id="copybtn"> 공유용 글 복사하기</button>
+          <button class="btn ghost" id="resetbtn">처음부터 다시</button>
+          <span class="copied" id="copied">복사됐어!</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== F. SELF CHECK + BRIDGE ===================== -->
+<section class="block alt" data-ch="4">
+  <div class="wrap">
+    <div class="sechead">
+      <span class="sectag">마무리</span>
+      <h2>핵심만 다시 체크</h2>
+    </div>
+    <div class="checkwrap">
+      <div class="ringbox">
+        <svg viewBox="0 0 78 78">
+          <circle class="bgc" cx="39" cy="39" r="33"></circle>
+          <circle class="fgc" id="ringfg" cx="39" cy="39" r="33" stroke-dasharray="207.3" stroke-dashoffset="207.3"></circle>
+        </svg>
+        <div class="ringtext" id="ringtext">0/6</div>
+      </div>
+      <div class="checklist" id="checklist"></div>
+    </div>
+
+  </div>
+</section>
+
+<footer>소프트웨어와 생활 · 4단원 모의 실험하는 소프트웨어 · 시뮬레이션 탐험하기</footer>
+
+<script>
+/* ============================================================
+   ICONS
+============================================================ */
+function linkIcon(size){
+  size = size || 14;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/></svg>`;
+}
+
+/* ============================================================
+   MCQ helper
+============================================================ */
+function renderMCQ(container, question, options, correctIdx, explain){
+  container.innerHTML = `
+    <div class="q">${question}</div>
+    <div class="opts">${options.map((o,i)=>`<button class="opt" data-i="${i}">${o}</button>`).join("")}</div>
+    <div class="explain">${explain}</div>`;
+  const opts = container.querySelectorAll(".opt");
+  opts.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      if(container.dataset.answered) return;
+      container.dataset.answered = "1";
+      const i = parseInt(btn.dataset.i,10);
+      opts.forEach((b,j)=>{
+        b.setAttribute("disabled","");
+        if(j===correctIdx) b.classList.add("correct");
+        else if(j===i) b.classList.add("wrong");
+      });
+      container.querySelector(".explain").classList.add("show");
+      container.dispatchEvent(new CustomEvent("answered"));
+    });
+  });
+}
+
+/* ============================================================
+   WHY — 5 reasons
+============================================================ */
+const WHY = [
+  { key:"비용과 자원 절약", tag:"가치 1 · 비용과 자원 절약", title:"돈과 자원을 아낄 수 있어", c:"var(--c2)",
+    real:"실제로 만들고 부수며 테스트하면 큰돈과 많은 자원이 들어",
+    sim:"실제 시스템을 만들기 전에 여러 전략을 가상으로 테스트하고 고쳐 볼 수 있어",
+    ex:"자동차 <b>충돌 테스트</b>를 가상으로 수천 번 먼저 해 보고, 실제 차는 꼭 필요한 만큼만 부숴" },
+  { key:"위험 및 손실 관리", tag:"가치 2 · 위험 및 손실 관리", title:"위험과 손실을 줄일 수 있어", c:"var(--c1)",
+    real:"사람이 다치거나 큰 피해가 날 수 있어 직접 해볼 수 없어",
+    sim:"위험한 실험을 가상 공간에서 몇 번이고 안전하게 해볼 수 있어",
+    ex:"<b>화재·지진 대피 훈련</b>, <b>조종사 비상 착륙 훈련</b>, 자율주행차가 보행자를 피하는 상황 테스트" },
+  { key:"지속 가능 발전", tag:"가치 3 · 지속 가능 발전에 기여", title:"지구와 미래를 지킬 수 있어", c:"var(--c5)",
+    real:"자원을 마구 쓰며 시행착오를 겪으면 낭비가 크고, 환경에도 부담이 돼",
+    sim:"자원을 가장 아끼는 방법을 미리 찾아 낭비를 줄이고 더 나은 정책을 고를 수 있어",
+    ex:"<b>기후 변화 대응 정책</b> 비교, 에너지를 덜 쓰는 도시 설계, 멸종 위기종 보호 계획" },
+];
+const WHY_EXTRA = [
+  { key:"시간", tag:"더 알아보기 · 시간", title:"너무 느리거나 빨라서", c:"var(--c3)",
+    real:"100년 걸리는 변화나 0.001초 만에 끝나는 현상은 관찰하기 어려워",
+    sim:"시간을 빨리 감거나 느리게 돌려서 관찰할 수 있어",
+    ex:"<b>2100년 지구 기온</b> 예측, 수천 세대에 걸친 <b>생물의 진화</b>" },
+  { key:"규모", tag:"더 알아보기 · 규모", title:"너무 크거나 작아서", c:"var(--c4)",
+    real:"우주나 분자처럼 너무 크거나 작은 대상은 손댈 수 없어",
+    sim:"눈에 보이는 크기로 바꿔서 직접 조작해볼 수 있어",
+    ex:"<b>소행성 충돌</b>, 눈에 보이지 않는 <b>전자의 흐름</b>" },
+  { key:"반복과 비교", tag:"더 알아보기 · 반복과 비교", title:"여러 경우를 비교하고 싶어서", c:"var(--accent)",
+    real:"현실은 딱 한 번뿐이라 '만약 ~였다면?'을 비교할 수 없어",
+    sim:"조건만 바꿔 수십 가지 경우를 돌리고 가장 좋은 걸 고를 수 있어",
+    ex:"감염병 유행 때 <b>거리두기를 할 때와 안 할 때</b> 비교" },
+];
+const whyState = {};
+function renderWhy(){
+  renderWhyGrid("whygrid", WHY, "m");
+  renderWhyGrid("whygrid2", WHY_EXTRA, "x");
+}
+function renderWhyGrid(id, list, pre){
+  const el = document.getElementById(id);
+  el.innerHTML = list.map((w,i)=>`
+    <div class="whycard" data-i="${pre}${i}" style="--wc:${w.c}">
+      <div class="wtag">${w.tag}</div>
+      <h4>${w.title}</h4>
+      <div class="whyrow"><span class="k">현실에선</span><span class="v">${w.real}</span></div>
+      <div class="whyhint">시뮬레이션은 어떻게 해결할까? 예상하고 눌러봐</div>
+      <div class="whyans">
+        <div class="whyrow"><span class="k">시뮬레이션은</span><span class="v">${w.sim}</span></div>
+        <div class="whyex">예) ${w.ex}</div>
+      </div>
+    </div>`).join("");
+  el.querySelectorAll(".whycard").forEach(card=>{
+    card.addEventListener("click", ()=>{
+      card.classList.add("open");
+      whyState[card.dataset.i] = true;
+      if(Object.keys(whyState).length >= 3) updateCheck("why", true);
+    });
+  });
+}
+
+/* ============================================================
+   FIELDS
+============================================================ */
+const FIELDS = [
+  { e:"", t:"교육 · 과학", d:"눈에 보이지 않는 원리를 직접 조작하며 이해. 가상 실험실, 물리·화학 실험" },
+  { e:"", t:"기후 · 환경", d:"기후 변화 예측, 생태계 변화, 탄소 감축 정책의 효과 비교" },
+  { e:"", t:"안전 · 재난", d:"지진·화재 대피 경로 설계, 소행성·태풍 피해 예측" },
+  { e:"", t:"의료 · 보건", d:"감염병 확산 예측, 수술 연습용 가상 환자, 신약 효과 모의 실험" },
+  { e:"", t:"교통 · 운전 · 비행", d:"도로 정체 분석, 자율주행 테스트, 조종사·운전 연습" },
+  { e:"", t:"게임", d:"실제 같은 물리 법칙으로 움직이는 게임 속 세계, 운전·비행·경영 시뮬레이션 게임" },
+  { e:"", t:"사회 · 경제", d:"사람들의 선택이 모여 만드는 현상(신뢰, 소문, 분리, 시장) 분석" },
+  { e:"", t:"AI · 컴퓨터", d:"AI가 학습하는 과정 시각화, AI 에이전트만 사는 가상 마을 실험" },
+];
+function renderFields(){
+  document.getElementById("fieldwrap").innerHTML = FIELDS.map((f,i)=>`
+    <div class="fcard"><div class="ficon">${String(i+1).padStart(2,"0")}</div><div><h5>${f.t}</h5><p>${f.d}</p></div></div>`).join("");
+}
+
+/* ============================================================
+   GALLERY DATA
+   lang: ko | en   flags: heavy, text
+============================================================ */
+const SIM_CATEGORIES = [
+  { key:"sci", label:"과학 · 물리",
+    sims:[
+      {name:"PhET 포물선 운동", url:"https://phet.colorado.edu/sims/html/projectile-motion/latest/projectile-motion_ko.html", lang:"ko",
+       desc:"대포를 쏘아 각도·속력·공기 저항에 따라 물체가 어떻게 날아가는지 실험해.",
+       mission:"공기 저항을 켜고 끈 상태에서, 가장 멀리 날아가는 발사 각도가 각각 몇 도인지 찾아봐"},
+      {name:"PhET 회로 키트", url:"https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_ko.html", lang:"ko",
+       desc:"전선·전지·전구를 끌어다 회로를 만들면 전자의 흐름이 눈에 보여.",
+       mission:"전구 2개를 직렬로, 병렬로 연결해보고 어느 쪽이 더 밝은지 비교해봐"},
+      {name:"자바실험실 (JavaLab)", url:"https://javalab.org/ko/", lang:"ko",
+       desc:"한국 선생님이 만든 과학 시뮬레이션 모음. 물리·화학·생명·지구과학 수백 개.",
+       mission:"과학 시간에 배운 개념 하나를 검색해 찾아 실행하고, 변수 하나를 바꿔봐"},
+      {name:"WebGL 유체 시뮬레이션", url:"https://paveldogreat.github.io/WebGL-Fluid-Simulation/", lang:"en",
+       desc:"화면을 드래그하면 물감 같은 유체가 실제 물리 법칙대로 소용돌이쳐.",
+       mission:"오른쪽 메뉴에서 점성(viscosity, 끈적한 정도) 값을 바꾸면 흐름이 어떻게 달라지는지 관찰해봐"},
+    ]},
+  { key:"env", label:"기후 · 생태",
+    sims:[
+      {name:"En-ROADS 기후 정책 시뮬레이터", url:"https://en-roads.climateinteractive.org/", lang:"en",
+       desc:"MIT 등이 함께 만든 실제 정책 토론용 시뮬레이터. 정책 슬라이더를 움직이면 2100년 기온 상승이 바로 계산돼.",
+       mission:"슬라이더를 조절해 2100년 기온 상승을 1.5℃ 가까이 낮춰봐. 어떤 정책이 가장 효과가 컸어?"},
+      {name:"PhET 온실 효과", url:"https://phet.colorado.edu/sims/html/greenhouse-effect/latest/greenhouse-effect_ko.html", lang:"ko",
+       desc:"대기 중 온실가스 농도를 바꾸면 지구 온도가 어떻게 변하는지 빛 알갱이(광자)의 움직임으로 보여줘.",
+       mission:"온실가스 농도를 '없음'과 '많음'으로 바꿨을 때 지표 온도 차이를 비교해봐"},
+      {name:"PhET 자연선택", url:"https://phet.colorado.edu/sims/html/natural-selection/latest/natural-selection_ko.html", lang:"ko",
+       desc:"토끼 무리에 돌연변이와 환경 변화를 주고 여러 세대에 걸친 진화를 빨리 감기로 관찰해.",
+       mission:"환경을 북극으로 바꾸고 늑대를 추가하면, 몇 세대 뒤 어떤 털색 토끼가 살아남는지 확인해봐"},
+      {name:"NetLogo Web (교과서 실습 도구)", url:"https://www.netlogoweb.org/launch", lang:"en",
+       desc:"교과서에서 쓰는 넷로고를 웹에서 실행. 위쪽 'Search the Models Library'에서 Wolf Sheep Predation(늑대-양), Fire(산불), Virus(바이러스) 등을 불러와.",
+       mission:"'Fire' 모델에서 나무 밀도(density)를 55%와 65%로 바꿔 돌려봐. 불이 번지는 정도가 왜 확 달라질까?"},
+      {name:"earth (실시간 지구 날씨)", url:"https://earth.nullschool.net/", lang:"en",
+       desc:"기상 모델이 계산한 전 세계 바람·해류·기온을 지구본 위에 실시간으로 보여줘.",
+       mission:"왼쪽 아래 'earth' 메뉴에서 바람 대신 해류(Ocean)를 골라 한반도 주변 흐름을 찾아봐"},
+    ]},
+  { key:"safety", label:"우주 · 재난",
+    sims:[
+      {name:"Asteroid Launcher", url:"https://neal.fun/asteroid-launcher/", lang:"en",
+       desc:"소행성의 크기·속도·각도를 정해 원하는 곳에 떨어뜨리면 충격파·화구 피해 범위를 계산해줘.",
+       mission:"우리 동네에 지름 100m와 1km 소행성을 떨어뜨려 피해 범위를 비교해봐"},
+      {name:"NASA Eyes on the Solar System", url:"https://eyes.nasa.gov/apps/solar-system/", lang:"en", heavy:true,
+       desc:"NASA 실제 궤도 데이터로 태양계와 탐사선을 3D로 재현. 시간을 빨리 감을 수 있어.",
+       mission:"시간 속도를 높여 보이저 1호가 지금 어디쯤 있는지 찾아봐"},
+      {name:"Solar System Scope", url:"https://www.solarsystemscope.com/", lang:"en", heavy:true,
+       desc:"태양계 행성의 공전·자전을 3D로 돌려보는 시뮬레이션.",
+       mission:"시간을 빨리 감아 지구가 1년 도는 동안 수성은 몇 바퀴 도는지 세어봐"},
+    ]},
+  { key:"health", label:"의료 · 보건",
+    sims:[
+      {name:"코로나19의 미래 (What Happens Next?)", url:"https://benbennben.github.io/covid-19/", lang:"ko", text:true,
+       desc:"역학자와 게임 디자이너가 함께 만든 감염병 시뮬레이션. 글을 읽으며 직접 변수를 조작해.",
+       mission:"재생산지수(R, 한 명이 평균 몇 명에게 옮기는지)가 1보다 클 때와 작을 때 그래프 모양이 어떻게 달라지는지 확인해봐"},
+    ]},
+  { key:"traffic", label:"교통 · 비행",
+    sims:[
+      {name:"Traffic Simulation", url:"https://traffic-simulation.de/", lang:"en",
+       desc:"고속도로 합류·공사 구간·회전교차로에서 정체가 생기는 과정을 차량 하나하나의 움직임으로 보여줘.",
+       mission:"'Ring Road'에서 차량 밀도를 올려봐. 사고가 없는데도 정체가 생기는 순간을 찾아봐"},
+      {name:"GeoFS 비행 시뮬레이터", url:"https://www.geo-fs.com/", lang:"en", heavy:true,
+       desc:"실제 위성 지도 위를 비행기로 나는 무료 웹 비행 시뮬레이터.",
+       mission:"기체를 골라 이륙에 성공해봐. 어떤 조작이 가장 어려웠어? 조종사 훈련에 왜 시뮬레이터가 필요할까?"},
+    ]},
+  { key:"social", label:"사회 · 경제",
+    sims:[
+      {name:"신뢰의 진화", url:"https://osori.github.io/trust-ko/", lang:"ko", text:true,
+       desc:"게임 이론으로 '사람들은 왜, 언제 서로를 믿을까?'를 실험해. 30분 정도면 끝까지 할 수 있어.",
+       mission:"마지막 놀이터에서 '실수 확률'을 올려봐. 어떤 성격의 캐릭터가 살아남아?"},
+      {name:"Parable of the Polygons", url:"https://ncase.me/polygons/", lang:"en", text:true,
+       desc:"\"이웃 중 나와 같은 모양이 1/3만 있으면 괜찮아\" 정도의 작은 편향이 어떻게 사회 전체의 분리를 만드는지 보여줘.",
+       mission:"'편향' 슬라이더를 33%에 두고 실행해봐. 결과적으로 얼마나 분리됐어?"},
+    ]},
+  { key:"ai", label:"AI · 컴퓨터 · 수학",
+    sims:[
+      {name:"TensorFlow Playground", url:"https://playground.tensorflow.org/", lang:"en",
+       desc:"인공 신경망이 데이터를 학습하는 과정을 실시간으로 시각화해. 층과 뉴런(계산을 하는 단위)의 수를 직접 바꿀 수 있어.",
+       mission:"소용돌이(나선) 모양 데이터를 골라, 뉴런과 층을 늘려 구분에 성공해봐"},
+      {name:"Game of Life", url:"https://playgameoflife.com/", lang:"en",
+       desc:"세 가지 단순한 규칙만으로 칸마다 규칙에 따라 살고 죽으며 복잡한 패턴이 생겨나는 '세포 자동자' 시뮬레이션.",
+       mission:"칸 몇 개를 찍고 실행해봐. 영원히 움직이는 패턴(글라이더)을 만들 수 있어?"},
+      {name:"Emoji Simulator", url:"https://ncase.me/sim/", lang:"en",
+       desc:"이모지로 규칙을 정해 산불·감염·생태계 같은 시뮬레이션을 직접 만들어볼 수 있어.",
+       mission:"예제 중 'forest fire'를 열고 번개 확률을 바꿔봐. 이번엔 규칙도 직접 하나 고쳐봐"},
+      {name:"Seeing Theory", url:"https://seeing-theory.brown.edu/", lang:"en",
+       desc:"브라운대학교가 만든 확률·통계 시각화. 동전·주사위를 수천 번 던지는 실험을 한 번에.",
+       mission:"동전 던지기를 10번, 1000번 했을 때 앞면 비율이 0.5에 얼마나 가까워지는지 비교해봐"},
+      {name:"Falstad 회로 시뮬레이터", url:"https://www.falstad.com/circuit/circuitjs.html", lang:"en",
+       desc:"전자공학 전공자들도 쓰는 회로 시뮬레이터. 메뉴에서 수십 가지 예제 회로를 불러올 수 있어.",
+       mission:"Circuits 메뉴에서 예제 하나를 열고, 저항 값을 바꿨을 때 전류 흐름(점의 속도)이 어떻게 바뀌는지 봐"},
+    ]},
+];
+const ALL_SIMS = SIM_CATEGORIES.flatMap(c=>c.sims.map(s=>({...s, cat:c.label})));
+const triedSet = new Set();
+
+let activeCat = "all";
+function renderDirTools(){
+  const el = document.getElementById("dirtools");
+  const tabs = [{key:"all", label:"전체"}, ...SIM_CATEGORIES.map(c=>({key:c.key, label:c.label}))];
+  el.innerHTML = tabs.map(t=>`<button class="dirtab ${t.key==='all'?'active':''}" data-k="${t.key}">${t.label}</button>`).join("");
+  el.querySelectorAll(".dirtab").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      activeCat = btn.dataset.k;
+      el.querySelectorAll(".dirtab").forEach(b=>b.classList.toggle("active", b===btn));
+      renderDirBody();
+    });
+  });
+}
+function badgesFor(s){
+  let b = s.lang==="ko" ? `<span class="badge ko">한국어</span>` : `<span class="badge en">영어</span>`;
+  if(s.text) b += `<span class="badge text">읽으며 진행</span>`;
+  if(s.heavy) b += `<span class="badge heavy">고사양</span>`;
+  return b;
+}
+function renderDirBody(){
+  const el = document.getElementById("dirbody");
+  const cats = activeCat==="all" ? SIM_CATEGORIES : SIM_CATEGORIES.filter(c=>c.key===activeCat);
+  el.innerHTML = cats.map(c=>`
+    <div class="dircat">
+      <h4><span class="cdot"></span>${c.label}</h4>
+      <div class="sitegrid">
+        ${c.sims.map(s=>`
+          <a class="sitecard ${triedSet.has(s.name)?'tried':''}" href="${s.url}" target="_blank" rel="noopener" data-name="${s.name}">
+            <div class="sname">${s.name}${linkIcon(14)}</div>
+            <div class="surl">${s.url.replace(/^https?:\/\/(www\.)?/,"").replace(/\/$/,"")}</div>
+            <div class="badges">${badgesFor(s)}</div>
+            <div class="sdesc">${s.desc}</div>
+            <div class="mission">${s.mission}</div>
+          </a>`).join("")}
+      </div>
+    </div>`).join("");
+  el.querySelectorAll(".sitecard").forEach(a=>{
+    a.addEventListener("click", ()=>{
+      triedSet.add(a.dataset.name);
+      a.classList.add("tried");
+      if(triedSet.size >= 3) updateCheck("try", true);
+    });
+  });
+}
+
+const EXTRA = [
+  ["PhET 전체 시뮬레이션 (한국어)","https://phet.colorado.edu/ko/simulations/filter?type=html"],
+  ["자바실험실 전체 목록","https://javalab.org/ko/"],
+  ["NetLogo Web 모델 라이브러리","https://www.netlogoweb.org/launch"],
+  ["Explorable Explanations (놀며 배우는 시뮬레이션 모음)","https://explorabl.es/"],
+  ["Nicky Case의 다른 시뮬레이션들","https://ncase.me/"],
+  ["myPhysicsLab (물리 시뮬레이션)","https://www.myphysicslab.com/"],
+  ["Stellarium Web (실시간 밤하늘)","https://stellarium-web.org/"],
+  ["Sandspiel (모래·물·불 상호작용)","https://sandspiel.club/"],
+];
+function renderExtra(){
+  document.getElementById("platlist").innerHTML = EXTRA.map(([n,u])=>
+    `<a href="${u}" target="_blank" rel="noopener">${n}<span>${u.replace(/^https?:\/\/(www\.)?/,"").replace(/\/$/,"")}</span></a>`).join("");
+}
+
+/* ============================================================
+   SHARE BUILDER (in-memory only)
+============================================================ */
+function renderShareForm(){
+  const sel = document.getElementById("f-sim");
+  sel.innerHTML = `<option value="">갤러리에서 골라줘</option>` +
+    SIM_CATEGORIES.map(c=>`<optgroup label="${c.label}">${c.sims.map(s=>`<option value="${s.name}">${s.name}</option>`).join("")}</optgroup>`).join("") +
+    `<option value="__other">기타 (직접 찾은 시뮬레이션)</option>`;
+  document.getElementById("f-why").innerHTML = WHY.concat(WHY_EXTRA).map(w=>
+    `<label><input type="checkbox" value="${w.key}"> ${w.key}</label>`).join("");
+  document.querySelectorAll(".formcard input, .formcard select, .formcard textarea").forEach(inp=>{
+    inp.addEventListener("input", buildPreview);
+    inp.addEventListener("change", buildPreview);
+  });
+  buildPreview();
+}
+function val(id){ return document.getElementById(id).value.trim(); }
+function buildPreview(){
+  const simVal = val("f-sim");
+  const isOther = simVal==="__other";
+  document.getElementById("otherwrap").classList.toggle("show", isOther);
+  const simName = isOther ? val("f-other-name") : simVal;
+  const sim = isOther
+    ? {cat:val("f-other-field"), url:val("f-other-url")}
+    : ALL_SIMS.find(s=>s.name===simName);
+  const whys = [...document.querySelectorAll("#f-why input:checked")].map(i=>i.value);
+  const filled = [simName, val("f-change"), val("f-result"), val("f-best"), val("f-who"), val("f-idea")];
+  const ph = t => `<span class="ph">${t}</span>`;
+  const esc = t => t.replace(/[&<>]/g, ch=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[ch]));
+  const lines = [
+    `[내가 고른 시뮬레이션] ${simName ? esc(simName) : ph(isOther?"이름을 직접 적어줘":"아직 안 골랐어")}`,
+    sim && sim.cat ? `[분야] ${esc(sim.cat)}` : "",
+    sim && sim.url ? `[주소] ${esc(sim.url)}` : "",
+    `\n[바꿔본 조건] ${val("f-change") ? esc(val("f-change")) : ph("…")}`,
+    `[관찰한 결과] ${val("f-result") ? esc(val("f-result")) : ph("…")}`,
+    `[필요한 이유] ${whys.length ? whys.join(", ") : ph("…")}`,
+    `[이 시뮬레이션을 고른 이유] ${val("f-best") ? esc(val("f-best")) : ph("…")}`,
+    `[누구에게 도움이 될까] ${val("f-who") ? esc(val("f-who")) : ph("…")}`,
+    `[내가 만든다면] ${val("f-idea") ? esc(val("f-idea")) : ph("…")}`,
+  ].filter(Boolean);
+  document.getElementById("preview").innerHTML = lines.join("\n");
+  const done = filled.filter(Boolean).length + (whys.length?1:0);
+  updateCheck("share", done >= 7);
+}
+function copyText(){
+  const text = document.getElementById("preview").innerText;
+  const show = ()=>{ const c=document.getElementById("copied"); c.classList.add("show"); setTimeout(()=>c.classList.remove("show"),1600); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(show).catch(()=>fallbackCopy(text, show));
+  } else fallbackCopy(text, show);
+}
+function fallbackCopy(text, cb){
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); cb(); }catch(e){}
+  document.body.removeChild(ta);
+}
+
+/* ============================================================
+   SELF-CHECK (in-memory only)
+============================================================ */
+/* ============================================================
+   TRAFFIC SIMULATION (Nagel–Schreckenberg, periodic straight road)
+============================================================ */
+const Traffic = (()=>{
+  const L = 40;               // road cells
+  const KMH_PER_V = 20;       // display scale: v=5 -> 100km/h
+  const STEP_MS = 250;        // one simulated second
+  const CAR_COLORS = ["#c8382f","#2f62a8","#e9eaec","#2a2d33","#8b929c","#3b7d55","#6d4c9c","#f4f4f2","#1f4f73","#a8adb4"];
+  let cars = [], time = 0, running = false, maxStops = 0;
+  let N = 8, P = 0.20, VMAX = 5;
+  let speedHist = [];
+  let lastTs = 0, acc = 0;
+  let night = false;
+  let braking = false, brakeSteps = 0;
+  let ev = null;              // brake impact event
+  const road = document.getElementById("roadCanvas"), rctx = road.getContext("2d");
+  const TUN = 70;
+  const sp = document.getElementById("speedCanvas"), sctx = sp.getContext("2d");
+
+  function css(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+  function rr(ctx, x, y, w, h, r){
+    ctx.beginPath();
+    if(ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h);
+  }
+  function reset(){
+    cars = [];
+    const gap = L / N;
+    for(let i=0;i<N;i++){
+      const x = Math.floor(i*gap);
+      const v = Math.min(VMAX, Math.max(0, Math.floor(gap)-1));
+      cars.push({x, px:x, v, pv:v, brk:false, aff:false, me:i===0,
+                 color: i===0 ? "#f2b01e" : CAR_COLORS[(i*7)%CAR_COLORS.length]});
+    }
+    time = 0; speedHist = []; maxStops = 0; acc = 0; ev = null; brakeSteps = 0;
+    setImpact(0,0,0,"차들이 달리는 중에 버튼을 1~2초 눌렀다 떼봐. 내 뒤에 있는 차들이 어떻게 되는지 지켜봐.");
+    updateStats(); draw(1); drawSpeed();
+  }
+  function setImpact(slow, stop, t, msg){
+    document.getElementById("imSlow").textContent = slow;
+    document.getElementById("imStop").textContent = stop;
+    document.getElementById("imTime").textContent = t;
+    if(msg!==undefined) document.getElementById("impMsg").innerHTML = msg;
+  }
+  function step(){
+    cars.sort((a,b)=>a.x-b.x);
+    const n = cars.length;
+    const affPrev = cars.map(c=>c.aff);
+    for(let i=0;i<n;i++){
+      const c = cars[i], ai = (i+1)%n, ahead = cars[ai];
+      let gap = (ahead.x - c.x - 1 + L) % L;
+      if(n===1) gap = L-1;
+      c.pv = c.v;
+      if(c.me && braking){
+        c.v = Math.max(0, c.v-2);
+        c.v = Math.min(c.v, gap);
+        continue;
+      }
+      let nv = Math.min(c.v+1, VMAX);
+      nv = Math.min(nv, gap);
+      if(ev && !ev.done && !c.me && nv < c.v && affPrev[ai] && !c.aff){
+        c.aff = true; ev.slow.add(c); ev.last = time;
+      }
+      if(nv>0 && Math.random()<P) nv--;
+      c.v = nv;
+      if(ev && !ev.done && c.aff && !c.me && nv===0) ev.stop.add(c);
+    }
+    for(const c of cars){ c.brk = c.v < c.pv || c.v===0; c.px = c.x; c.x = (c.x + c.v) % L; }
+    if(braking) brakeSteps++;
+    time++;
+    const avg = cars.reduce((s,c)=>s+c.v,0)/n;
+    speedHist.push(avg); if(speedHist.length>200) speedHist.shift();
+    const stops = cars.filter(c=>c.v===0).length;
+    if(time>20) maxStops = Math.max(maxStops, stops);
+    updateEvent(stops);
+    drawSpeed(); updateStats();
+    if(time>=40 && maxStops>=3 && !document.getElementById("reveal").classList.contains("show")){
+      document.getElementById("reveal").classList.add("show");
+      showPredictResult();
+    }
+  }
+  function updateEvent(stops){
+    if(!ev || ev.done) return;
+    const spread = ev.last - ev.start;
+    if(!braking && ev.relT===null) ev.relT = time;
+    const quietSince = Math.max(ev.last, ev.relT===null ? time : ev.relT);
+    if(ev.relT!==null && time - quietSince > 12){
+      ev.done = true;
+      const secs = Math.max(1, ev.brakeSteps);
+      let msg = `네가 브레이크를 <b>${secs}초</b> 밟았더니, 뒤차 <b>${ev.slow.size}대</b>가 차례로 속도를 줄였고 그중 <b>${ev.stop.size}대</b>는 완전히 멈췄어.`;
+      if(ev.slow.size===0) msg = "이번엔 뒤차들이 영향을 받지 않았어. 차간 거리가 충분하면 브레이크 한 번은 금방 흡수돼. 차를 더 늘리고 다시 해봐.";
+      else if(P===0 && stops>0) msg += " 그런데 아무도 이유 없이 브레이크를 밟지 않는데도 <b>정체가 사라지지 않고 계속 남아 있어.</b> 네 브레이크 한 번이 만든 정체가 도로를 계속 돌아다니는 거야.";
+      else if(stops===0) msg += " 다행히 차가 많지 않아서 정체는 곧 풀렸어.";
+      setImpact(ev.slow.size, ev.stop.size, spread, msg + " 다시 해보려면 브레이크를 또 눌러봐.");
+      cars.forEach(c=>c.aff=false);
+    } else {
+      ev.brakeSteps = brakeSteps;
+      setImpact(ev.slow.size, ev.stop.size, spread, braking ? "브레이크를 밟는 중이야. 뒤차들을 지켜봐." : "브레이크 영향이 뒤로 퍼지는 중이야. 주황 점이 붙은 차를 봐.");
+    }
+  }
+  function startBrake(){
+    if(!cars.length) return;
+    if(!running) setRunning(true);
+    if(!ev || ev.done){
+      cars.forEach(c=>c.aff=false);
+      const me = cars.find(c=>c.me); if(me) me.aff = true;
+      brakeSteps = 0;
+      ev = {start:time, last:time, relT:null, slow:new Set(), stop:new Set(), done:false, brakeSteps:0};
+    } else { ev.relT = null; }
+    braking = true;
+    document.getElementById("btnMyBrake").classList.add("down");
+  }
+  function endBrake(){
+    braking = false;
+    document.getElementById("btnMyBrake").classList.remove("down");
+  }
+  function updateStats(){
+    const n = cars.length || 1;
+    const avg = cars.reduce((s,c)=>s+c.v,0)/n;
+    document.getElementById("stSpeed").textContent = Math.round(avg*KMH_PER_V);
+    document.getElementById("stStop").textContent = cars.filter(c=>c.v===0).length;
+    document.getElementById("stTime").textContent = time;
+  }
+
+  /* ---------- drawing ---------- */
+  function shade(hex, amt){
+    const n = parseInt(hex.slice(1),16);
+    let r=(n>>16)&255, g=(n>>8)&255, b=n&255;
+    const f = amt<0 ? 0 : 255, t = Math.abs(amt);
+    r = Math.round(r+(f-r)*t); g = Math.round(g+(f-g)*t); b = Math.round(b+(f-b)*t);
+    return `rgb(${r},${g},${b})`;
+  }
+  function drawCar(ctx, x, cy, len, wid, c){
+    const y = cy - wid/2;
+    const body = night ? shade(c.color, -0.55) : c.color;
+    // headlight beam (night)
+    if(night){
+      const g = ctx.createLinearGradient(x+len, 0, x+len+70, 0);
+      g.addColorStop(0, "rgba(255,240,190,0.45)"); g.addColorStop(1, "rgba(255,240,190,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.moveTo(x+len-2, y+3); ctx.lineTo(x+len+70, y-8); ctx.lineTo(x+len+70, y+wid+8); ctx.lineTo(x+len-2, y+wid-3); ctx.closePath(); ctx.fill();
+    }
+    // shadow
+    ctx.fillStyle = "rgba(0,0,0,0.28)"; rr(ctx, x+2, y+3, len, wid, 6); ctx.fill();
+    // wheels
+    ctx.fillStyle = "#111";
+    const ww = len*0.17, wh = 3.5;
+    [[0.16,-1],[0.16,1],[0.68,-1],[0.68,1]].forEach(([p,s])=>{
+      ctx.fillRect(x+len*p, s<0 ? y-wh+1 : y+wid-1, ww, wh);
+    });
+    // body
+    ctx.fillStyle = body; rr(ctx, x, y, len, wid, 6); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.14)"; rr(ctx, x+2, y+2, len-4, wid*0.38, 4); ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,0.35)"; ctx.lineWidth = 1.2; rr(ctx, x, y, len, wid, 6); ctx.stroke();
+    // windshield (front = right) and rear window
+    ctx.fillStyle = night ? "#0b0e14" : "#26323f";
+    rr(ctx, x+len*0.58, y+2.5, len*0.15, wid-5, 2.5); ctx.fill();
+    rr(ctx, x+len*0.17, y+3, len*0.11, wid-6, 2); ctx.fill();
+    // roof
+    ctx.fillStyle = night ? shade(c.color,-0.45) : shade(c.color, 0.12);
+    rr(ctx, x+len*0.29, y+3, len*0.28, wid-6, 2.5); ctx.fill();
+    // mirrors
+    ctx.fillStyle = body;
+    ctx.fillRect(x+len*0.6, y-2.5, 3, 2.5); ctx.fillRect(x+len*0.6, y+wid, 3, 2.5);
+    // headlights
+    ctx.fillStyle = night ? "#fff6d0" : "#f3f0d8";
+    ctx.fillRect(x+len-3, y+2, 3, 4); ctx.fillRect(x+len-3, y+wid-6, 3, 4);
+    // tail lights
+    const on = c.brk || (c.me && braking);
+    ctx.save();
+    if(on){ ctx.shadowColor = "#ff2a2a"; ctx.shadowBlur = night ? 22 : 10; }
+    ctx.fillStyle = on ? "#ff2a2a" : (night ? "#5a1414" : "#8e2222");
+    const tw = on ? 4 : 3;
+    ctx.fillRect(x, y+1.5, tw, 4.5); ctx.fillRect(x, y+wid-6, tw, 4.5);
+    if(on && night){ ctx.fillRect(x, y+1.5, tw, 4.5); ctx.fillRect(x, y+wid-6, tw, 4.5); }
+    ctx.restore();
+  }
+  function draw(frac){
+    const W = road.width, H = road.height;
+    const cell = (W - 2*TUN) / L;
+    const top = 104, bh = 50;
+    const cy = top + bh/2;
+    rctx.clearRect(0,0,W,H);
+    if(night){ rctx.fillStyle = "#0d1016"; rctx.fillRect(0,0,W,H); }
+    // direction label
+    const labelC = night ? "#9aa3b2" : css("--muted");
+    rctx.fillStyle = labelC; rctx.font = `600 26px "Noto Sans KR", sans-serif`;
+    rctx.textAlign = "left"; rctx.fillText("진행 방향", TUN, 36);
+    rctx.strokeStyle = labelC; rctx.lineWidth = 3;
+    rctx.beginPath(); rctx.moveTo(TUN+130, 27); rctx.lineTo(TUN+260, 27); rctx.stroke();
+    rctx.beginPath(); rctx.moveTo(TUN+262, 27); rctx.lineTo(TUN+246, 18); rctx.lineTo(TUN+246, 36); rctx.closePath(); rctx.fillStyle = labelC; rctx.fill();
+    // verge
+    rctx.fillStyle = night ? "#141a14" : css("--surface-3");
+    rctx.fillRect(TUN, top-22, W-2*TUN, bh+44);
+    // asphalt
+    rctx.fillStyle = night ? "#1c2028" : "#4e535b";
+    rctx.fillRect(TUN, top, W-2*TUN, bh);
+    // edge lines
+    rctx.fillStyle = night ? "#6f7580" : "#f2f2f0";
+    rctx.fillRect(TUN, top+3, W-2*TUN, 2.5); rctx.fillRect(TUN, top+bh-5.5, W-2*TUN, 2.5);
+    // guard rails
+    rctx.fillStyle = night ? "#3a3f48" : "#9aa0a8";
+    rctx.fillRect(TUN, top-12, W-2*TUN, 3); rctx.fillRect(TUN, top+bh+9, W-2*TUN, 3);
+    // ticks
+    rctx.font = `500 19px "Noto Sans KR", sans-serif`; rctx.textAlign = "center"; rctx.fillStyle = labelC;
+    for(let k=0;k<=L;k+=10){ const x = TUN + k*cell; rctx.fillRect(x-1, top+bh+26, 2, 9); rctx.fillText(k+"칸", x, top+bh+58); }
+
+    // jams
+    const slow = cars.filter(c=>c.v<=1).map(c=>c.x).sort((a,b)=>a-b);
+    const clusters = [];
+    for(const x of slow){
+      const last = clusters[clusters.length-1];
+      if(last && x - last.end <= 2){ last.end = x; last.n++; }
+      else clusters.push({start:x, end:x, n:1});
+    }
+    if(clusters.length>1){
+      const f = clusters[0], l = clusters[clusters.length-1];
+      if(f.start + L - l.end <= 2 && f !== l){ l.end = f.end + L; l.n += f.n; clusters.shift(); }
+    }
+    rctx.save(); rctx.beginPath(); rctx.rect(TUN, 0, W-2*TUN, H); rctx.clip();
+    for(const j of clusters.filter(c=>c.n>=3)){
+      for(const off of [0, -L]){
+        const x0 = TUN + (j.start+off)*cell - 4, x1 = TUN + (j.end+1+off)*cell + 4;
+        if(x1 < TUN || x0 > W-TUN) continue;
+        rctx.fillStyle = "rgba(220,50,50,0.14)";
+        rctx.fillRect(x0, top-6, x1-x0, bh+12);
+        rctx.strokeStyle = "#e04848"; rctx.lineWidth = 3; rctx.setLineDash([10,6]);
+        rctx.strokeRect(x0, top-6, x1-x0, bh+12); rctx.setLineDash([]);
+        const mx = (x0+x1)/2;
+        rctx.fillStyle = "#d63c3c";
+        rr(rctx, mx-38, top-58, 76, 34, 8); rctx.fill();
+        rctx.fillStyle = "#fff"; rctx.font = `700 22px "Noto Sans KR", sans-serif`; rctx.textAlign = "center";
+        rctx.fillText("정체", mx, top-34);
+      }
+    }
+    // cars
+    const carLen = cell*0.88, carW = 25;
+    for(const c of cars){
+      const d = (c.x - c.px + L) % L;
+      const pos = (c.px + d*frac) % L;
+      for(const off of [0, -L]){
+        const x = TUN + (pos+off)*cell + (cell-carLen)/2;
+        if(x + carLen + 80 < TUN || x > W-TUN) continue;
+        drawCar(rctx, x, cy, carLen, carW, c);
+        if(c.aff && !c.me){
+          rctx.fillStyle = css("--amber"); rctx.strokeStyle = night ? "#0d1016" : "#fff"; rctx.lineWidth = 3;
+          rctx.beginPath(); rctx.arc(x+carLen/2, top-14, 7, 0, Math.PI*2); rctx.fill(); rctx.stroke();
+        }
+        if(c.me){
+          rctx.fillStyle = night ? "#ffd36b" : css("--ink"); rctx.font = `700 21px "Noto Sans KR", sans-serif`; rctx.textAlign = "center";
+          rctx.fillText("내 차", x + carLen/2, top + bh + 42);
+          rctx.beginPath(); rctx.moveTo(x+carLen/2, top+bh+8); rctx.lineTo(x+carLen/2-7, top+bh+16); rctx.lineTo(x+carLen/2+7, top+bh+16); rctx.closePath(); rctx.fill();
+        }
+      }
+    }
+    rctx.restore();
+    // tunnels
+    [0, W-TUN].forEach(x=>{
+      rctx.fillStyle = night ? "#2b3038" : "#7c828b";
+      rr(rctx, x+4, top-30, TUN-8, bh+60, 10); rctx.fill();
+      rctx.fillStyle = "#07090c";
+      rr(rctx, x+14, top-2, TUN-28, bh+4, 6); rctx.fill();
+    });
+    rctx.fillStyle = night ? "#9aa3b2" : css("--muted"); rctx.font = `700 19px "Noto Sans KR", sans-serif`; rctx.textAlign = "center";
+    rctx.fillText("터널", TUN/2, top-38); rctx.fillText("터널", W-TUN/2, top-38);
+  }
+  function drawSpeed(){
+    const W = sp.width, H = sp.height;
+    sctx.clearRect(0,0,W,H);
+    sctx.strokeStyle = css("--border"); sctx.lineWidth = 1;
+    sctx.fillStyle = css("--muted"); sctx.font = "20px 'Noto Sans KR', sans-serif"; sctx.textAlign = "left";
+    [0, 0.5, 1].forEach(f=>{
+      const y = H - 10 - f*(H-30);
+      sctx.beginPath(); sctx.moveTo(0,y); sctx.lineTo(W,y); sctx.stroke();
+      sctx.fillText(`${Math.round(f*VMAX*KMH_PER_V)}`, 6, y-4);
+    });
+    if(speedHist.length<2) return;
+    sctx.beginPath();
+    speedHist.forEach((v,i)=>{
+      const x = W - (speedHist.length-1-i)*(W/199);
+      const y = H - 10 - (v/VMAX)*(H-30);
+      i ? sctx.lineTo(x,y) : sctx.moveTo(x,y);
+    });
+    sctx.strokeStyle = css("--accent"); sctx.lineWidth = 4; sctx.lineJoin = "round"; sctx.stroke();
+  }
+  function loop(tsNow){
+    if(!running) return;
+    if(!lastTs) lastTs = tsNow;
+    acc += tsNow - lastTs; lastTs = tsNow;
+    if(acc > 2000) acc = STEP_MS;
+    while(acc >= STEP_MS){ step(); acc -= STEP_MS; }
+    draw(Math.min(1, acc/STEP_MS));
+    requestAnimationFrame(loop);
+  }
+  function setRunning(on){
+    running = on;
+    document.getElementById("btnRun").textContent = on ? "일시정지" : "실행";
+    if(on){ lastTs = 0; requestAnimationFrame(loop); updateCheck("traffic", true); }
+  }
+  let prediction = null;
+  function showPredictResult(){
+    const el = document.getElementById("predictResult");
+    if(prediction===null){ el.innerHTML = ""; return; }
+    el.innerHTML = prediction===1
+      ? "<b>네 예측: 이유 없이 멈추는 구간이 생긴다.</b> 예측이 맞았어. 시뮬레이션 결과가 네 예측을 뒷받침했어."
+      : "<b>네 예측과 결과를 비교해봐.</b> 처음엔 다르게 예측했지만, 차가 많을 때 아무 이유 없이 멈추는 구간이 생겼지? 이렇게 직관과 다른 결과를 확인할 수 있다는 점도 시뮬레이션을 쓰는 이유야.";
+  }
+  function syncLabels(){
+    document.getElementById("oN").textContent = N + "대";
+    document.getElementById("oP").textContent = Math.round(P*100) + "%";
+    document.getElementById("oV").textContent = VMAX*KMH_PER_V + "km/h";
+  }
+  function init(){
+    const slN = document.getElementById("slN"), slP = document.getElementById("slP"), slV = document.getElementById("slV");
+    slN.addEventListener("input", ()=>{ N = +slN.value; syncLabels(); reset(); });
+    slP.addEventListener("input", ()=>{ P = slP.value/100; syncLabels(); });
+    slV.addEventListener("input", ()=>{ VMAX = +slV.value; syncLabels(); drawSpeed(); });
+    document.getElementById("btnRun").addEventListener("click", ()=>setRunning(!running));
+    document.getElementById("btnReset").addEventListener("click", ()=>reset());
+    const bb = document.getElementById("btnMyBrake");
+    bb.addEventListener("pointerdown", e=>{ e.preventDefault(); try{ bb.setPointerCapture(e.pointerId); }catch(_){} startBrake(); });
+    ["pointerup","pointercancel","lostpointercapture"].forEach(t=>bb.addEventListener(t, ()=>{ if(braking) endBrake(); }));
+    bb.addEventListener("contextmenu", e=>e.preventDefault());
+    bb.addEventListener("keydown", e=>{ if((e.key===" "||e.key==="Enter") && !e.repeat){ e.preventDefault(); startBrake(); } });
+    bb.addEventListener("keyup", e=>{ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); endBrake(); } });
+    const nb = document.getElementById("btnNight");
+    nb.addEventListener("click", ()=>{ night = !night; nb.setAttribute("aria-pressed", night); nb.textContent = night ? "주간 모드" : "야간 모드"; draw(1); });
+    document.querySelectorAll(".mset").forEach(b=>b.addEventListener("click", ()=>{
+      slN.value = b.dataset.n; slP.value = b.dataset.p;
+      N = +b.dataset.n; P = b.dataset.p/100; syncLabels(); reset();
+      document.getElementById("trafficsim").scrollIntoView({behavior:"smooth", block:"start"});
+      setTimeout(()=>{ if(!running) setRunning(true); }, 400);
+    }));
+    document.querySelectorAll("#predict .popt").forEach(b=>b.addEventListener("click", ()=>{
+      prediction = +b.dataset.p;
+      document.querySelectorAll("#predict .popt").forEach(x=>x.classList.toggle("sel", x===b));
+      if(document.getElementById("reveal").classList.contains("show")) showPredictResult();
+    }));
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    if(mq.addEventListener) mq.addEventListener("change", ()=>{ draw(1); drawSpeed(); });
+    document.addEventListener("chapter2", ()=>{ document.getElementById("reveal").classList.add("show"); showPredictResult(); });
+    syncLabels(); reset();
+  }
+  return { init };
+})();
+
+
+/* ============================================================
+   CHAPTER LOCKS
+   answers are stored as hashes; blanks are filled on unlock
+============================================================ */
+const Chapters = (()=>{
+  const KEY = "simExplore.unlocked.v1";
+  // normalized answer -> hash (djb2), and blank words stored as char codes
+  function norm(t){ return (t||"").toLowerCase().replace(/[\s'"·.\-_()]/g,""); }
+  function h(t){ let x=5381; for(const ch of t) x=((x<<5)+x+ch.codePointAt(0))>>>0; return x.toString(36); }
+  const LOCKS = {
+    A:{ opens:2, hashes:["1toj0cn","1mmim7n","1xx574k"], hint:"유○ 정체", word:null },
+    B:{ opens:3, hashes:["4697la","14l2g8v"], hint:"추○화", word:[52628,49345,54868] },
+    C:{ opens:4, hashes:["4dxsy","rvqt5c","1ggbbyg"], hint:"검○", word:[44160,51613] },
+  };
+  const MASTER = "ri52a7";
+  let unlocked = 1;
+  function load(){ try{ const v = parseInt(localStorage.getItem(KEY),10); if(v>=1 && v<=4) unlocked = v; }catch(e){} }
+  function save(){ try{ localStorage.setItem(KEY, String(unlocked)); }catch(e){} }
+  function fillBlanks(){
+    Object.entries(LOCKS).forEach(([k,l])=>{
+      if(!l.word || unlocked < l.opens) return;
+      document.querySelectorAll(`.blank[data-k="${k}"]`).forEach(el=>{ el.textContent = String.fromCodePoint(...l.word); el.classList.add("filled"); });
+    });
+  }
+  function apply(animateCh){
+    document.querySelectorAll("[data-ch]").forEach(el=>{
+      if(el.classList.contains("rm")) return;
+      const ch = +el.dataset.ch;
+      const hide = ch > unlocked;
+      el.classList.toggle("ch-hidden", hide);
+      if(!hide && animateCh && ch===animateCh){ el.classList.remove("ch-reveal"); void el.offsetWidth; el.classList.add("ch-reveal"); }
+    });
+    document.querySelectorAll(".rm").forEach(a=>a.classList.toggle("locked", +a.dataset.ch > unlocked));
+    Object.entries(LOCKS).forEach(([k,l])=>{
+      const box = document.getElementById("lock"+k); if(!box) return;
+      const done = unlocked >= l.opens;
+      box.classList.toggle("done", done);
+      if(done){ const m = box.querySelector(".lockmsg"); m.className = "lockmsg good"; m.textContent = "정답! 다음 챕터가 열렸어."; }
+    });
+    fillBlanks();
+  }
+  function tryOpen(k){
+    const l = LOCKS[k], box = document.getElementById("lock"+k);
+    const inp = box.querySelector(".lockinput"), msg = box.querySelector(".lockmsg");
+    const v = norm(inp.value);
+    if(!v) return;
+    if(h(v)===MASTER){ unlocked = 4; save(); apply(); msg.className="lockmsg good"; msg.textContent="교사용 코드: 모든 챕터를 열었어."; return; }
+    if(l.hashes.includes(h(v))){
+      const prev = unlocked;
+      unlocked = Math.max(unlocked, l.opens); save(); apply(l.opens);
+      if(unlocked > prev){
+        if(l.opens===2) document.dispatchEvent(new CustomEvent("chapter2"));
+        const target = document.querySelector(`[data-ch="${l.opens}"]:not(.rm)`);
+        if(target) setTimeout(()=>target.scrollIntoView({behavior:"smooth", block:"start"}), 250);
+      }
+      return;
+    }
+    box.dataset.tries = (+box.dataset.tries||0) + 1;
+    box.classList.remove("shake"); void box.offsetWidth; box.classList.add("shake");
+    msg.className = "lockmsg bad";
+    msg.textContent = (+box.dataset.tries >= 3) ? `아직 아니야. 힌트: ${l.hint}` : "아직 아니야. 선생님 설명을 다시 떠올려봐.";
+  }
+  function init(){
+    load();
+    Object.keys(LOCKS).forEach(k=>{
+      const box = document.getElementById("lock"+k); if(!box) return;
+      box.querySelector(".lockbtn").addEventListener("click", ()=>tryOpen(k));
+      box.querySelector(".lockinput").addEventListener("keydown", e=>{ if(e.key==="Enter") tryOpen(k); });
+    });
+    apply();
+    if(unlocked>=2) document.dispatchEvent(new CustomEvent("chapter2"));
+  }
+  return { init, h, norm };
+})();
+
+const CHECKS = [
+  { key:"concept", label:"시뮬레이션의 개념을 한 문장으로 설명할 수 있다" },
+  { key:"traffic", label:"교통 정체 시뮬레이션을 직접 실행해봤다" },
+  { key:"why", label:"시뮬레이션의 가치 세 가지를 말할 수 있다" },
+  { key:"quiz", label:"확인 문제 세 개를 모두 풀었다" },
+  { key:"try", label:"갤러리에서 시뮬레이션을 세 개 이상 실행해봤다" },
+  { key:"share", label:"내가 고른 시뮬레이션 소개 글을 완성했다" },
+];
+const checkState = {};
+function renderChecklist(){
+  document.getElementById("checklist").innerHTML = CHECKS.map(c=>`
+    <label class="checkitem"><input type="checkbox" id="chk-${c.key}" ${checkState[c.key]?"checked":""}> ${c.label}</label>`).join("");
+  CHECKS.forEach(c=>{
+    document.getElementById(`chk-${c.key}`).addEventListener("change",(e)=>{
+      checkState[c.key] = e.target.checked;
+      updateRing();
+    });
+  });
+}
+function updateCheck(key, v){
+  checkState[key] = v;
+  const box = document.getElementById(`chk-${key}`);
+  if(box) box.checked = v;
+  updateRing();
+}
+function updateRing(){
+  const total = CHECKS.length;
+  const done = CHECKS.filter(c=>checkState[c.key]).length;
+  const el = document.getElementById("ringfg");
+  if(!el) return;
+  el.style.strokeDashoffset = 207.3 * (1 - done/total);
+  document.getElementById("ringtext").textContent = `${done}/${total}`;
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+renderChecklist();
+renderWhy();
+renderFields();
+renderDirTools();
+renderDirBody();
+renderExtra();
+renderShareForm();
+Traffic.init();
+Chapters.init();
+
+document.querySelector(".defbox").addEventListener("click", ()=>updateCheck("concept", true));
+document.querySelectorAll(".steptl .stepitem").forEach(el=>el.addEventListener("click", ()=>updateCheck("concept", true)));
+
+let answered = 0;
+function onAnswered(){ answered++; if(answered>=3) updateCheck("quiz", true); }
+renderMCQ(document.getElementById("mcq1"),
+  "Q1. 시뮬레이션에 대한 설명으로 옳지 <u>않은</u> 것은?",
+  ["실제 현상이나 사건을 컴퓨터로 모델링한다","실제 상황에서 절대 일어날 수 없는 사건만 모델링한다","가상에서 모의 실험해 실제 상황을 예측한다","현실에서 직접 실험하기 어려운 문제를 모의 실험한다"], 1,
+  "정답은 <b>②</b>야. 시뮬레이션은 실제로 일어날 수 있는 현상(날씨, 교통, 감염병)도, 가상의 시나리오도 모두 다룰 수 있어. 오히려 대부분은 <b>현실에서 일어날 일을 미리 알아보려고</b> 하는 거야.");
+renderMCQ(document.getElementById("mcq2"),
+  "Q2. \"2100년 지구 평균 기온이 얼마나 오를지\" 알아보려고 시뮬레이션을 쓰는 가장 큰 이유는?",
+  ["실험이 너무 위험해서","실험 재료가 너무 비싸서","결과가 나오기까지 시간이 너무 오래 걸려서","대상이 너무 작아서"], 2,
+  "정답은 <b>시간</b>이야. 실제로 2100년까지 기다릴 수는 없으니까, 기후 모델로 시간을 '빨리 감기'해서 미리 확인하는 거지. 물론 여러 정책을 비교하는 <b>반복과 비교</b>의 이유도 함께 있어.");
+renderMCQ(document.getElementById("mcq3"),
+  "Q3. 시뮬레이션의 가치에 대한 설명으로 옳지 <u>않은</u> 것은?",
+  ["위험한 실험을 가상으로 테스트해 손실을 줄일 수 있다","여러 시나리오를 비교해 의사결정에 활용할 수 있다","시뮬레이션 결과는 항상 정확하므로 검증할 필요가 없다","실제로 만들기 전에 테스트해 비용과 자원을 아낄 수 있다"], 2,
+  "정답은 <b>③</b>이야. 모델은 현실을 단순화한 것이라 빠진 요소가 있을 수 있어. 그래서 시뮬레이션 결과는 실제 데이터와 비교하는 <b>검증</b>이 꼭 필요해.");
+["mcq1","mcq2","mcq3"].forEach(id=>document.getElementById(id).addEventListener("answered", onAnswered));
+
+document.getElementById("copybtn").addEventListener("click", copyText);
+document.getElementById("resetbtn").addEventListener("click", ()=>{
+  document.querySelectorAll(".formcard textarea").forEach(t=>t.value="");
+  document.getElementById("f-sim").value=""; document.querySelectorAll("#otherwrap input").forEach(i=>i.value="");
+  document.querySelectorAll("#f-why input").forEach(i=>i.checked=false);
+  buildPreview();
+});
+</script>
+</body>
+</html>
