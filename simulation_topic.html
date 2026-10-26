@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>시뮬레이션 주제 찾기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f3ea; --surface:#ffffff; --surface-2:#efe9da; --surface-3:#e5ddc9;
+  --ink:#1d2430; --ink-2:#565f6d; --muted:#8a8f7c;
+  --border:rgba(29,36,48,0.12); --border-strong:rgba(29,36,48,0.22);
+  --accent:#0d6b6f; --accent-2:#0a5457; --accent-ink:#ffffff;
+  --amber:#c9781f; --amber-2:#a35f14; --good:#0c8a3c; --bad:#c23b3b;
+  --shadow:0 10px 30px -14px rgba(20,30,25,0.28);
+  --c1:#c23b3b; --c2:#c9781f; --c3:#2a78d6; --c4:#7a4fc9; --c5:#1b9e6f;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#12161b; --surface:#1b2129; --surface-2:#232a33; --surface-3:#2c3440;
+    --ink:#f1efe6; --ink-2:#bcc3cf; --muted:#8992a1;
+    --border:rgba(255,255,255,0.12); --border-strong:rgba(255,255,255,0.22);
+    --accent:#3fb8ad; --accent-2:#2d9089; --accent-ink:#0b1210;
+    --amber:#e6a34a; --amber-2:#e6a34a; --good:#3fc27a; --bad:#e5716f;
+    --shadow:0 10px 34px -14px rgba(0,0,0,0.55);
+    --c1:#e5716f; --c2:#e6a34a; --c3:#5a9ce8; --c4:#a283e8; --c5:#3fc29a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#12161b; --surface:#1b2129; --surface-2:#232a33; --surface-3:#2c3440;
+  --ink:#f1efe6; --ink-2:#bcc3cf; --muted:#8992a1;
+  --border:rgba(255,255,255,0.12); --border-strong:rgba(255,255,255,0.22);
+  --accent:#3fb8ad; --accent-2:#2d9089; --accent-ink:#0b1210;
+  --amber:#e6a34a; --amber-2:#e6a34a; --good:#3fc27a; --bad:#e5716f;
+  --shadow:0 10px 34px -14px rgba(0,0,0,0.55);
+  --c1:#e5716f; --c2:#e6a34a; --c3:#5a9ce8; --c4:#a283e8; --c5:#3fc29a;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:"Noto Sans KR",system-ui,sans-serif; line-height:1.62; word-break:keep-all; overflow-wrap:break-word; -webkit-font-smoothing:antialiased;}
+.display{font-family:"Black Han Sans","Noto Sans KR",sans-serif; font-weight:400;}
+h1,h2,h3{margin:0; text-wrap:balance;}
+.wrap{max-width:960px; margin:0 auto; padding:0 20px;}
+button{font-family:inherit;}
+input,textarea,select{font-family:inherit; font-size:15px; color:var(--ink); background:var(--surface); border:1px solid var(--border-strong); border-radius:10px; padding:9px 11px; width:100%;}
+input:focus,textarea:focus{outline:2px solid color-mix(in srgb, var(--accent) 50%, transparent); outline-offset:1px;}
+
+/* hero */
+.hero{padding:56px 0 40px; background:radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 55%), radial-gradient(circle at 88% 6%, color-mix(in srgb, var(--amber) 18%, transparent), transparent 50%), var(--surface); border-bottom:1px solid var(--border);}
+.back-hub{display:flex; width:max-content; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--ink-2); text-decoration:none; margin-bottom:14px;}
+.back-hub:hover{color:var(--accent);}
+.eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:700; letter-spacing:.14em; color:var(--accent); margin-bottom:14px;}
+.eyebrow .dot{width:7px; height:7px; border-radius:50%; background:var(--amber);}
+.hero h1{font-size:clamp(30px,5vw,50px); line-height:1.18;}
+.hero .lead{margin-top:16px; max-width:62ch; font-size:16.5px; color:var(--ink-2); line-height:1.85;}
+.hero .lead b{color:var(--ink);}
+.flow{display:flex; flex-wrap:wrap; gap:8px; margin-top:22px; align-items:center;}
+.flow span{background:var(--surface-2); border:1px solid var(--border); border-radius:999px; padding:6px 13px; font-size:14px; font-weight:700; color:var(--ink-2);}
+.flow i{font-style:normal; color:var(--muted);}
+
+/* demo */
+section.block{padding:44px 0;}
+section.block.alt{background:var(--surface-2); border-top:1px solid var(--border); border-bottom:1px solid var(--border);}
+.sectag{display:inline-block; font-size:12.5px; font-weight:700; letter-spacing:.1em; color:var(--amber-2); background:color-mix(in srgb, var(--amber) 16%, transparent); padding:5px 12px; border-radius:999px; margin-bottom:12px;}
+.sechead h2{font-size:clamp(22px,3.2vw,30px);}
+.sechead p{margin:8px 0 0; color:var(--ink-2); font-size:15px;}
+.chain{display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:22px;}
+@media (max-width:760px){ .chain{grid-template-columns:1fr;} }
+.link{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px; position:relative; box-shadow:var(--shadow);}
+.link .n{font-family:"Black Han Sans",sans-serif; color:var(--accent); font-size:14px;}
+.link .t{font-weight:700; font-size:15px; margin-top:4px; line-height:1.5;}
+.link .s{font-size:13px; color:var(--ink-2); margin-top:4px;}
+
+/* stepper */
+.stepper-top{position:sticky; top:0; z-index:20; background:color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter:blur(8px); border-bottom:1px solid var(--border); padding:10px 0;}
+.stepdots{display:flex; gap:6px; flex-wrap:wrap;}
+.sdot{border:1px solid var(--border-strong); background:var(--surface); color:var(--ink-2); border-radius:999px; height:34px; padding:0 12px; font-size:13.5px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px;}
+.sdot b{font-family:"Black Han Sans",sans-serif; font-weight:400; font-size:15px;}
+.sdot.cur{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+.sdot.done{color:var(--accent); border-color:color-mix(in srgb, var(--accent) 45%, transparent);}
+.progress{height:6px; background:var(--surface-3); border-radius:99px; margin-top:9px; overflow:hidden;}
+.progress i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--accent),var(--amber)); transition:width .3s;}
+
+.step{display:none; padding:32px 0 8px;}
+.step.on{display:block;}
+.stephead{display:flex; gap:16px; align-items:flex-start; margin-bottom:18px;}
+.bignum{flex:none; width:56px; height:56px; border-radius:16px; background:var(--accent); color:var(--accent-ink); display:flex; align-items:center; justify-content:center; font-family:"Black Han Sans",sans-serif; font-size:28px;}
+.stephead h2{font-size:clamp(22px,3vw,29px); line-height:1.3;}
+.stephead .why{color:var(--ink-2); font-size:15px; margin-top:4px;}
+.goal{display:inline-block; margin-top:8px; font-size:13.5px; font-weight:700; color:var(--amber-2); background:color-mix(in srgb, var(--amber) 13%, transparent); border-radius:8px; padding:3px 10px;}
+
+.panel{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:18px; box-shadow:var(--shadow); margin-bottom:16px;}
+.panel h3{font-size:17px; margin-bottom:8px;}
+.hint{font-size:13.5px; color:var(--ink-2);}
+.note{border-radius:12px; padding:13px 15px; margin:14px 0; font-size:14.5px; line-height:1.75; border:1px solid;}
+.note .nt{display:block; font-weight:900; font-size:13px; letter-spacing:.04em; margin-bottom:2px;}
+.note.tip{background:color-mix(in srgb, var(--accent) 8%, var(--surface)); border-color:color-mix(in srgb, var(--accent) 30%, transparent);}
+.note.tip .nt{color:var(--accent);}
+.note.warn{background:color-mix(in srgb, var(--bad) 8%, var(--surface)); border-color:color-mix(in srgb, var(--bad) 35%, transparent);}
+.note.warn .nt{color:var(--bad);}
+
+/* step1 */
+.mind{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+@media (max-width:760px){ .mind{grid-template-columns:1fr;} }
+.branch{border-top:5px solid var(--bc); }
+.branch h3{color:var(--bc);}
+.qlist{margin:6px 0 10px; padding-left:18px; font-size:13.5px; color:var(--ink-2);}
+.addrow{display:flex; gap:6px;}
+.addrow button,.btn{flex:none; border:none; background:var(--accent); color:var(--accent-ink); font-weight:700; border-radius:10px; padding:9px 14px; cursor:pointer; font-size:14px;}
+.btn.ghost{background:var(--surface); color:var(--ink); border:1px solid var(--border-strong);}
+.btn.amber{background:var(--amber); color:#1d1406;}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; min-height:30px;}
+.chip{display:inline-flex; align-items:center; gap:6px; background:var(--surface-2); border:1px solid var(--border); border-radius:999px; padding:5px 6px 5px 12px; font-size:14px; font-weight:600;}
+.chip button{border:none; background:none; color:var(--muted); cursor:pointer; font-size:15px; line-height:1; padding:0 4px;}
+.count{font-size:12.5px; font-weight:700; color:var(--muted); margin-top:6px;}
+.count.ok{color:var(--good);}
+
+/* step2 */
+.kwpick{display:flex; flex-wrap:wrap; gap:6px;}
+.kw{border:1px solid var(--border-strong); background:var(--surface); border-radius:999px; padding:6px 13px; font-size:14px; font-weight:700; cursor:pointer; color:var(--ink);}
+.kw.on{background:var(--ink); color:var(--bg); border-color:var(--ink);}
+.kw small{font-weight:500; color:var(--muted); margin-left:4px;}
+.kw.on small{color:inherit; opacity:.7;}
+.lenses{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:14px;}
+@media (max-width:760px){ .lenses{grid-template-columns:1fr 1fr;} }
+.lens{border:2px solid var(--border); border-radius:14px; padding:12px; background:var(--surface); cursor:pointer; text-align:left; color:var(--ink);}
+.lens .ln{font-family:"Black Han Sans",sans-serif; font-size:18px; color:var(--lc);}
+.lens .lq{font-size:13px; color:var(--ink-2); margin-top:4px; line-height:1.5;}
+.lens.on{border-color:var(--lc); background:color-mix(in srgb, var(--lc) 9%, var(--surface));}
+.phenlist{list-style:none; padding:0; margin:10px 0 0;}
+.phenlist li{display:flex; gap:10px; align-items:center; padding:9px 12px; border:1px solid var(--border); border-radius:10px; margin-bottom:6px; background:var(--surface);}
+.tag{font-size:12px; font-weight:700; border-radius:6px; padding:1px 8px; color:#fff; background:var(--lc,var(--accent)); white-space:nowrap;}
+.phenlist .tx{flex:1; font-size:14.5px;}
+.phenlist .from{font-size:12.5px; color:var(--muted);}
+.del{border:none; background:none; color:var(--muted); cursor:pointer; font-size:13px;}
+
+/* step3 */
+.qcard{border:1px solid var(--border); border-radius:14px; padding:14px; background:var(--surface); margin-bottom:10px;}
+.qcard .ph{font-size:13.5px; color:var(--ink-2); margin-bottom:8px;}
+.qline{display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:16px; font-weight:600;}
+.qline input{width:auto; flex:1; min-width:150px;}
+.knobs{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+.knob{font-size:13px; background:var(--surface-2); border:1px dashed var(--border-strong); border-radius:8px; padding:3px 9px; color:var(--ink-2);}
+
+/* step4 */
+.crit{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px;}
+@media (max-width:760px){ .crit{grid-template-columns:1fr 1fr;} }
+.critc{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px;}
+.critc .cn{font-family:"Black Han Sans",sans-serif; color:var(--accent); font-size:17px;}
+.critc .cq{font-size:13.5px; margin-top:3px; font-weight:600;}
+.critc .cx{font-size:12.5px; color:var(--muted); margin-top:6px;}
+.checkrow{border:1px solid var(--border); border-radius:14px; padding:14px; background:var(--surface); margin-bottom:10px;}
+.checkrow.pass{border-color:var(--good); box-shadow:0 0 0 1px var(--good) inset;}
+.checkrow .qt{font-weight:700; font-size:15.5px; margin-bottom:10px;}
+.toggles{display:grid; grid-template-columns:repeat(4,1fr); gap:6px;}
+@media (max-width:640px){ .toggles{grid-template-columns:1fr 1fr;} }
+.tg{border:1px solid var(--border-strong); background:var(--surface); border-radius:10px; padding:8px; font-size:13px; font-weight:700; cursor:pointer; color:var(--ink-2); text-align:left;}
+.tg.o{background:color-mix(in srgb, var(--good) 13%, var(--surface)); border-color:var(--good); color:var(--good);}
+.tg.x{background:color-mix(in srgb, var(--bad) 10%, var(--surface)); border-color:var(--bad); color:var(--bad);}
+.verdict{margin-top:10px; font-size:14px; font-weight:700;}
+.verdict.ok{color:var(--good);}
+.verdict.no{color:var(--bad);}
+.pick{display:flex; align-items:center; gap:8px; margin-top:10px; font-weight:700; font-size:14.5px;}
+.pick input{width:18px; height:18px; accent-color:var(--accent);}
+.fix{margin-top:8px; font-size:13.5px; color:var(--ink-2); background:var(--surface-2); border-radius:10px; padding:9px 12px; display:none;}
+.fix.on{display:block;}
+
+/* step5 */
+.sent{border:1px solid var(--border); border-radius:14px; padding:14px; background:var(--surface); margin-bottom:10px;}
+.sent .lab{font-size:13px; font-weight:700; color:var(--accent); margin-bottom:6px;}
+.sent .line{display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:15.5px; font-weight:600;}
+.sent .line input{width:auto; flex:1; min-width:180px;}
+.exit{border:2px dashed var(--accent); border-radius:16px; padding:20px; background:var(--surface);}
+.exit h3{font-size:19px; margin-bottom:12px;}
+.exit table{width:100%; border-collapse:collapse; font-size:14.5px;}
+.exit th,.exit td{border:1px solid var(--border); padding:8px 10px; text-align:left; vertical-align:top;}
+.exit th{background:var(--surface-2); width:30%; font-weight:700;}
+.exit .empty{color:var(--muted);}
+.idrow{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;}
+.actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;}
+
+/* cards */
+.cards{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+@media (max-width:760px){ .cards{grid-template-columns:1fr;} }
+.card{perspective:1000px; min-height:220px; cursor:pointer;}
+.card .in{position:relative; width:100%; height:100%; min-height:220px; transition:transform .5s; transform-style:preserve-3d;}
+.card.flip .in{transform:rotateY(180deg);}
+.card .face{position:absolute; inset:0; backface-visibility:hidden; border-radius:16px; padding:16px; border:1px solid var(--border); background:var(--surface); box-shadow:var(--shadow); display:flex; flex-direction:column;}
+.card .front{border-top:6px solid var(--cc);}
+.card .back{transform:rotateY(180deg); background:color-mix(in srgb, var(--cc) 7%, var(--surface)); border-top:6px solid var(--cc);}
+.card .cat{font-family:"Black Han Sans",sans-serif; font-size:21px; color:var(--cc);}
+.card .jobs{font-size:13.5px; color:var(--ink-2); margin-top:6px;}
+.card .seed{margin-top:auto; font-size:14px; font-weight:600; line-height:1.6;}
+.card .flipme{font-size:12px; color:var(--muted); margin-top:8px;}
+.card .back ul{margin:6px 0 0; padding-left:18px; font-size:14px; line-height:1.7;}
+.card .back .k{font-size:12.5px; font-weight:700; color:var(--cc); margin-top:8px;}
+.lenscards{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+@media (max-width:760px){ .lenscards{grid-template-columns:1fr 1fr;} }
+.lc{background:var(--surface); border:1px solid var(--border); border-left:5px solid var(--lc); border-radius:12px; padding:12px; font-size:13.5px;}
+.lc b{display:block; font-size:15.5px; color:var(--lc); margin-bottom:4px;}
+
+.stepnav{display:flex; justify-content:space-between; gap:10px; margin:24px 0 8px;}
+.navbtn{font-size:16px; font-weight:700; border-radius:12px; padding:13px 20px; cursor:pointer; border:1px solid var(--border-strong); background:var(--surface); color:var(--ink);}
+.navbtn.primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); flex:1; max-width:340px; margin-left:auto;}
+.navbtn:disabled{opacity:.4; cursor:default;}
+.gate{font-size:13.5px; color:var(--bad); font-weight:700; text-align:right; min-height:20px;}
+footer{padding:30px 0 46px; color:var(--muted); font-size:13px; text-align:center;}
+
+@media print{
+  .hero,.stepper-top,.stepnav,.gate,section.block,footer,.actions,.noprint{display:none !important;}
+  .step{display:none !important;}
+  .step.printme{display:block !important; padding:0;}
+  .step.printme > *:not(.exit){display:none !important;}
+  body{background:#fff;}
+}
+
+/* word cloud */
+.cloud{display:flex; flex-wrap:wrap; gap:6px 8px; align-items:center; justify-content:center; padding:14px 10px; background:var(--surface-2); border-radius:14px; border:1px dashed var(--border-strong);}
+.cloud .wc{border:none; background:none; cursor:pointer; font-weight:700; color:var(--wc); padding:3px 6px; border-radius:8px; line-height:1.3;}
+.cloud .wc:hover{background:color-mix(in srgb, var(--wc) 14%, transparent);}
+.cloud .wc.used{opacity:.35; text-decoration:line-through;}
+.cloudlab{font-size:13px; font-weight:700; color:var(--ink-2); margin:12px 0 6px;}
+.cloudlab small{font-weight:500; color:var(--muted);}
+.target{font-size:12.5px; color:var(--accent); font-weight:700; min-height:18px; margin-top:6px;}
+.fld{position:relative;}
+.fld label{display:block; font-size:12.5px; font-weight:700; color:var(--ink-2); margin-bottom:3px;}
+.fld input.focus{outline:2px solid var(--amber); outline-offset:1px;}
+.grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+.grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;}
+.grid4{display:grid; grid-template-columns:1.2fr 1.2fr 1.2fr .7fr; gap:10px;}
+@media (max-width:760px){ .grid2,.grid3,.grid4{grid-template-columns:1fr;} }
+.preview{margin-top:10px; padding:10px 12px; border-radius:10px; background:color-mix(in srgb, var(--accent) 8%, var(--surface)); font-weight:700; font-size:15px;}
+.preview.empty{background:var(--surface-2); color:var(--muted); font-weight:500;}
+.optrow{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+.opt{border:1px solid var(--border-strong); background:var(--surface); border-radius:999px; padding:7px 13px; font-size:14px; font-weight:700; cursor:pointer; color:var(--ink);}
+.opt.on{background:var(--accent); border-color:var(--accent); color:var(--accent-ink);}
+.opt.bad.on{background:var(--bad); border-color:var(--bad); color:#fff;}
+.auto{display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border-radius:10px; background:var(--surface-2); margin-bottom:8px; font-size:14.5px;}
+.auto .st{flex:none; font-weight:900; font-size:13px; border-radius:6px; padding:2px 8px; color:#fff; background:var(--muted);}
+.auto .st.ok{background:var(--good);}
+.auto .st.no{background:var(--bad);}
+.exgrid{display:grid; grid-template-columns:repeat(2,1fr); gap:8px; max-height:380px; overflow:auto; padding:4px;}
+@media (max-width:760px){ .exgrid{grid-template-columns:1fr;} }
+.ex{display:flex; flex-direction:column; gap:3px; text-align:left; border:1px solid var(--border); background:var(--surface); border-radius:12px; padding:9px 12px; cursor:pointer; color:var(--ink); font-size:14.5px;}
+.ex:hover{border-color:var(--accent);}
+.ex .ek{font-size:12px; font-weight:700; color:var(--muted);}
+.ex .es b{color:var(--accent);}
+.ex.match{border-color:var(--amber); background:color-mix(in srgb, var(--amber) 9%, var(--surface));}
+.ex.match .ek{color:var(--amber-2);}
+.exfilter{display:flex; flex-wrap:wrap; gap:6px; margin:6px 0 10px;}
+/* career cards: height follows content */
+.card{min-height:0;}
+.card .in{display:grid; min-height:0; height:auto;}
+.card .face{position:relative; inset:auto; grid-area:1/1;}
+
+.sugg{margin-top:10px; padding:10px 12px; border-radius:12px; background:var(--surface-2);}
+.sugg .sl{font-size:12.5px; font-weight:700; color:var(--ink-2); margin:6px 0 4px;}
+.sugg .sl:first-child{margin-top:0;}
+.schip{border:1px solid var(--border-strong); background:var(--surface); border-radius:999px; padding:4px 11px; font-size:13.5px; font-weight:700; cursor:pointer; color:var(--ink); margin:0 4px 5px 0;}
+.schip:hover{border-color:var(--accent); color:var(--accent);}
+.schip.rec{border-color:var(--amber); background:color-mix(in srgb, var(--amber) 12%, var(--surface));}
+.schip small{font-weight:500; color:var(--muted); margin-left:4px;}
+.think{font-size:14px; font-weight:700; color:var(--accent); margin:8px 0 2px;}
+.more{border:none; background:none; color:var(--accent); font-weight:700; font-size:13px; cursor:pointer; padding:4px 0;}
+.opt small{display:block; font-weight:500; font-size:11.5px; opacity:.8;}
+.opt.rec{border-color:var(--amber);}
+.starter{display:block; width:100%; text-align:left; border:1px solid var(--border); background:var(--surface); border-radius:10px; padding:9px 12px; margin-bottom:6px; cursor:pointer; font-size:14.5px; color:var(--ink);}
+.starter:hover{border-color:var(--accent);}
+.jobwarn{display:none; margin-top:10px; padding:10px 12px; border-radius:10px; background:color-mix(in srgb, var(--amber) 12%, var(--surface)); border:1px solid color-mix(in srgb, var(--amber) 40%, transparent); font-size:14px;}
+.jobwarn.on{display:block;}
+.flash{animation:flash 1s;}
+@keyframes flash{0%{background:color-mix(in srgb, var(--amber) 35%, var(--surface));}100%{background:var(--surface);}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <a class="back-hub" href="./index.html">← 실습 허브로</a>
+    <div class="eyebrow"><span class="dot"></span>소프트웨어와 생활 · 4단원 시뮬레이션 · 문제 정의</div>
+    <h1 class="display">내 시뮬레이션 주제 찾기</h1>
+    <p class="lead">좋은 주제는 멀리 있지 않아. <b>내 일상, 내 관심사, 내 진로</b>에서 출발해서 <b>변하는 현상</b>을 찾고, <b>실험 질문</b>으로 다듬으면 돼. 칸마다 예시가 있어서 <b>눌러서 고르고, 내 상황에 맞게 고치면</b> 돼. AI 없이 내 머리로 다섯 단계를 밟아 보자.</p>
+    <div class="flow"><span>1 나에게서 출발</span><i>→</i><span>2 현상 찾기</span><i>→</i><span>3 실험 질문</span><i>→</i><span>4 확인하기</span><i>→</i><span>5 주제 카드</span></div>
+  </div>
+</header>
+
+<section class="block alt">
+  <div class="wrap">
+    <div class="sechead"><span class="sectag">먼저 흐름 보기</span><h2>한 학생은 이렇게 주제를 찾았어</h2><p>간호사가 꿈인 학생의 예야. 낱말 하나가 시뮬레이션 주제가 되기까지의 과정을 봐.</p></div>
+    <div class="chain">
+      <div class="link"><div class="n">1 나에게서</div><div class="t">진로: 간호사, 일터: 응급실</div><div class="s">직업과 일하는 곳을 함께 적음</div></div>
+      <div class="link"><div class="n">2 현상 찾기</div><div class="t">응급실에서 환자들이 밤마다 몰린다</div><div class="s">무엇이 · 언제 · 어떻게 변하나</div></div>
+      <div class="link"><div class="n">3 실험 질문</div><div class="t">의사 수와 환자가 오는 간격을 바꾸면 기다리는 시간(분)은?</div><div class="s">입력 변수 2개, 출력 값 1개</div></div>
+      <div class="link"><div class="n">4 확인하기</div><div class="t">1분마다 변하고, 실제로 바꿔 볼 수 없음</div><div class="s">시뮬레이션에 딱 맞음</div></div>
+      <div class="link"><div class="n">5 주제 카드</div><div class="t">응급실 대기 시뮬레이션</div><div class="s">세 문장으로 문제 정의</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="stepper-top">
+  <div class="wrap">
+    <div class="stepdots" id="dots"></div>
+    <div class="progress"><i id="bar"></i></div>
+  </div>
+</div>
+
+<main class="wrap">
+
+<!-- STEP 1 -->
+<section class="step" data-t="나에게서 출발">
+  <div class="stephead"><div class="bignum">1</div><div><h2>나에게서 출발하기</h2><div class="why">세 갈래로 떠오르는 낱말을 모아. 구름에서 눌러 골라도 되고, 직접 적어도 돼. 아직 시뮬레이션은 생각하지 마.</div><div class="goal">목표: 갈래마다 2개 이상</div></div></div>
+  <div class="mind">
+    <div class="panel branch" style="--bc:var(--c3)">
+      <h3>일상</h3>
+      <div class="hint">학교, 집, 동네에서 자주 가는 곳이나 자주 쓰는 것</div>
+      <div class="addrow" style="margin-top:8px"><input data-add="daily" placeholder="직접 적기"><button data-addbtn="daily">추가</button></div>
+      <div class="chips" id="chips-daily"></div><div class="count" id="cnt-daily"></div>
+      <div class="cloud" id="cl-daily" style="margin-top:8px"></div>
+    </div>
+    <div class="panel branch" style="--bc:var(--c4)">
+      <h3>관심사</h3>
+      <div class="hint">요즘 빠져 있는 것, 자주 가는 곳, 최근에 본 뉴스</div>
+      <div class="addrow" style="margin-top:8px"><input data-add="interest" placeholder="직접 적기"><button data-addbtn="interest">추가</button></div>
+      <div class="chips" id="chips-interest"></div><div class="count" id="cnt-interest"></div>
+      <div class="cloud" id="cl-interest" style="margin-top:8px"></div>
+    </div>
+    <div class="panel branch" style="--bc:var(--c5)">
+      <h3>진로</h3>
+      <div class="hint">되고 싶은 직업과 <b>그 직업의 일터</b>를 함께 적어 (간호사 → 응급실)</div>
+      <div class="addrow" style="margin-top:8px"><input data-add="career" placeholder="직접 적기"><button data-addbtn="career">추가</button></div>
+      <div class="chips" id="chips-career"></div><div class="count" id="cnt-career"></div>
+      <div class="cloud" id="cl-career" style="margin-top:8px"></div>
+    </div>
+  </div>
+  <div class="panel noprint">
+    <h3>진로 계열 카드 <span class="hint">진로가 막막하면 눌러서 뒤집어 봐</span></h3>
+    <div class="cards" id="careercards"></div>
+  </div>
+</section>
+
+<!-- STEP 2 -->
+<section class="step" data-t="현상 찾기">
+  <div class="stephead"><div class="bignum">2</div><div><h2>낱말에서 변하는 현상 찾기</h2><div class="why">시뮬레이션은 <b>시간이 지나며 변하는 것</b>을 다뤄. 낱말 하나를 고르고 "여기서 <b>무엇이</b>, <b>언제</b>, <b>어떻게</b> 변하지?"를 채워 봐. 아래 <b>완성 예시</b>를 눌러 가져온 뒤 고쳐 써도 돼.</div><div class="goal">목표: 현상 2개 이상</div></div></div>
+  <div class="panel">
+    <h3>1) 낱말 고르기</h3>
+    <div class="kwpick" id="kwpick"></div>
+    <div class="hint" id="kwempty" style="display:none">1단계에서 낱말을 먼저 모아 줘.</div>
+    <div class="jobwarn" id="jobwarn"></div>
+  </div>
+  <div class="panel">
+    <h3>2) 완성 예시 보기 <span class="hint">예시 158개 · 마음에 드는 예시를 누르면 아래 칸에 들어가. 내 상황에 맞게 고쳐 써</span></h3>
+    <div class="exfilter" id="exfilter"></div>
+    <div class="addrow" style="margin-bottom:8px"><input id="exsearch" placeholder="예시 검색 (예: 줄, 재고, 체력, 게임)"></div>
+    <div class="hint" id="exmatch" style="margin-bottom:6px"></div>
+    <div class="exgrid" id="exgrid"></div>
+  </div>
+  <div class="panel">
+    <h3>3) 어디에서 · 무엇이 · 언제 · 어떻게 변하나?</h3>
+    <div class="grid4" style="grid-template-columns:1fr 1fr 1fr 1fr">
+      <div class="fld"><label>어디에서 (장소·게임·분야)</label><input id="p-place" placeholder="예: 포켓몬 게임, 교실"></div>
+      <div class="fld"><label>무엇이</label><input id="p-obj" placeholder="예: 학생들이"></div>
+      <div class="fld"><label>언제 (없어도 돼)</label><input id="p-when" placeholder="예: 점심시간에"></div>
+      <div class="fld"><label>어떻게 변하나</label><input id="p-chg" placeholder="예: 몰린다"></div>
+    </div>
+    <div class="target" id="p-target"></div>
+    <div class="cloudlab">무엇이 <small>칸을 누른 뒤 낱말을 누르면 들어가</small></div><div class="cloud" id="cl-obj"></div>
+    <div class="cloudlab">언제</div><div class="cloud" id="cl-when"></div>
+    <div class="cloudlab">어떻게 변하나</div><div class="cloud" id="cl-chg"></div>
+    <div class="cloudlab" style="margin-top:16px; font-size:14.5px; color:var(--ink)">마지막으로, 이 변화는 어떤 종류에 가까워? <small>쓴 말을 보고 자동으로 골라 줘. 틀리면 직접 바꿔</small></div>
+    <div class="optrow" id="p-type"></div>
+    <div class="preview empty" id="p-prev"></div>
+    <div class="hint" id="p-note" style="margin-top:6px"></div>
+    <div class="actions" style="margin-top:10px"><button class="btn" id="p-add">이 현상 추가</button></div>
+  </div>
+  <div class="panel">
+    <h3>내가 찾은 현상</h3>
+    <ul class="phenlist" id="phenList"></ul>
+    <div class="count" id="cnt-phen"></div>
+  </div>
+</section>
+
+<!-- STEP 3 -->
+<section class="step" data-t="실험 질문">
+  <div class="stephead"><div class="bignum">3</div><div><h2>실험 질문 만들기</h2><div class="why">현상마다 <b>"무엇을 바꾸면 결과가 달라질까?"</b>를 생각해. 바꾸는 것은 <b>입력 변수</b>(슬라이더로 바꿀 값), 결과로 나오는 숫자는 <b>출력 값</b>이야. 현상마다 어울리는 예시가 칸 바로 아래에 있어.</div><div class="goal">목표: 실험 질문 1개 이상 (2개면 더 좋아)</div></div></div>
+  <div id="qcards"></div>
+  <div class="count" id="cnt-q"></div>
+</section>
+
+<!-- STEP 4 -->
+<section class="step" data-t="확인하기">
+  <div class="stephead"><div class="bignum">4</div><div><h2>시뮬레이션에 맞는지 확인하기</h2><div class="why">가장 마음에 드는 질문 <b>하나만</b> 골라서 두 가지에 답하면 돼.</div><div class="goal">목표: 질문 1개 고르고 두 가지 답하기</div></div></div>
+  <div class="panel">
+    <h3>1) 질문 고르기</h3>
+    <div id="pickq"></div>
+  </div>
+  <div class="panel" id="autoBox"></div>
+  <div class="panel">
+    <h3>2) 시뮬레이션에서 한 단계는 얼마로 할까?</h3>
+    <div class="hint">결과가 <b>눈에 띄게 변하는 데 걸리는 시간</b>을 골라. 줄은 몇 분이면 길어지고, 키나 작물은 며칠이 걸리지? 잘 모르겠으면 <b>노란 테두리</b>(내 현상에 어울리는 추천)를 골라.</div>
+    <div class="optrow" id="opt-time"></div>
+    <div class="fix" id="fix-time">한 번 계산하면 끝나는 문제는 시뮬레이션보다 계산기가 어울려. "하루 동안", "쉬는 시간 10분 동안"처럼 시간이 흐르는 상황으로 생각해 보거나 다른 질문을 골라 봐. 그래도 진행은 할 수 있어.</div>
+  </div>
+  <div class="panel">
+    <h3>3) 왜 직접 실험하기 어려워?</h3>
+    <div class="hint">여러 개 골라도 돼. 다음 단계의 문장 2에 그대로 들어가.</div>
+    <div class="optrow" id="opt-reason"></div>
+    <div class="addrow" style="margin-top:8px"><input id="reasonOwn" placeholder="직접 쓰기 (예: 실제 응급실에서 의사 수를 마음대로 바꿀 수 없기)"></div>
+    <div class="fix" id="fix-reason">직접 해 보면 금방 알 수 있다면 실제 실험이 더 정확해. 규모를 키우거나(전교생, 한 달) 위험하거나 돈이 드는 상황으로 바꿔 생각해 봐. 그래도 진행은 할 수 있어.</div>
+  </div>
+  <div class="note warn"><span class="nt">고를 수 없는 주제</span>수업 실습 예시인 산불은 고를 수 없어.</div>
+  <div class="verdict" id="v4"></div>
+</section>
+
+<!-- STEP 5 -->
+<section class="step" data-t="주제 카드">
+  <div class="stephead"><div class="bignum">5</div><div><h2>문제 정의하고 주제 카드 만들기</h2><div class="why">앞에서 고른 내용이 문장에 자동으로 들어가 있어. <b>문장 1만 고르거나 쓰면</b> 돼. 이게 교과서의 <b>① 문제 정의</b>야.</div><div class="goal">목표: 세 문장 완성 + 입력 변수 범위 + 제출</div></div></div>
+  <div class="note warn"><span class="nt">꼭 오늘 제출해</span>입력한 내용은 이 컴퓨터에만 저장돼. 다음 시간에 다른 자리에 앉으면 보이지 않으니, 끝나면 바로 주제 카드를 복사해 클래스룸에 제출해.</div>
+  <div class="sent"><div class="lab">문장 1 · 불편했던 점, 궁금했던 점 (아래에서 하나 고른 뒤 <b>내 경험에 맞게 고쳐 써</b>)</div><div class="line">나는 <input id="s1" placeholder="아래 문장을 누르거나 직접 써"> 때문에 불편했다(궁금했다).</div>
+    <div style="margin-top:8px" id="starters"></div></div>
+  <div class="sent"><div class="lab">문장 2 · 직접 실험하기 어려운 이유 (4단계에서 자동, 고쳐 써도 돼)</div><div class="line">이 문제는 <input id="s2"> 때문에 직접 실험하기 어려워서 시뮬레이션으로 알아보려고 한다.</div></div>
+  <div class="sent"><div class="lab">문장 3 · 알아볼 것 (3단계에서 자동)</div><div class="line">그래서 <input id="s3a" readonly> 을/를 바꾸면 <input id="s3b" readonly> 이/가 어떻게 변하는지 확인하려고 한다.</div></div>
+  <div class="sent"><div class="lab">입력 변수의 범위 · 실제로 있을 법한 가장 작은 값 ~ 가장 큰 값</div>
+    <div class="grid2"><div class="fld"><label id="rl1">입력 변수 1</label><input id="rng1" placeholder="예: 1 ~ 5명"><div class="optrow" id="rr1"></div></div><div class="fld"><label id="rl2">입력 변수 2</label><input id="rng2" placeholder="예: 1 ~ 10분"><div class="optrow" id="rr2"></div></div></div>
+  </div>
+
+  <div class="exit" id="exitcard">
+    <h3>내 시뮬레이션 주제 카드</h3>
+    <div class="idrow noprint"><input id="sid" placeholder="학번"><input id="sname" placeholder="이름"></div>
+    <table>
+      <tr><th>학번 · 이름</th><td id="x-id"></td></tr>
+      <tr><th>현상</th><td id="x-ph"></td></tr>
+      <tr><th>실험 질문</th><td id="x-q"></td></tr>
+      <tr><th>입력 변수 (범위)</th><td id="x-in"></td></tr>
+      <tr><th>출력 값</th><td id="x-out"></td></tr>
+      <tr><th>한 단계</th><td id="x-time"></td></tr>
+      <tr><th>문제 정의</th><td id="x-def"></td></tr>
+    </table>
+    <div class="actions">
+      <button class="btn" id="copyBtn">주제 카드 복사하기</button>
+      <button class="btn ghost" id="printBtn">인쇄하기</button>
+    </div>
+    <div class="hint noprint" style="margin-top:8px">복사한 내용을 클래스룸 과제에 붙여 넣어 제출해. 선생님이 "통과" 또는 "보완"으로 돌려줄 거야.</div>
+  </div>
+</section>
+
+<div class="gate" id="gate"></div>
+<div class="stepnav">
+  <button class="navbtn" id="prev">이전</button>
+  <button class="navbtn primary" id="next">다음 단계</button>
+</div>
+</main>
+
+<footer>소프트웨어와 생활 · 4단원 시뮬레이션 · 문제 정의(주제 선정) 활동 · 입력한 내용은 이 컴퓨터의 브라우저에만 저장돼.</footer>
+
+<script>
+(function(){
+  var KEY='simTopic.v7';
+  var BR={daily:'일상',interest:'관심사',career:'진로'};
+  var WORDS={
+    daily:['급식실','엘리베이터','화장실','교실','복도','도서관','운동장','편의점','학원','휴대폰','와이파이','택배','집 냉장고','분리수거장','체육관','카페','세탁기','정수기','학교 축제'],
+    interest:['포켓몬','야구','홍균','콘서트','아이돌 굿즈','유튜브','SNS','게임','반려동물','헬스','축구','캠핑','팝업 스토어','중고 거래','영화관','웹툰','날씨','e스포츠','용돈','요리','여행','패션','놀이공원'],
+    career:['프로그래머','서버','생명공학자','실험실','화학공학자','공장','운동선수','경기장','간호사','응급실','약사','약국','의사','병원','셰프','식당','카페 사장','카페','건축가','건물','물류 관리자','물류 센터','공연기획자','공연장','호텔리어','호텔','트레이너','헬스장','교사','학교','농업연구원','농장','은행원','은행','항공 승무원','공항']
+  };
+  var JOBS={'간호사':['응급실','병원'],'의사':['병원','응급실'],'약사':['약국'],'셰프':['식당'],'카페 사장':['카페'],'건축가':['건물'],'물류 관리자':['물류 센터'],'공연기획자':['공연장'],'호텔리어':['호텔'],'트레이너':['헬스장'],'교사':['학교','교실'],'농업연구원':['농장'],'은행원':['은행'],'항공 승무원':['공항'],
+    '소방관':['건물'],'포켓몬':['포켓몬 게임'],'야구':['야구 경기'],'축구':['축구 경기'],'e스포츠':['e스포츠 경기'],'날씨':['우리 동네 날씨'],'용돈':['내 용돈'],'헬스':['헬스장'],'캠핑':['캠핑장'],'반려동물':['우리 집 반려동물'],'아이돌 굿즈':['아이돌 굿즈 판매처'],'웹툰':['웹툰 플랫폼'],'콘서트':['콘서트장'],'중고 거래':['중고 거래 앱'],'요리':['부엌'],'여행':['여행지'],'패션':['옷 가게'],'세탁기':['빨래방'],'정수기':['정수기 앞'],'택배':['택배 센터'],'생명공학자':['실험실'],'화학공학자':['공장','실험실'],'홍균':['홍균 쌤 교무실'],'경찰':['행사장'],'마케터':['가게'],'프로그래머':['서버'],'기상예보관':['날씨'],'수의사':['동물병원'],'사회복지사':['복지관'],'환경공학자':['강','공장'],'물리치료사':['재활센터'],'운동선수':['경기장'],'승무원':['공항'],'유튜버':['유튜브'],'디자이너':['팝업 스토어'],'회계사':['가게'],'창업가':['가게']};
+  var CL={
+    obj:['학생들이','손님들이','사람들이','환자들이','관객들이','선수들이','줄이','대기 줄이','빈자리가','공기가','온도가','습도가','이산화탄소가','미세먼지가','소음이','소문이','유행이','배터리가','돈이','가격이','물이','음식이','쓰레기가','재고가','체력이','근력이','몸무게가','조회수가','댓글이','냄새가','택배가','주문이','속도가','작물이'],
+    when:['쉬는 시간마다','점심시간에','종이 치면','수업 중에','시험 기간에','방학에','행사가 끝나면','주말에','월말에','명절 전에','비 오는 날','여름 오후에','겨울철에','출근 시간에','퇴근 시간에','밤마다','아침마다','할인 기간에','오픈 첫날','시간이 지날수록','사람이 많을수록','쓸수록','운동할수록','공유될수록'],
+    chg:['몰린다','길어진다','짧아진다','늘어난다','줄어든다','쌓인다','퍼진다','바닥난다','모자란다','붐빈다','밀린다','닳는다','자란다','상한다','탁해진다','올라간다','내려간다','떨어진다','빨라진다','느려진다','빨리 팔린다','남는다','흩어진다','오래 걸린다','출구로 몰린다'],
+    unit:['초','분','시간','명','개','%','원','회','kg','cm','℃','ppm']
+  };
+  var EX_RAW=["일상|급식실|줄이|점심시간 시작 직후에|길어진다|queue|1분에 오는 학생 수@5 ~ 40명;배식대 수@1 ~ 4개;한 명 배식 시간@5 ~ 30초|줄 선 학생 수@명;기다리는 시간@분", "일상|급식실|인기 반찬이|배식 후반으로 갈수록|바닥난다|deplete|처음 준비한 양@100 ~ 600인분;한 명이 가져가는 양@1 ~ 3인분;학생 수@100 ~ 600명|남은 반찬 양@인분;못 받은 학생 수@명", "일상|급식실|잔반이|점심시간 동안|쌓인다|pile|학생 수@100 ~ 600명;한 명이 남기는 양@0 ~ 200g;좋아하는 메뉴 비율@0 ~ 100%|잔반 양@kg;잔반 비율@%", "일상|엘리베이터|사람들이|출근 시간에|밀린다|queue|1분에 오는 사람 수@5 ~ 50명;엘리베이터 수@1 ~ 4대;한 번에 타는 인원@5 ~ 20명|기다리는 시간@분;대기 인원@명", "일상|엘리베이터|한 번 오는 데 걸리는 시간이|층이 높을수록|길어진다|queue|건물 층수@5 ~ 50층;서는 층 수@1 ~ 20층;엘리베이터 속도@1 ~ 5m/초|도착까지 걸린 시간@초;층마다 기다린 시간@초", "일상|화장실|줄이|쉬는 시간에|길어진다|queue|1분에 오는 학생 수@1 ~ 20명;칸 수@2 ~ 10칸;한 명 이용 시간@1 ~ 5분|줄 선 학생 수@명;기다리는 시간@분", "일상|화장실|휴지가|하루 동안|줄어든다|deplete|하루 이용 인원@50 ~ 500명;한 번 쓰는 양@1 ~ 5칸;채우는 횟수@0 ~ 3회|남은 휴지 양@%;휴지 떨어진 시간@분", "일상|교실|이산화탄소가|수업 중에|쌓인다|pile|학생 수@10 ~ 35명;환기 횟수@0 ~ 6회;창문 여는 시간@0 ~ 50분|이산화탄소 농도@ppm;기준 넘은 시간@분", "일상|교실|온도가|여름 오후에|올라간다|grow|에어컨 설정 온도@18 ~ 30℃;학생 수@10 ~ 35명;햇빛 드는 시간@0 ~ 6시간|교실 온도@℃;더운 시간@분", "일상|교실|졸음이|점심 먹은 뒤에|퍼진다|spread|학생 수@10 ~ 35명;환기 횟수@0 ~ 6회;옆 친구에게 옮을 확률@0 ~ 100%|조는 학생 수@명;조는 학생 비율@%", "일상|복도|학생들이|종이 치면|한꺼번에 몰린다|queue|한꺼번에 나오는 학생 수@30 ~ 300명;복도 폭@1 ~ 5m;계단 수@1 ~ 4개|모두 지나가는 시간@초;막히는 지점 인원@명", "일상|복도|소음이|쉬는 시간마다|커진다|pile|복도에 있는 학생 수@10 ~ 200명;떠드는 학생 비율@0 ~ 100%;벽 흡음재 비율@0 ~ 100%|소음 크기@dB;시끄러운 시간@분", "일상|도서관|빈자리가|시험 기간에|줄어든다|deplete|좌석 수@20 ~ 200석;1시간에 오는 학생 수@5 ~ 100명;한 명 머무는 시간@1 ~ 5시간|빈자리 수@개;자리 없어 돌아간 학생 수@명", "일상|도서관|인기 책 예약 줄이|방학 전에|길어진다|queue|같은 책 권수@1 ~ 5권;하루 예약 인원@1 ~ 20명;대출 기간@3 ~ 14일|예약 대기 인원@명;받기까지 걸린 날@일", "일상|운동장|학생들이|점심시간에|한꺼번에 몰린다|queue|나오는 학생 수@20 ~ 300명;출입문 수@1 ~ 4개;운동장 넓이@1000 ~ 10000㎡|자리 다툼 횟수@회;운동장 사람 밀도@명/100㎡", "일상|운동장|흙먼지가|바람 부는 날|퍼진다|spread|바람 세기@0 ~ 10m/초;물 뿌린 양@0 ~ 100L;뛰는 학생 수@0 ~ 100명|먼지 퍼진 넓이@㎡;미세먼지 농도@㎍/㎥", "일상|운동장|공이|축구 경기 중|골대 쪽으로 몰린다|queue|선수 수@6 ~ 22명;패스 성공 확률@0 ~ 100%;골대 크기@1 ~ 3배|골 수@골;공 점유율@%", "일상|편의점|삼각김밥이|아침마다|바닥난다|deplete|처음 진열 개수@10 ~ 100개;1분에 오는 손님 수@1 ~ 10명;사는 확률@0 ~ 100%|남은 개수@개;품절까지 걸린 시간@분", "일상|편의점|계산 줄이|등교 시간에|길어진다|queue|1분에 오는 손님 수@1 ~ 15명;계산대 수@1 ~ 3개;한 명 계산 시간@10 ~ 60초|줄 선 손님 수@명;기다리는 시간@분", "일상|학원|자습실 빈자리가|시험 전 주말에|줄어든다|deplete|좌석 수@10 ~ 80석;1시간에 오는 학생 수@1 ~ 30명;한 명 머무는 시간@1 ~ 6시간|빈자리 수@개;못 앉은 학생 수@명", "일상|학원|질문하려는 학생 줄이|수업 끝나고|길어진다|queue|질문하는 학생 수@1 ~ 20명;선생님 수@1 ~ 3명;질문 하나 답하는 시간@1 ~ 10분|기다리는 시간@분;못 물어본 학생 수@명", "일상|휴대폰|배터리가|게임을 할수록|닳는다|deplete|화면 밝기@0 ~ 100%;게임 시간@0 ~ 300분;켜 둔 앱 수@1 ~ 20개|남은 배터리@%;다 닳기까지 걸린 시간@분", "일상|휴대폰|저장 공간이|사진을 찍을수록|줄어든다|deplete|하루 찍는 사진 수@0 ~ 100장;사진 한 장 크기@1 ~ 10MB;지우는 비율@0 ~ 100%|남은 저장 공간@GB;꽉 차기까지 걸린 날@일", "일상|휴대폰|알림이|단톡방에서|쌓인다|pile|단톡방 수@1 ~ 30개;1시간 메시지 수@0 ~ 300개;확인하는 간격@1 ~ 120분|안 읽은 알림 수@개;확인에 쓴 시간@분", "일상|와이파이|속도가|접속자가 많을수록|느려진다|load|동시 접속자 수@1 ~ 100명;공유기 수@1 ~ 5대;한 명이 쓰는 데이터 양@1 ~ 50Mbps|1명당 속도@Mbps;끊긴 사람 수@명", "일상|택배 센터|배송이|명절 전에|밀린다|queue|하루 들어오는 택배 수@1000 ~ 50000개;배송 기사 수@5 ~ 100명;한 명 하루 배송 수@50 ~ 300개|밀린 택배 수@개;평균 배송 시간@일", "일상|택배 센터|상자가|할인 행사 뒤에|쌓인다|pile|하루 들어오는 상자 수@1000 ~ 50000개;분류 기계 수@1 ~ 10대;한 시간 분류 개수@100 ~ 3000개|쌓인 상자 수@개;다 처리하는 시간@시간", "일상|집 냉장고|음식이|시간이 지날수록|상한다|grow|냉장고 온도@0 ~ 10℃;문 여는 횟수@0 ~ 30회;음식 넣은 양@0 ~ 100%|상한 음식 비율@%;먹을 수 있는 날@일", "일상|집 냉장고|우유가|한 주 동안|줄어든다|deplete|가족 수@1 ~ 6명;하루 마시는 양@0 ~ 1000ml;사 오는 간격@1 ~ 7일|남은 우유 양@ml;떨어진 날 수@일", "일상|분리수거장|쓰레기가|주말 동안|쌓인다|pile|세대 수@10 ~ 500세대;한 세대 버리는 양@1 ~ 10kg;수거 간격@1 ~ 7일|쌓인 쓰레기 양@kg;넘친 날 수@일", "일상|분리수거장|재활용률이|안내문을 붙인 뒤|올라간다|grow|안내문 수@0 ~ 10장;제대로 분리하는 확률@0 ~ 100%;세대 수@10 ~ 500세대|재활용률@%;잘못 버린 양@kg", "일상|체육관|습도가|비 오는 날|올라간다|grow|운동하는 사람 수@0 ~ 100명;제습기 수@0 ~ 4대;문 여는 시간@0 ~ 60분|습도@%;미끄러운 시간@분", "일상|체육관|농구 코트 대기 팀이|점심시간에|늘어난다|queue|오는 팀 수@1 ~ 10팀;코트 수@1 ~ 3면;한 경기 시간@5 ~ 20분|기다리는 팀 수@팀;기다리는 시간@분", "일상|카페|주문이|출근 시간에|밀린다|queue|1분에 오는 손님 수@1 ~ 10명;바리스타 수@1 ~ 4명;음료 하나 만드는 시간@1 ~ 5분|밀린 주문 수@개;음료 받기까지 시간@분", "일상|빨래방|세탁기 대기 줄이|주말 저녁에|길어진다|queue|1시간에 오는 사람 수@1 ~ 20명;세탁기 수@2 ~ 20대;한 번 세탁 시간@30 ~ 60분|기다리는 사람 수@명;기다리는 시간@분", "일상|정수기 앞|물 뜨려는 학생들이|체육 시간 뒤에|몰린다|queue|한꺼번에 오는 학생 수@5 ~ 35명;정수기 수@1 ~ 3대;한 명 물 뜨는 시간@5 ~ 30초|줄 선 학생 수@명;기다리는 시간@초", "일상|정수기 앞|물통의 물이|하루 동안|줄어든다|deplete|물통 크기@10 ~ 20L;하루 마시는 학생 수@10 ~ 200명;한 명 마시는 양@100 ~ 500ml|남은 물 양@L;물 떨어진 시간@시", "일상|세탁기|빨래가|장마철에|안 마른다|grow|습도@40 ~ 100%;빨래 양@1 ~ 10kg;선풍기 켠 시간@0 ~ 12시간|빨래 마르는 시간@시간;눅눅한 빨래 비율@%", "관심사|포켓몬 게임|카드 팩 재고가|발매 첫날|바닥난다|deplete|입고량@100 ~ 2000팩;1인당 구매 제한@1 ~ 10팩;1시간에 오는 사람 수@10 ~ 300명|남은 팩 수@개;품절까지 걸린 시간@분", "관심사|포켓몬 게임|배틀 중 체력(HP)이|공격을 받을수록|줄어든다|stamina|상대 공격력@10 ~ 150;내 방어력@10 ~ 150;회복약 개수@0 ~ 5개|남은 체력@%;버틴 턴 수@턴", "관심사|포켓몬 게임|레어 포켓몬 수가|이벤트 기간에|늘어난다|grow|레어 등장 확률@0 ~ 10%;하루 플레이 시간@0 ~ 300분;이벤트 기간@1 ~ 14일|모은 레어 포켓몬 수@마리;처음 만날 때까지 시간@분", "관심사|야구 경기|투수 체력이|이닝이 늘어날수록|떨어진다|stamina|한 이닝 투구 수@10 ~ 40개;쉬고 나온 날 수@1 ~ 7일;공의 빠르기@120 ~ 160km/h|남은 체력@%;버틴 이닝 수@회", "관심사|야구 경기|입장 대기 줄이|경기 시작 직전에|길어진다|queue|1분에 오는 관중 수@10 ~ 500명;입장 게이트 수@2 ~ 20개;한 명 입장 시간@3 ~ 20초|줄 선 관중 수@명;입장까지 걸린 시간@분", "관심사|야구 경기|응원 열기가|역전 찬스에|퍼진다|spread|관중 수@1000 ~ 25000명;응원단 수@1 ~ 10명;따라 할 확률@0 ~ 100%|응원하는 관중 수@명;응원 퍼진 시간@초", "관심사|홍균 쌤 교무실|질문하러 온 학생들이|수행평가 전날|몰린다|queue|1분에 오는 학생 수@0 ~ 10명;답해 주는 선생님 수@1 ~ 3명;질문 하나 답하는 시간@1 ~ 10분|기다리는 학생 수@명;기다리는 시간@분", "관심사|콘서트장|관객들이|공연이 끝나면|출구로 몰린다|queue|관객 수@500 ~ 20000명;출구 수@2 ~ 20개;출구 폭@1 ~ 5m|모두 나가는 시간@분;출구 앞 밀집 인원@명", "관심사|콘서트장|티켓 예매 대기 순번이|예매 시작 직후에|밀린다|load|동시 접속자 수@1000 ~ 500000명;서버 수@1 ~ 20대;1초에 처리하는 예매 수@10 ~ 1000건|내 대기 순번@번;예매 성공 확률@%", "관심사|아이돌 굿즈 판매처|재고가|판매 시작 직후|바닥난다|deplete|처음 재고@100 ~ 5000개;1분에 오는 팬 수@10 ~ 500명;1인당 구매 제한@1 ~ 5개|남은 재고@개;품절까지 걸린 시간@분", "관심사|아이돌 굿즈 판매처|대기 줄이|오픈 전부터|길어진다|queue|1분에 오는 팬 수@5 ~ 200명;계산대 수@1 ~ 10개;한 명 계산 시간@30 ~ 180초|줄 선 사람 수@명;기다리는 시간@분", "관심사|유튜브|조회수가|공유될수록|늘어난다|spread|처음 본 사람 수@10 ~ 1000명;공유할 확률@0 ~ 50%;한 명이 공유하는 친구 수@1 ~ 20명|조회수@회;10만 회까지 걸린 시간@시간", "관심사|유튜브|구독자 수가|영상을 올릴수록|늘어난다|grow|한 주 업로드 수@0 ~ 7개;영상 하나 조회수@100 ~ 100000회;구독할 확률@0 ~ 10%|구독자 수@명;1만 명까지 걸린 주@주", "관심사|SNS|유행 챌린지가|친구들 사이에서|퍼진다|spread|처음 따라 한 사람 수@1 ~ 50명;친구 수@10 ~ 500명;따라 할 확률@0 ~ 50%|참여한 사람 수@명;유행이 식기까지 걸린 날@일", "관심사|SNS|가짜 뉴스가|하루 만에|퍼진다|spread|처음 퍼뜨린 계정 수@1 ~ 50개;공유할 확률@0 ~ 50%;사실 확인하는 비율@0 ~ 100%|본 사람 수@명;믿은 사람 비율@%", "관심사|게임|접속 대기 줄이|업데이트 날|길어진다|load|동시 접속자 수@1000 ~ 200000명;서버 수@1 ~ 50대;1초에 들어가는 인원@10 ~ 1000명|대기 인원@명;접속까지 걸린 시간@분", "관심사|게임|캐릭터 레벨이|사냥할수록|올라간다|grow|한 마리당 경험치@1 ~ 100;1분에 잡는 몬스터 수@1 ~ 20마리;경험치 부스트@1 ~ 3배|캐릭터 레벨@레벨;만렙까지 걸린 시간@시간", "관심사|게임|게임 속 돈이|아이템을 살수록|줄어든다|deplete|처음 가진 돈@1000 ~ 100000골드;아이템 가격@100 ~ 10000골드;하루 버는 돈@0 ~ 10000골드|남은 돈@골드;돈 떨어진 날@일", "관심사|우리 집 반려동물|몸무게가|간식을 줄수록|늘어난다|grow|하루 간식 횟수@0 ~ 10회;산책 시간@0 ~ 120분;사료 양@50 ~ 500g|몸무게@kg;비만이 되기까지 걸린 날@일", "관심사|우리 집 반려동물|털이|봄철에|집 안에 쌓인다|pile|빗질 횟수@0 ~ 7회;청소 간격@1 ~ 7일;반려동물 수@1 ~ 4마리|쌓인 털 양@g;청소한 횟수@회", "관심사|헬스장|근력이|운동할수록|늘어난다|grow|주당 운동 횟수@0 ~ 7회;한 번 드는 무게@5 ~ 100kg;쉬는 날 수@0 ~ 3일|근력@kg;목표까지 걸린 주@주", "관심사|헬스장|기구 대기 줄이|퇴근 시간에|길어진다|queue|1시간에 오는 사람 수@5 ~ 100명;기구 수@1 ~ 10대;한 명 사용 시간@5 ~ 30분|기다리는 사람 수@명;기다리는 시간@분", "관심사|축구 경기|선수 체력이|경기 후반으로 갈수록|떨어진다|stamina|교체 횟수@0 ~ 5회;뛰는 거리@5 ~ 13km;하프타임 휴식 시간@10 ~ 20분|남은 체력@%;실수한 횟수@회", "관심사|축구 경기|골 기회가|패스가 많아질수록|늘어난다|grow|패스 성공 확률@0 ~ 100%;공격 선수 수@1 ~ 6명;슈팅 성공 확률@0 ~ 50%|슈팅 수@회;골 수@골", "관심사|캠핑장|장작이|밤 동안|줄어든다|deplete|처음 장작 양@5 ~ 50kg;1시간에 태우는 양@1 ~ 5kg;바람 세기@0 ~ 10m/초|남은 장작 양@kg;불 꺼진 시각@시", "관심사|캠핑장|모기가|해 질 녘에|몰린다|queue|사람 수@1 ~ 30명;모기향 개수@0 ~ 5개;습도@40 ~ 100%|물린 횟수@회;모기 수@마리", "관심사|팝업 스토어|대기 줄이|오픈 첫날|길어진다|queue|1분에 오는 사람 수@1 ~ 100명;한 번에 들어가는 인원@5 ~ 50명;매장 머무는 시간@5 ~ 30분|줄 선 사람 수@명;입장까지 걸린 시간@분", "관심사|중고 거래 앱|물건 가격이|시간이 지날수록|내려간다|deplete|처음 가격@1000 ~ 500000원;하루 깎는 비율@0 ~ 10%;관심 누른 사람 수@0 ~ 50명|팔린 가격@원;팔리기까지 걸린 날@일", "관심사|영화관|빈 좌석이|개봉 첫 주에|줄어든다|deplete|상영관 좌석 수@50 ~ 400석;하루 상영 횟수@1 ~ 10회;예매할 확률@0 ~ 100%|남은 좌석 수@석;매진된 상영 수@회", "관심사|영화관|팝콘 줄이|상영 시작 직전에|길어진다|queue|1분에 오는 관객 수@1 ~ 30명;매점 직원 수@1 ~ 4명;한 명 주문 시간@30 ~ 120초|줄 선 사람 수@명;기다리는 시간@분", "관심사|웹툰 플랫폼|댓글이|새 화가 올라오면|빠르게 늘어난다|spread|구독자 수@1000 ~ 1000000명;댓글 달 확률@0 ~ 10%;업로드 간격@1 ~ 14일|댓글 수@개;1000개까지 걸린 시간@분", "관심사|우리 동네 날씨|미세먼지가|바람이 없는 날|쌓인다|pile|바람 세기@0 ~ 10m/초;차 대신 공장 배출량@0 ~ 100%;비 오는 양@0 ~ 50mm|미세먼지 농도@㎍/㎥;나쁨 단계 시간@시간", "관심사|우리 동네 날씨|기온이|한낮으로 갈수록|올라간다|grow|햇빛 세기@0 ~ 100%;나무 그늘 비율@0 ~ 100%;아스팔트 비율@0 ~ 100%|최고 기온@℃;폭염 시간@시간", "관심사|e스포츠 경기|응원 채팅이|경기 막판에|폭발적으로 늘어난다|spread|시청자 수@1000 ~ 1000000명;채팅 칠 확률@0 ~ 20%;접전 정도@1 ~ 10단계|1분 채팅 수@개;최고 채팅 수@개", "관심사|내 용돈|남은 돈이|한 달 동안|줄어든다|deplete|한 달 용돈@10000 ~ 200000원;하루 쓰는 돈@0 ~ 20000원;저축 비율@0 ~ 50%|남은 돈@원;돈 떨어진 날@일", "관심사|부엌|냄비 속 물이|끓일수록|줄어든다|deplete|처음 물 양@0.5 ~ 3L;불 세기@1 ~ 10단계;뚜껑 덮는 비율@0 ~ 100%|남은 물 양@L;물 다 끓는 시간@분", "관심사|부엌|음식 온도가|식탁에 둔 뒤|내려간다|deplete|처음 온도@40 ~ 100℃;방 온도@10 ~ 30℃;그릇 두께@1 ~ 10mm|음식 온도@℃;식기까지 걸린 시간@분", "관심사|여행지|관광객이|연휴 첫날|몰린다|queue|하루 관광객 수@100 ~ 50000명;입장 게이트 수@1 ~ 10개;입장료@0 ~ 50000원|대기 인원@명;입장까지 걸린 시간@분", "관심사|여행지|숙소 빈방이|성수기에|줄어든다|deplete|방 수@10 ~ 500개;하루 예약 수@1 ~ 200건;숙박 가격@30000 ~ 300000원|남은 방 수@개;만실까지 걸린 날@일", "관심사|옷 가게|인기 옷 재고가|신상품 출시 후|바닥난다|deplete|처음 재고@50 ~ 1000벌;하루 오는 손님 수@10 ~ 500명;살 확률@0 ~ 50%|남은 재고@벌;품절까지 걸린 날@일", "관심사|옷 가게|유행이|SNS 사진이 퍼지면|퍼진다|spread|인플루언서 팔로워 수@1000 ~ 1000000명;따라 살 확률@0 ~ 10%;옷 가격@10000 ~ 100000원|산 사람 수@명;유행 지속 기간@일", "관심사|놀이공원|대기 시간이|주말 낮에|길어진다|queue|1시간에 오는 사람 수@50 ~ 2000명;한 번 태우는 인원@4 ~ 40명;운행 시간@1 ~ 10분|기다리는 시간@분;줄 선 사람 수@명", "관심사|놀이공원|입장객이|오픈 시간에|입구로 몰린다|queue|오픈 시각 대기 인원@100 ~ 5000명;입장 게이트 수@2 ~ 20개;한 명 입장 시간@5 ~ 30초|모두 들어가는 시간@분;입구 앞 인원@명", "진로|서버|접속 대기 줄이|이벤트 오픈 직후|길어진다|load|동시 접속자 수@1000 ~ 500000명;서버 수@1 ~ 50대;1초에 처리하는 요청 수@100 ~ 10000건|대기 인원@명;접속까지 걸린 시간@초", "진로|서버|처리 속도가|접속자가 많을수록|느려진다|load|동시 접속자 수@100 ~ 100000명;서버 수@1 ~ 20대;캐시 사용 비율@0 ~ 100%|응답 시간@초;접속 실패 비율@%", "진로|서버|오류 신고가|업데이트 직후에|쌓인다|pile|하루 사용자 수@1000 ~ 1000000명;오류 날 확률@0 ~ 5%;고치는 개발자 수@1 ~ 20명|쌓인 오류 신고 수@건;다 고치는 데 걸린 날@일", "진로|실험실|배양 접시의 세균 수가|시간이 지날수록|늘어난다|grow|온도@10 ~ 45℃;영양분 양@0 ~ 10g;처음 세균 수@1 ~ 100마리|세균 수@마리;두 배 되는 시간@분", "진로|실험실|생성물의 양이|온도가 높을수록|빨리 늘어난다|grow|반응 온도@10 ~ 100℃;원료 농도@0 ~ 100%;촉매 양@0 ~ 10g|생성물 양@g;반응 끝나는 시간@분", "진로|실험실|효모 거품이|설탕을 넣으면|부풀어 오른다|grow|설탕 양@0 ~ 50g;물 온도@10 ~ 50℃;효모 양@1 ~ 20g|거품 높이@cm;최고 높이까지 걸린 시간@분", "진로|공장|원료 재고가|생산할수록|줄어든다|deplete|하루 생산량@100 ~ 10000개;제품 하나 원료 양@0.1 ~ 5kg;원료 들어오는 간격@1 ~ 14일|남은 원료@kg;생산 멈춘 날 수@일", "진로|공장|불량품이|기계가 오래될수록|늘어난다|grow|기계 사용 기간@0 ~ 20년;점검 간격@1 ~ 90일;작업 속도@50 ~ 150%|불량률@%;불량품 수@개", "진로|공장|탱크 속 압력이|온도가 오를수록|올라간다|grow|가열 온도@20 ~ 300℃;탱크 크기@1 ~ 100㎥;배출 밸브 여는 정도@0 ~ 100%|탱크 압력@기압;위험 수준 넘은 시간@분", "진로|경기장|선수 체력이|경기 후반으로 갈수록|떨어진다|stamina|교체 횟수@0 ~ 5회;경기 시간@40 ~ 120분;평소 훈련량@0 ~ 20시간|남은 체력@%;부상 위험@%", "진로|경기장|관중이|경기가 끝나면|출구로 몰린다|queue|관중 수@1000 ~ 60000명;출구 수@4 ~ 40개;출구 폭@1 ~ 6m|모두 나가는 시간@분;출구 앞 밀집 인원@명", "진로|경기장|기록이|훈련할수록|빨라진다|grow|주당 훈련 시간@0 ~ 30시간;쉬는 날 수@0 ~ 3일;훈련 강도@1 ~ 10단계|100m 기록@초;목표 기록까지 걸린 주@주", "진로|응급실|환자들이|밤마다|몰린다|queue|1시간에 오는 환자 수@1 ~ 30명;의사 수@1 ~ 8명;환자 한 명 진료 시간@5 ~ 60분|기다리는 시간@분;대기 환자 수@명", "진로|응급실|빈 병상이|겨울철에|모자란다|deplete|병상 수@10 ~ 100개;하루 입원 환자 수@1 ~ 50명;평균 입원 기간@1 ~ 14일|남은 병상 수@개;받지 못한 환자 수@명", "진로|병원|진료 대기 줄이|오전 진료 시작 때|길어진다|queue|1시간에 오는 환자 수@5 ~ 60명;진료실 수@1 ~ 10개;한 명 진료 시간@3 ~ 20분|기다리는 시간@분;대기 환자 수@명", "진로|약국|처방전 대기 줄이|병원 점심시간 뒤에|길어진다|queue|1시간에 오는 손님 수@5 ~ 60명;약사 수@1 ~ 4명;약 하나 조제 시간@1 ~ 10분|기다리는 시간@분;대기 손님 수@명", "진로|약국|감기약 재고가|환절기에|바닥난다|deplete|처음 재고@50 ~ 1000개;하루 판매량@5 ~ 200개;주문 간격@1 ~ 14일|남은 재고@개;품절된 날 수@일", "진로|식당|손님이|점심시간에|몰린다|queue|1분에 오는 손님 수@0 ~ 10명;테이블 수@5 ~ 50개;한 팀 식사 시간@20 ~ 90분|기다리는 팀 수@팀;기다리는 시간@분", "진로|식당|주방 주문이|단체 손님이 오면|밀린다|queue|한꺼번에 들어온 주문 수@5 ~ 100개;요리사 수@1 ~ 8명;음식 하나 조리 시간@3 ~ 30분|밀린 주문 수@개;음식 나오기까지 시간@분", "진로|식당|식재료가|주말 장사 후|바닥난다|deplete|처음 식재료 양@10 ~ 200kg;하루 손님 수@20 ~ 500명;한 명당 쓰는 양@0.1 ~ 1kg|남은 식재료@kg;재료 떨어진 시각@시", "진로|카페|원두가|한 주 동안|줄어든다|deplete|처음 원두 양@1 ~ 30kg;하루 커피 판매 수@50 ~ 1000잔;한 잔 원두 양@10 ~ 30g|남은 원두@kg;주문해야 하는 날@일", "진로|카페|좌석이|시험 기간에|가득 찬다|deplete|좌석 수@10 ~ 100석;1시간에 오는 손님 수@5 ~ 100명;한 명 머무는 시간@0.5 ~ 5시간|빈 좌석 수@석;자리 없어 돌아간 손님@명", "진로|건물|사람들이|비상벨이 울리면|출구로 몰린다|queue|건물 안 인원@50 ~ 2000명;비상구 수@1 ~ 10개;계단 폭@1 ~ 4m|모두 대피하는 시간@초;출구 앞 밀집 인원@명", "진로|건물|실내 온도가|겨울 밤 동안|내려간다|deplete|바깥 기온@-20 ~ 10℃;벽 단열 두께@0 ~ 30cm;난방 세기@0 ~ 10단계|실내 온도@℃;10℃ 아래로 떨어진 시간@시간", "진로|물류 센터|택배 상자가|할인 행사 뒤에|쌓인다|pile|하루 들어오는 상자 수@1000 ~ 100000개;작업자 수@10 ~ 500명;로봇 수@0 ~ 100대|쌓인 상자 수@개;다 보내는 데 걸린 날@일", "진로|물류 센터|트럭 대기 줄이|새벽에|길어진다|queue|1시간에 오는 트럭 수@1 ~ 50대;하역장 수@1 ~ 20개;트럭 한 대 하역 시간@10 ~ 60분|기다리는 트럭 수@대;기다리는 시간@분", "진로|공연장|관객이|입장 시간에|입구로 몰린다|queue|관객 수@100 ~ 5000명;입장 게이트 수@1 ~ 10개;티켓 확인 시간@3 ~ 20초|입구 대기 인원@명;모두 입장하는 시간@분", "진로|공연장|매진 소식이|예매 첫날|퍼진다|spread|처음 아는 사람 수@10 ~ 1000명;공유할 확률@0 ~ 50%;좌석 수@100 ~ 5000석|아는 사람 수@명;매진까지 걸린 시간@분", "진로|호텔|빈방이|성수기에|줄어든다|deplete|객실 수@20 ~ 500개;하루 예약 수@1 ~ 200건;평균 숙박 일수@1 ~ 7일|남은 객실@개;만실까지 걸린 날@일", "진로|호텔|체크인 줄이|오후 3시에|길어진다|queue|1시간에 오는 손님 수@5 ~ 100명;프런트 직원 수@1 ~ 6명;한 명 체크인 시간@2 ~ 10분|기다리는 시간@분;대기 손님 수@명", "진로|학교|소문이|친구들 사이에서|퍼진다|spread|처음 아는 학생 수@1 ~ 10명;한 명이 말하는 친구 수@1 ~ 10명;전할 확률@0 ~ 100%|아는 학생 수@명;전교에 퍼지는 시간@시간", "진로|학교|수행평가 제출이|마감 직전에|몰린다|queue|학생 수@30 ~ 300명;미루는 학생 비율@0 ~ 100%;남은 기간@1 ~ 14일|마감 날 제출 수@건;늦게 낸 학생 수@명", "진로|학교|교실 성적이|학습 시간이 늘수록|올라간다|grow|하루 공부 시간@0 ~ 5시간;수면 시간@4 ~ 10시간;질문 횟수@0 ~ 10회|평균 점수@점;목표 점수 도달 학생 수@명", "진로|농장|작물이|물을 줄수록|자란다|grow|하루 물 주는 양@0 ~ 2L;햇빛 시간@0 ~ 12시간;비료 양@0 ~ 50g|작물 키@cm;수확까지 걸린 날@일", "진로|농장|해충이|여름철에|퍼진다|spread|처음 해충 수@1 ~ 100마리;농약 뿌리는 간격@1 ~ 14일;천적 수@0 ~ 50마리|해충 수@마리;피해 입은 작물 비율@%", "진로|은행|대기 시간이|월말에|길어진다|queue|1시간에 오는 손님 수@5 ~ 100명;창구 수@1 ~ 10개;한 명 업무 시간@3 ~ 20분|기다리는 시간@분;대기 손님 수@명", "진로|은행|저축한 돈이|이자가 붙을수록|늘어난다|grow|매달 저축액@1만 ~ 50만원;이자율@0 ~ 10%;저축 기간@1 ~ 60개월|모은 돈@원;목표 금액까지 걸린 달@개월", "진로|공항|출국 심사 줄이|연휴 첫날|길어진다|queue|1시간에 오는 승객 수@100 ~ 5000명;심사대 수@2 ~ 30개;한 명 심사 시간@20 ~ 120초|기다리는 시간@분;대기 승객 수@명", "진로|공항|비행기 탑승이|출발 직전에|몰린다|queue|승객 수@50 ~ 400명;탑승구 수@1 ~ 2개;한 명 탑승 시간@3 ~ 15초|모두 타는 시간@분;늦게 탄 승객 수@명", "진로|헬스장|기구 대기 줄이|퇴근 시간에|길어진다|queue|1시간에 오는 회원 수@5 ~ 100명;러닝머신 수@1 ~ 20대;한 명 사용 시간@10 ~ 60분|기다리는 회원 수@명;기다리는 시간@분", "진로|재활센터|환자 근력이|재활 운동을 할수록|회복된다|grow|주당 재활 횟수@0 ~ 7회;한 번 운동 시간@10 ~ 60분;처음 근력@10 ~ 80%|근력@%;회복까지 걸린 주@주", "진로|동물병원|진료 대기 줄이|주말 오전에|길어진다|queue|1시간에 오는 반려동물 수@1 ~ 20마리;수의사 수@1 ~ 4명;한 마리 진료 시간@5 ~ 30분|기다리는 시간@분;대기 동물 수@마리", "진로|복지관|급식 도시락이|점심 전에|바닥난다|deplete|준비한 도시락 수@20 ~ 300개;찾아오는 어르신 수@20 ~ 300명;봉사자 수@1 ~ 20명|남은 도시락@개;못 받은 사람 수@명", "진로|강|오염 물질이|비가 온 뒤|하류로 퍼진다|spread|흘러든 오염 물질 양@1 ~ 100kg;강물 속도@0.1 ~ 3m/초;정화 시설 수@0 ~ 5개|오염된 구간 길이@km;오염 농도@ppm", "진로|가게|손님이|할인 기간에|몰린다|queue|할인율@0 ~ 70%;계산대 수@1 ~ 6개;평소 손님 수@10 ~ 500명|하루 손님 수@명;기다리는 시간@분", "진로|가게|재고가|할인 기간에|빠르게 줄어든다|deplete|처음 재고@50 ~ 2000개;할인율@0 ~ 70%;하루 손님 수@10 ~ 500명|남은 재고@개;품절까지 걸린 날@일", "일상|학교 축제|부스 대기 줄이|축제 오후에|길어진다|queue|1분에 오는 학생 수@1 ~ 30명;부스 운영 인원@1 ~ 6명;한 명 체험 시간@1 ~ 10분|줄 선 학생 수@명;기다리는 시간@분", "일상|학교 축제|간식 부스 재료가|축제 막바지에|바닥난다|deplete|준비한 재료@50 ~ 500인분;1분에 오는 손님 수@1 ~ 20명;간식 가격@500 ~ 5000원|남은 재료@인분;매진 시각@시", "일상|동아리방|부원 참여율이|시험 기간에|떨어진다|deplete|부원 수@5 ~ 40명;활동 시간@30 ~ 180분;시험까지 남은 날@0 ~ 30일|참여 인원@명;참여율@%", "일상|스터디카페|빈자리가|시험 2주 전부터|줄어든다|deplete|좌석 수@20 ~ 150석;1시간에 오는 사람 수@1 ~ 50명;한 명 머무는 시간@1 ~ 10시간|빈자리 수@석;자리 없는 시간@시간", "일상|PC방|빈 좌석이|금요일 저녁에|줄어든다|deplete|좌석 수@30 ~ 200석;1시간에 오는 손님 수@5 ~ 100명;한 명 이용 시간@1 ~ 5시간|빈 좌석 수@석;만석인 시간@시간", "일상|노래방|빈방이|시험 끝난 날|줄어든다|deplete|방 수@5 ~ 40개;1시간에 오는 팀 수@1 ~ 30팀;한 팀 이용 시간@1 ~ 3시간|빈방 수@개;기다리는 팀 수@팀", "일상|수영장|레인마다 사람이|방학에|붐빈다|queue|1시간에 오는 사람 수@10 ~ 300명;레인 수@3 ~ 10개;한 명 수영 시간@20 ~ 90분|레인당 인원@명;부딪힌 횟수@회", "일상|놀이터|그네 대기 줄이|오후 4시에|길어진다|queue|1분에 오는 아이 수@0 ~ 5명;그네 수@1 ~ 6개;한 명 타는 시간@1 ~ 5분|기다리는 아이 수@명;기다리는 시간@분", "일상|우리 집|전기 요금이|여름철에|올라간다|grow|에어컨 사용 시간@0 ~ 24시간;설정 온도@18 ~ 30℃;가족 수@1 ~ 6명|한 달 전기 요금@원;전력 사용량@kWh", "일상|우리 집|화분 흙이|물을 주지 않으면|마른다|deplete|물 주는 간격@1 ~ 14일;물 주는 양@50 ~ 500ml;햇빛 시간@0 ~ 12시간|흙 수분@%;시들기까지 걸린 날@일", "일상|내 몸|수면 부족이|시험 기간에|쌓인다|pile|하루 수면 시간@3 ~ 10시간;카페인 섭취 잔 수@0 ~ 5잔;낮잠 시간@0 ~ 60분|쌓인 수면 부족 시간@시간;집중력@%", "일상|내 몸|몸무게가|운동을 할수록|줄어든다|deplete|하루 운동 시간@0 ~ 120분;하루 먹는 열량@1200 ~ 3500kcal;수면 시간@4 ~ 10시간|몸무게@kg;목표까지 걸린 주@주", "일상|시험 공부|외운 단어가|시간이 지날수록|잊힌다|deplete|복습 횟수@0 ~ 7회;복습 간격@1 ~ 7일;처음 외운 단어 수@10 ~ 200개|기억하는 단어 수@개;기억 비율@%", "일상|시험 공부|공부 진도가|계획을 세우면|빨라진다|grow|하루 공부 시간@0 ~ 8시간;쉬는 시간 비율@0 ~ 50%;휴대폰 보는 시간@0 ~ 180분|끝낸 단원 수@단원;시험 전 완료 비율@%", "관심사|아르바이트|모은 돈이|일할수록|늘어난다|grow|시급@9000 ~ 15000원;주당 근무 시간@0 ~ 20시간;매주 쓰는 돈@0 ~ 100000원|모은 돈@원;목표 금액까지 걸린 주@주", "관심사|마라톤 대회|참가자들이|출발 직후에|좁은 길로 몰린다|queue|참가자 수@100 ~ 10000명;출발 그룹 수@1 ~ 10개;도로 폭@3 ~ 20m|출발선 통과 시간@분;밀집 인원@명", "관심사|보드게임|이길 확률이|전략을 바꿀수록|달라진다|grow|주사위 수@1 ~ 3개;처음 가진 자원@0 ~ 20개;상대 수@1 ~ 5명|승률@%;평균 게임 시간@분", "관심사|K-POP 앨범|판매량이|컴백 첫 주에|늘어난다|grow|팬 수@10000 ~ 5000000명;살 확률@0 ~ 50%;판매처 수@1 ~ 100곳|첫 주 판매량@장;100만 장까지 걸린 날@일", "관심사|드라마|화제성이|방송 직후에|퍼진다|spread|시청자 수@10000 ~ 10000000명;SNS에 올릴 확률@0 ~ 10%;회차 수@1 ~ 16회|언급 수@건;화제성 최고 회차@회", "관심사|베이킹|빵 반죽이|발효 시간 동안|부풀어 오른다|grow|발효 온도@20 ~ 40℃;이스트 양@1 ~ 10g;발효 시간@30 ~ 180분|반죽 부피@ml;두 배 되는 시간@분", "관심사|낚시터|잡히는 물고기 수가|해 뜰 무렵에|늘어난다|grow|미끼 종류 수@1 ~ 5종;낚싯대 수@1 ~ 5대;물 온도@5 ~ 30℃|잡은 물고기 수@마리;첫 입질까지 시간@분", "관심사|자전거 대여소|자전거 수가|출근 시간에|줄어든다|deplete|처음 자전거 수@5 ~ 50대;1시간에 빌리는 사람 수@1 ~ 50명;반납 확률@0 ~ 100%|남은 자전거 수@대;빈 거치대가 된 시간@분", "진로|소방서|출동 요청이|건조한 계절에|늘어난다|grow|습도@10 ~ 80%;소방차 수@1 ~ 10대;한 번 출동 시간@20 ~ 180분|하루 출동 수@회;대기 중인 요청 수@건", "진로|우체국|소포 접수 줄이|명절 전에|길어진다|queue|1시간에 오는 손님 수@5 ~ 100명;창구 수@1 ~ 6개;한 명 접수 시간@2 ~ 10분|기다리는 시간@분;대기 손님 수@명", "진로|콜센터|대기 전화가|문의가 몰리는 날|쌓인다|queue|1시간 걸려 오는 전화 수@10 ~ 1000통;상담원 수@1 ~ 50명;한 통 상담 시간@1 ~ 15분|대기 전화 수@통;평균 대기 시간@분", "진로|방송국|시청률이|광고를 늘릴수록|달라진다|grow|광고 시간@0 ~ 15분;방송 시간대@1 ~ 24시;출연자 인지도@1 ~ 10단계|시청률@%;채널 돌린 시청자 비율@%", "진로|게임 회사|신작 다운로드 수가|출시 첫 주에|늘어난다|spread|사전 예약자 수@1000 ~ 1000000명;추천할 확률@0 ~ 30%;광고비@0 ~ 1억원|다운로드 수@회;100만 다운까지 걸린 날@일", "진로|디자인 스튜디오|작업 마감이|의뢰가 몰리면|밀린다|queue|한 주 의뢰 수@1 ~ 30건;디자이너 수@1 ~ 10명;한 건 작업 시간@1 ~ 40시간|밀린 의뢰 수@건;마감 넘긴 건수@건", "진로|연구소|실험 대기 장비 줄이|학기 말에|길어진다|queue|하루 실험 신청 수@1 ~ 30건;장비 수@1 ~ 5대;한 번 실험 시간@1 ~ 8시간|기다리는 날@일;대기 실험 수@건", "진로|태양광 발전소|발전량이|맑은 날 낮에|늘어난다|grow|패널 수@10 ~ 10000장;햇빛 세기@0 ~ 100%;패널 각도@0 ~ 90도|하루 발전량@kWh;최대 발전 시간@시간", "진로|댐|물 높이가|장마철에|올라간다|grow|하루 비 양@0 ~ 300mm;방류량@0 ~ 1000톤/초;처음 물 높이@10 ~ 90%|물 높이@%;위험 수위까지 걸린 시간@시간"];
+  var EXAMPLES=EX_RAW.map(function(l){ var f=l.split('|'); function pairs(x){ return x.split(';').map(function(y){ var k=y.split('@'); return [k[0],k[1]||'']; }); }
+    return {g:f[0],p:f[1],o:f[2],w:f[3],c:f[4],t:f[5],ins:pairs(f[6]),outs:pairs(f[7])}; });
+  var exFilter='전체', exQuery='', curEx=null;
+  /* phenomenon types -> suggestions */
+  var TYPES=[
+    {id:'stamina', re:/(체력|HP)/, label:'체력',
+     think:['<b>쉬는 시간</b>이나 <b>교체</b>가 달라지면?','한 번에 <b>얼마나 많이</b> 쓰면(공격받으면) 달라질까?'],
+     in:['휴식 시간','교체 횟수','훈련량','한 번에 쓰는 체력','회복 속도','공격력','방어력'],
+     out:[['남은 체력','%'],['버틴 시간','분'],['쓰러지기까지 턴 수','턴']], time:'1분마다'},
+    {id:'load', re:/(느려|처리 속도|서버)/, label:'느려짐',
+     think:['<b>동시에 몰리는 사람 수</b>가 달라지면?','처리하는 <b>기계(서버)나 직원 수</b>가 달라지면?'],
+     in:['동시 접속자 수','서버 수','한 번에 처리하는 양','접속자가 오는 간격'],
+     out:[['응답 시간','초'],['대기 인원','명'],['접속 실패 비율','%']], time:'1초마다'},
+    {id:'queue', re:/(몰린|길어|붐빈|밀린|대기|줄이|기다|오래 걸)/, label:'기다림 · 몰림',
+     think:['손님(사람)이 <b>얼마나 자주</b> 오면 달라질까?','일하는 사람이나 <b>창구·계산대·출구가 몇 개</b>면 달라질까?','한 명 처리하는 데 <b>걸리는 시간</b>이 달라지면?'],
+     in:['1분에 오는 사람 수','일하는 사람 수|직원·선생님·의사','처리하는 곳 수|계산대·창구·출구','한 명 처리 시간','엘리베이터 수','문 너비','좌석 수'],
+     out:[['기다리는 시간','분'],['줄 선 사람 수','명'],['모두 빠져나가는 시간','분'],['빈자리 수','개']], time:'1분마다'},
+    {id:'pile', re:/(쌓인|탁해|이산화탄소|미세먼지|쓰레기|냄새|습도|소음)/, label:'쌓임',
+     think:['쌓이게 만드는 것(사람 수, 버리는 양)이 <b>많아지면</b>?','없애는 것(환기, 청소, 수거)을 <b>얼마나 자주</b> 하면?'],
+     in:['사람 수','환기 횟수','창문 수','공기청정기 수','버리는 양','수거 간격','청소 횟수'],
+     out:[['이산화탄소 농도','ppm'],['미세먼지 농도','㎍/㎥'],['쌓인 쓰레기 양','kg'],['습도','%']], time:'10분마다'},
+    {id:'spread', re:/(퍼진|유행|소문|조회수|댓글|챌린지)/, label:'퍼짐',
+     think:['한 사람이 <b>몇 명에게</b> 전할까?','들은 사람이 다시 전할 <b>확률</b>이 달라지면?','처음 아는 사람이 <b>몇 명</b>이면?'],
+     in:['친구 수','공유할 확률(%)','처음 아는 사람 수','하루에 보는 횟수','관심을 잃을 확률(%)'],
+     out:[['알게 된 사람 수','명'],['조회수','회'],['다 퍼지는 데 걸린 시간','시간']], time:'1시간마다'},
+    {id:'deplete', re:/(줄어|닳|바닥|모자|떨어진|상한|빨리 팔|내려|남는)/, label:'줄어듦',
+     think:['<b>얼마나 빨리</b> 쓰면(팔리면) 달라질까?','<b>얼마나 자주, 얼마나 많이</b> 채우면 달라질까?','쓰는 <b>사람 수</b>가 달라지면?'],
+     in:['쓰는 속도','사용하는 사람 수','채우는 양','채우는 간격','처음 양','할인율','가격'],
+     out:[['남은 양','%'],['남은 재고','개'],['바닥나는 데 걸린 시간','시간'],['남은 돈','원']], time:'하루마다'},
+    {id:'grow', re:/(늘어|자란|올라|근력|몸무게|작물|온도|빨라)/, label:'늘어남',
+     think:['<b>얼마나 자주, 얼마나 많이</b> 하면(주면) 달라질까?','쉬는 시간이나 <b>방해하는 것</b>이 달라지면?'],
+     in:['운동 횟수','쉬는 날 수','물 주는 양','햇빛 시간','먹는 양','연습 시간','온도','영양분 양','처음 개체 수'],
+     out:[['근력','kg'],['몸무게','kg'],['키','cm'],['개체 수','마리'],['생성물 양','g'],['늘어난 양','%']], time:'하루마다'}
+  ];
+  var GEN_IN=['사람 수','직원 수','개수','속도','확률(%)','시간 간격','가격','횟수','양'];
+  var RANGE={'1분에 오는 사람 수':'1 ~ 20명','일하는 사람 수':'1 ~ 5명','처리하는 곳 수':'1 ~ 6개','직원 수':'1 ~ 5명','계산대 수':'1 ~ 4개','창구 수':'1 ~ 6개','출구 수':'1 ~ 6개','한 명 처리 시간':'10 ~ 120초','엘리베이터 수':'1 ~ 4대','문 너비':'1 ~ 5m','좌석 수':'10 ~ 100석',
+    '사람 수':'1 ~ 35명','환기 횟수':'0 ~ 6회','창문 수':'0 ~ 6개','공기청정기 수':'0 ~ 3대','버리는 양':'1 ~ 10kg','수거 간격':'1 ~ 7일','청소 횟수':'0 ~ 5회',
+    '친구 수':'1 ~ 20명','공유할 확률(%)':'0 ~ 100%','처음 아는 사람 수':'1 ~ 10명','하루에 보는 횟수':'1 ~ 20회','관심을 잃을 확률(%)':'0 ~ 50%',
+    '쓰는 속도':'1 ~ 10 (단계당)','사용하는 사람 수':'1 ~ 50명','채우는 양':'0 ~ 100개','채우는 간격':'1 ~ 7일','처음 양':'10 ~ 200개','할인율':'0 ~ 50%','가격':'1000 ~ 10000원',
+    '운동 횟수':'0 ~ 7회(주)','쉬는 날 수':'0 ~ 3일','물 주는 양':'0 ~ 500ml','햇빛 시간':'0 ~ 12시간','먹는 양':'1000 ~ 3000kcal','연습 시간':'0 ~ 5시간','온도':'10 ~ 40℃','영양분 양':'0 ~ 10g','처음 개체 수':'1 ~ 100마리','휴식 시간':'0 ~ 30분','교체 횟수':'0 ~ 5회','훈련량':'0 ~ 10시간','한 번에 쓰는 체력':'1 ~ 20','회복 속도':'0 ~ 10','공격력':'10 ~ 100','방어력':'10 ~ 100','동시 접속자 수':'100 ~ 10000명','서버 수':'1 ~ 10대','한 번에 처리하는 양':'10 ~ 500건','접속자가 오는 간격':'0.1 ~ 5초'};
+  var TIMES=[['1초마다','몰림·이동'],['1분마다','줄·대기'],['10분마다','공기·쌓임'],['1시간마다','퍼짐·유행'],['하루마다','성장·재고·돈'],['한 달마다','긴 변화']];
+  var REASONS=['위험해서','돈이 많이 들어서','시간이 너무 오래 걸려서','사람이 너무 많이 필요해서','실제로 조건을 마음대로 바꿀 수 없어서','한 번 하면 되돌릴 수 없어서'];
+  var RSENT={'위험해서':'위험하기','돈이 많이 들어서':'돈이 많이 들기','시간이 너무 오래 걸려서':'시간이 너무 오래 걸리기','사람이 너무 많이 필요해서':'사람이 너무 많이 필요하기','실제로 조건을 마음대로 바꿀 수 없어서':'실제로 조건을 마음대로 바꿀 수 없기','한 번 하면 되돌릴 수 없어서':'한 번 하면 되돌릴 수 없기'};
+  var CARDS=[
+    {cat:'의료 · 보건', c:'var(--c1)', jobs:'간호사, 의사, 약사, 물리치료사, 응급구조사', places:'응급실, 약국, 병원, 재활센터', ph:['응급실에서 환자들이 밤마다 몰린다','약국에서 대기 줄이 길어진다'], knob:'의사·약사 수, 환자가 오는 간격'},
+    {cat:'공학 · 건축', c:'var(--c3)', jobs:'건축가, 소방설비 엔지니어, 기계공학자', places:'건물, 강당, 엘리베이터', ph:['비상벨이 울리면 사람들이 출구로 몰린다','엘리베이터 대기 줄이 길어진다'], knob:'출구 수·문 너비, 엘리베이터 수'},
+    {cat:'경영 · 경제', c:'var(--c2)', jobs:'마케터, 상품기획자, 창업가, 회계사', places:'가게, 카페, 팝업 스토어', ph:['할인 기간에 손님이 몰린다','재고가 빠르게 줄어든다'], knob:'가격, 할인율, 계산대 수'},
+    {cat:'사회 · 교육 · 미디어', c:'var(--c4)', jobs:'교사, 기자, 사회복지사, 크리에이터', places:'학교, SNS, 유튜브', ph:['친구들 사이에서 소문이 퍼진다','영상 조회수가 늘어난다'], knob:'친구 수, 공유할 확률'},
+    {cat:'자연 · 환경 · 생명', c:'var(--c5)', jobs:'환경공학자, 기상예보관, 수의사, 농업연구원', places:'교실 공기, 농장, 동물병원', ph:['수업 중 이산화탄소가 쌓인다','물을 줄수록 작물이 자란다'], knob:'환기 횟수, 물 주는 양'},
+    {cat:'체육 · 예술 · 공연', c:'var(--c2)', jobs:'운동선수, 트레이너, 공연기획자', places:'경기장, 헬스장, 공연장', ph:['경기 후반으로 갈수록 체력이 떨어진다','입장 시간에 관객이 입구로 몰린다'], knob:'휴식 시간, 입장 게이트 수'}
+  ];
+  var BANNED=['산불'];
+  var COLORS=['var(--c3)','var(--c4)','var(--c5)','var(--c2)','var(--c1)','var(--accent)'];
+
+  var S={kw:{daily:[],interest:[],career:[]}, sel:null, phen:[], q:[], pick:null, time:null, reasons:[], reasonOwn:'', s1:'', s2:'', s2edited:false, rng1:'', rng2:'', sid:'', sname:'', cur:0};
+  try{ var sv=JSON.parse(localStorage.getItem(KEY)||'null'); if(sv){ for(var k in sv) S[k]=sv[k]; } }catch(e){}
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+  function esc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function $(id){ return document.getElementById(id); }
+  function cloud(el, words, onPick, isUsed){
+    el.innerHTML='';
+    words.forEach(function(w,i){
+      var b=document.createElement('button'); b.className='wc'+(isUsed&&isUsed(w)?' used':'');
+      b.style.fontSize=[14,17,15,19,13,16,18][(i*5+w.length)%7]+'px'; b.style.setProperty('--wc',COLORS[(i*7+w.length)%COLORS.length]);
+      b.textContent=w; b.onclick=function(){ onPick(w); }; el.appendChild(b);
+    });
+  }
+  function setVal(id,w){ var el=$(id); if(!el) return; el.value=w; el.dispatchEvent(new Event('input',{bubbles:true})); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+  function typeById(id){ for(var i=0;i<TYPES.length;i++){ if(TYPES[i].id===id) return TYPES[i]; } return null; }
+  function typeOf(text){ for(var i=0;i<TYPES.length;i++){ if(TYPES[i].re.test(text)) return TYPES[i]; } return null; }
+
+  /* ---------- step 1 ---------- */
+  function renderKw(){
+    Object.keys(BR).forEach(function(b){
+      var box=$('chips-'+b); box.innerHTML='';
+      S.kw[b].forEach(function(w,i){
+        var c=document.createElement('span'); c.className='chip'; c.innerHTML=esc(w)+'<button title="지우기">×</button>';
+        c.querySelector('button').onclick=function(){ S.kw[b].splice(i,1); save(); renderAll(); };
+        box.appendChild(c);
+      });
+      var n=S.kw[b].length, cnt=$('cnt-'+b); cnt.textContent=n>=2? n+'개 · 좋아': n+'개 · 2개 이상 모아 봐'; cnt.className='count'+(n>=2?' ok':'');
+      cloud($('cl-'+b), WORDS[b], function(w){ var i=S.kw[b].indexOf(w); if(i<0) S.kw[b].push(w); else S.kw[b].splice(i,1); save(); renderAll(); }, function(w){ return S.kw[b].indexOf(w)>=0; });
+    });
+  }
+  document.querySelectorAll('[data-addbtn]').forEach(function(btn){
+    var b=btn.getAttribute('data-addbtn'), inp=document.querySelector('[data-add="'+b+'"]');
+    function add(){ var v=inp.value.trim(); if(!v) return; v.split(/[,，]/).forEach(function(x){ x=x.trim(); if(x && S.kw[b].indexOf(x)<0) S.kw[b].push(x); }); inp.value=''; save(); renderAll(); inp.focus(); }
+    btn.onclick=add; inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); add(); } });
+  });
+  function renderCards(){
+    var box=$('careercards'); box.innerHTML='';
+    CARDS.forEach(function(cd){
+      var el=document.createElement('div'); el.className='card'; el.style.setProperty('--cc',cd.c);
+      el.innerHTML='<div class="in"><div class="face front"><div class="cat">'+cd.cat+'</div><div class="jobs">'+cd.jobs+'</div><div class="seed">일터: '+cd.places+'</div><div class="flipme">눌러서 뒤집기</div></div>'+
+        '<div class="face back"><div class="cat" style="font-size:17px">'+cd.cat+'</div><div class="k">이런 현상이 있어</div><ul>'+cd.ph.map(function(p){return '<li>'+p+'</li>';}).join('')+'</ul>'+
+        '<div class="k">입력 변수 후보</div><div style="font-size:13.5px">'+cd.knob+'</div></div></div>';
+      el.onclick=function(){ el.classList.toggle('flip'); };
+      box.appendChild(el);
+    });
+  }
+
+  /* ---------- step 2 ---------- */
+  function allKw(){ var a=[]; Object.keys(BR).forEach(function(b){ S.kw[b].forEach(function(w){ a.push({w:w,b:b}); }); }); return a; }
+  function phenText(pl,o,w,c){ return pl+'에서 '+o+' '+(w? w+' ':'')+c; }
+  function prevPhen(){
+    var pl=$('p-place').value.trim(), o=$('p-obj').value.trim(), w=$('p-when').value.trim(), c=$('p-chg').value.trim(), el=$('p-prev');
+    if(pl && o && c){ el.className='preview'; el.textContent=phenText(pl,o,w,c); }
+    else { el.className='preview empty'; el.textContent= !S.sel? '먼저 위에서 낱말 하나를 골라 줘.' : '"무엇이"와 "어떻게 변하나"를 채우면 현상 문장이 만들어져.'; }
+  }
+  var pType=null, pTypeManual=false;
+  var TYPE_ORDER=['queue','pile','spread','deplete','grow','stamina','load'];
+  var TYPE_EX={queue:'몰린다 · 길어진다',pile:'쌓인다 · 탁해진다',spread:'퍼진다 · 유행한다',deplete:'줄어든다 · 바닥난다',grow:'늘어난다 · 자란다',stamina:'체력이 변한다',load:'느려진다'};
+  function renderPType(){
+    var box=$('p-type'); box.innerHTML='';
+    TYPE_ORDER.forEach(function(id){ var t=typeById(id); var b=document.createElement('button'); b.className='opt'+(pType===id?' on':''); b.innerHTML=t.label+'<small>'+TYPE_EX[id]+'</small>'; b.onclick=function(){ pType=id; pTypeManual=true; renderPType(); }; box.appendChild(b); });
+    var n=document.createElement('button'); n.className='opt'+(pType==='none'?' on':''); n.innerHTML='잘 모르겠어<small>일반 예시를 보여 줘</small>'; n.onclick=function(){ pType='none'; pTypeManual=true; renderPType(); }; box.appendChild(n);
+  }
+  function autoType(){ if(pTypeManual) return; var t=typeOf($('p-obj').value+' '+$('p-chg').value); pType=t? t.id : null; renderPType(); }
+  ['p-obj','p-chg'].forEach(function(id){ $(id).addEventListener('input',autoType); });
+  ['p-place','p-obj','p-when','p-chg'].forEach(function(id){ $(id).addEventListener('input',prevPhen); });
+  var lastP='p-obj';
+  ['p-obj','p-when','p-chg'].forEach(function(id){ $(id).addEventListener('focus',function(){ lastP=id; $('p-target').textContent='지금 고른 칸: '+({'p-obj':'무엇이','p-when':'언제','p-chg':'어떻게 변하나'})[id]; }); });
+  cloud($('cl-obj'),CL.obj,function(w){ setVal('p-obj',w); });
+  cloud($('cl-when'),CL.when,function(w){ setVal('p-when',w); });
+  cloud($('cl-chg'),CL.chg,function(w){ setVal('p-chg',w); });
+  $('p-add').onclick=function(){
+    var pl=$('p-place').value.trim(), o=$('p-obj').value.trim(), w=$('p-when').value.trim(), c=$('p-chg').value.trim();
+    if(!pl){ $('p-place').focus(); prevPhen(); return; }
+    if(!o||!c){ (o? $('p-chg'):$('p-obj')).focus(); return; }
+    if(!pType){ $('p-note').innerHTML='<b style="color:var(--bad)">"어떤 종류에 가까워?"에서 하나 골라 줘. 모르겠으면 "잘 모르겠어"를 눌러.</b>'; return; }
+    var t=phenText(pl,o,w,c);
+    if(S.phen.some(function(p){return p.text===t;})){ $('p-note').textContent='이미 추가한 현상이야.'; return; }
+    var useEx = curEx && o===curEx.o && c===curEx.c;
+    S.phen.push({kw:S.sel||pl, place:pl, obj:o, when:w, chg:c, text:t, type:(pType==='none'?null:pType), ins:useEx?curEx.ins:null, outs:useEx?curEx.outs:null}); curEx=null; S.q.push({in1:'',in2:'',out:'',unit:''});
+    ['p-obj','p-when','p-chg'].forEach(function(id){ $(id).value=''; }); pType=null; pTypeManual=false; renderPType(); $('p-note').textContent='추가했어. 다른 낱말로 하나 더 만들어 봐.'; save(); renderAll(); prevPhen();
+  };
+  function selectKw(w){
+    S.sel=w; save();
+    var places=JOBS[w];
+    $('p-place').value= places? places[0] : w;
+    var jw=$('jobwarn');
+    if(places){ jw.className='jobwarn on'; jw.innerHTML='현상은 <b>장소</b>에서 생겨. 그래서 <b>'+esc(w)+'</b>와(과) 관련된 장소인 <b>'+esc(places[0])+'</b>(으)로 바꿔 넣었어. 다른 곳이면 "어디에서" 칸을 고쳐 써.'; }
+    else { jw.className='jobwarn'; jw.innerHTML=''; }
+    $('p-note').textContent=''; renderStep2(); prevPhen();
+  }
+  function renderStep2(){
+    var kws=allKw(), box=$('kwpick'); box.innerHTML='';
+    $('kwempty').style.display=kws.length?'none':'block';
+    kws.forEach(function(k){
+      var b=document.createElement('button'); b.className='kw'+(S.sel===k.w?' on':''); b.innerHTML=esc(k.w)+'<small>'+BR[k.b]+'</small>';
+      b.onclick=function(){ selectKw(k.w); };
+      box.appendChild(b);
+    });
+    renderExamples();
+    var ul=$('phenList'); ul.innerHTML='';
+    if(!S.phen.length) ul.innerHTML='<li class="hint" style="justify-content:center">아직 없어. 위에서 만들어 봐.</li>';
+    S.phen.forEach(function(p,i){
+      var li=document.createElement('li');
+      li.innerHTML='<span class="tag">'+esc(p.kw)+'</span><span class="tx">'+esc(p.text)+'</span><button class="del">지우기</button>';
+      li.querySelector('.del').onclick=function(){ S.phen.splice(i,1); S.q.splice(i,1); S.pick=null; save(); renderAll(); };
+      ul.appendChild(li);
+    });
+    var n=S.phen.length, c=$('cnt-phen'); c.textContent=n>=2? n+'개 · 좋아': n+'개 · 2개 이상 찾아 봐'; c.className='count'+(n>=2?' ok':'');
+  }
+  function renderExamples(){
+    var fb=$('exfilter'); fb.innerHTML='';
+    ['전체','일상','관심사','진로'].forEach(function(f){ var b=document.createElement('button'); b.className='opt'+(exFilter===f?' on':''); b.textContent=f; b.onclick=function(){ exFilter=f; renderExamples(); }; fb.appendChild(b); });
+    var place=($('p-place').value||S.sel||'').trim(), kw=(S.sel||'').trim();
+    var list=EXAMPLES.filter(function(e){ return (exFilter==='전체'||e.g===exFilter) && (!exQuery || (e.p+' '+e.o+' '+e.w+' '+e.c).indexOf(exQuery)>=0); });
+    function hit(x,y){ return x && y && (x===y || x.indexOf(y)>=0 || y.indexOf(x)>=0); }
+    function near(e){ return hit(place,e.p) || hit(kw,e.p) || (kw && (e.o.indexOf(kw)>=0)); }
+    var match=list.filter(near), rest=list.filter(function(e){ return !near(e); });
+    $('exmatch').textContent= (exQuery? '"'+exQuery+'" 검색 결과 '+list.length+'개. ' : '')+(match.length? '"'+(place||kw)+'"와 관련된 예시가 맨 앞에 있어.' : (place && !exQuery? '"'+place+'" 예시는 없어. 비슷한 상황의 예시를 눌러 고쳐 쓰거나, 위 검색 칸에 떠오르는 낱말을 쳐 봐.' : ''));
+    var g=$('exgrid'); g.innerHTML='';
+    match.concat(rest).forEach(function(e){
+      var b=document.createElement('button'); b.className='ex'+(near(e)?' match':'');
+      b.innerHTML='<span class="ek">'+e.g+' · '+esc(e.p)+'</span><span class="es">'+esc(e.p)+'에서 <b>'+esc(e.o)+'</b> <b>'+esc(e.w)+'</b> <b>'+esc(e.c)+'</b></span>';
+      b.onclick=function(){
+        curEx=e; pTypeManual=false; setVal('p-obj',e.o); setVal('p-when',e.w); setVal('p-chg',e.c);
+        pType=e.t; pTypeManual=true; renderPType();
+        if(near(e) || !$('p-place').value.trim()) setVal('p-place',e.p);
+        $('p-note').textContent= near(e)? '예시를 가져왔어. 내 상황에 맞게 한 칸이라도 고쳐 써 봐.' : '장소는 내 낱말 그대로 두고 나머지만 가져왔어. 문장이 어색하면 칸을 고쳐 써.';
+        var t=$('p-place').getBoundingClientRect().top+window.pageYOffset-120; window.scrollTo({top:t,behavior:'smooth'});
+      };
+      g.appendChild(b);
+    });
+  }
+  $('exsearch').addEventListener('input',function(){ exQuery=this.value.trim(); renderExamples(); });
+
+  function batchim(ch){ var c=ch.charCodeAt(0); return c>=0xAC00&&c<=0xD7A3 && (c-0xAC00)%28!==0; }
+  function nounOf(o){ var n=(o||'').trim().replace(/(이|가|은|는|을|를)$/,'').replace(/들$/,''); return n; }
+  function stemOf(c){ c=(c||'').trim(); if(!/다$/.test(c)) return ''; var st=c.slice(0,-1); if(/는$/.test(st)) return st.slice(0,-1); var l=st.charCodeAt(st.length-1); if(l>=0xAC00&&l<=0xD7A3&&(l-0xAC00)%28===4) return st.slice(0,-1)+String.fromCharCode(l-4); return st; }
+  function genSugg(p,tp){
+    var N=nounOf(p.obj), last=N.split(' ').pop(), people=/(학생|손님|사람|환자|관객|선수|관광객|아이|회원|팬|승객|어르신|직원|고객|시청자|참가자)/.test(N);
+    var ins=[], outs=[];
+    if(people){ ins.push([last+' 수','']); ins.push([last+(batchim(last.slice(-1))?'이':'가')+' 오는 간격','']); }
+    (tp? tp.in : GEN_IN).slice(0,4).forEach(function(w){ var k=w.split('|')[0]; if(!ins.some(function(x){return x[0]===k;})) ins.push([w,RANGE[k]||'']); });
+    var st=stemOf(p.chg);
+    if(people) outs.push([last+' 수','명']); else outs.push([last+' 양','%']);
+    if(st) outs.push([st+'기까지 걸린 시간','분']);
+    (tp? tp.out : []).slice(0,2).forEach(function(o){ outs.push(o); });
+    return {title:'내가 쓴 말로 만든 추천 (어색하면 고쳐 써)', ins:ins, outs:outs};
+  }
+
+  /* ---------- step 3 ---------- */
+  function qDone(q){ return q && q.in1 && q.in2 && q.out && q.unit; }
+  function qText(q){ return qDone(q)? q.in1+'와(과) '+q.in2+'을(를) 바꾸면 '+q.out+'('+q.unit+')은(는) 어떻게 될까?' : ''; }
+  function renderStep3(){
+    var box=$('qcards'); box.innerHTML='';
+    if(!S.phen.length){ box.innerHTML='<div class="panel hint">2단계에서 현상을 먼저 찾아 줘.</div>'; }
+    S.phen.forEach(function(p,i){
+      while(S.q.length<=i) S.q.push({in1:'',in2:'',out:'',unit:''});
+      var q=S.q[i], tp=typeById(p.type)||typeOf(p.text);
+      var d=document.createElement('div'); d.className='panel';
+      var h='<h3>현상 '+(i+1)+' · '+esc(p.text)+'</h3>';
+      h+='<div class="think">이렇게 생각해 봐'+(tp? ' <span class="hint">('+tp.label+' 현상)</span>':'')+'</div><ul class="qlist" style="margin-top:2px">'+
+        (tp? tp.think : ['이 현상을 <b>줄이거나 늘리려면</b> 무엇을 바꾸면 될까?','<b>누가 · 몇 개 · 얼마나 자주</b>가 달라지면 결과가 바뀔까?']).map(function(t){return '<li>'+t+'</li>';}).join('')+'</ul>';
+      h+='<div class="grid4">'+
+        '<div class="fld"><label>바꿀 것 1 (입력 변수)</label><input data-i="'+i+'" data-f="in1" value="'+esc(q.in1)+'" placeholder="아래에서 골라"></div>'+
+        '<div class="fld"><label>바꿀 것 2 (1번과 다른 종류)</label><input data-i="'+i+'" data-f="in2" value="'+esc(q.in2)+'" placeholder="아래에서 골라"></div>'+
+        '<div class="fld"><label>알고 싶은 결과 (출력 값)</label><input data-i="'+i+'" data-f="out" value="'+esc(q.out)+'" placeholder="아래에서 골라"></div>'+
+        '<div class="fld"><label>단위</label><input data-i="'+i+'" data-f="unit" value="'+esc(q.unit)+'" placeholder="예: 분"></div></div>';
+      var mine= p.ins? {title:'이 현상에 딱 맞는 추천', ins:p.ins, outs:p.outs} : genSugg(p,tp);
+      function inChip(w,r,rec){ var pr=w.split('|'); return '<button class="schip'+(rec?' rec':'')+'" data-i="'+i+'" data-k="in" data-w="'+esc(pr[0])+'" data-r="'+esc(r||'')+'">'+esc(pr[0])+(pr[1]?'<small>'+esc(pr[1])+'</small>':'')+(r?'<small>'+esc(r)+'</small>':'')+'</button>'; }
+      function outChip(o,rec){ return '<button class="schip'+(rec?' rec':'')+'" data-i="'+i+'" data-k="out" data-w="'+esc(o[0])+'" data-u="'+esc(o[1])+'">'+esc(o[0])+' ('+esc(o[1])+')</button>'; }
+      h+='<div class="sugg"><div class="sl">'+mine.title+' · 입력 변수 (누르면 바꿀 것 1, 2에 차례로 들어가)</div>'+mine.ins.map(function(x){ return inChip(x[0],x[1],true); }).join('')+
+        '<div class="sl">출력 값 (누르면 단위도 함께 들어가)</div>'+mine.outs.map(function(o){ return outChip(o,true); }).join('')+
+        '<details style="margin-top:6px"><summary class="more">다른 예시 더 보기</summary>'+
+        '<div class="sl">입력 변수</div>'+(tp? tp.in : GEN_IN).map(function(w){ return inChip(w,RANGE[w.split('|')[0]],false); }).join('')+
+        '<div class="sl">출력 값</div>'+(tp? tp.out : [['기다리는 시간','분'],['사람 수','명'],['남은 양','%'],['걸린 시간','분']]).map(function(o){ return outChip(o,false); }).join('')+
+        '<div class="sl">단위</div>'+CL.unit.map(function(u){return '<button class="schip" data-i="'+i+'" data-k="unit" data-w="'+u+'">'+u+'</button>';}).join('')+'</details>'+
+        '<div class="sl" style="margin-top:6px">내 상황에 맞는 말로 고쳐 써도 돼 (예: 일하는 사람 수 → 선생님 수)</div></div>';
+      h+='<div class="preview'+(qDone(q)?'':' empty')+'" id="qp'+i+'">'+(qDone(q)? esc(qText(q)) : '네 칸을 채우면 실험 질문이 만들어져. 이 현상이 어렵다면 비워 두고 다른 현상으로 해도 돼.')+'</div>';
+      d.innerHTML=h; box.appendChild(d);
+    });
+    box.querySelectorAll('input[data-i]').forEach(function(el){
+      el.addEventListener('input',function(){ var i=+el.getAttribute('data-i'), f=el.getAttribute('data-f'); S.q[i][f]=el.value.trim(); save(); refreshQ(i); countQ(); });
+    });
+    box.querySelectorAll('.schip').forEach(function(b){
+      b.onclick=function(){
+        var i=+b.getAttribute('data-i'), k=b.getAttribute('data-k'), w=b.getAttribute('data-w'), q=S.q[i];
+        function inp(f){ return box.querySelector('input[data-i="'+i+'"][data-f="'+f+'"]'); }
+        if(k==='in'){ if(q.in1===w||q.in2===w) return; q.rh=q.rh||{}; if(b.getAttribute('data-r')) q.rh[w]=b.getAttribute('data-r'); var f=!q.in1? 'in1' : !q.in2? 'in2' : 'in2'; var el=inp(f); el.value=w; el.dispatchEvent(new Event('input')); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+        else if(k==='out'){ var o=inp('out'), u=inp('unit'); o.value=w; o.dispatchEvent(new Event('input')); u.value=b.getAttribute('data-u'); u.dispatchEvent(new Event('input')); o.classList.add('flash'); u.classList.add('flash'); }
+        else { var u2=inp('unit'); u2.value=w; u2.dispatchEvent(new Event('input')); u2.classList.add('flash'); }
+      };
+    });
+    countQ();
+  }
+  function refreshQ(i){ var pv=$('qp'+i); if(!pv) return; if(qDone(S.q[i])){ pv.className='preview'; pv.textContent=qText(S.q[i]); } else { pv.className='preview empty'; pv.textContent='네 칸을 채우면 실험 질문이 만들어져.'; } }
+  function doneQ(){ var a=[]; S.q.forEach(function(q,i){ if(i<S.phen.length && qDone(q)) a.push(i); }); return a; }
+  function countQ(){ var n=doneQ().length, c=$('cnt-q'); c.textContent=n>=1? '완성된 질문 '+n+'개 · 좋아':'아직 완성된 질문이 없어'; c.className='count'+(n>=1?' ok':''); }
+
+  /* ---------- step 4 ---------- */
+  function banned(i){ var p=S.phen[i], q=S.q[i]; var t=p.text+' '+p.kw+' '+q.in1+' '+q.in2+' '+q.out; return BANNED.some(function(b){ return t.indexOf(b)>=0; }); }
+  function reasonText(){ var r=S.reasons.filter(function(x){return x!=='__easy';}).map(function(x){return RSENT[x]||x;}); if(S.reasonOwn) r.push(S.reasonOwn); return r.join(', '); }
+  function step4ok(){ return S.pick!=null && qDone(S.q[S.pick]) && !banned(S.pick) && S.time && (S.reasons.length>0||S.reasonOwn); }
+  function renderStep4(){
+    var box=$('pickq'), list=doneQ(); box.innerHTML='';
+    if(S.pick!=null && list.indexOf(S.pick)<0) S.pick=null;
+    if(S.pick==null && list.length===1) S.pick=list[0];
+    if(!list.length) box.innerHTML='<div class="hint">3단계에서 실험 질문을 먼저 완성해 줘.</div>';
+    list.forEach(function(i){
+      var l=document.createElement('label'); l.className='pick'; l.style.marginTop='6px';
+      l.innerHTML='<input type="radio" name="pq" value="'+i+'"'+(S.pick===i?' checked':'')+'> '+esc(qText(S.q[i]));
+      l.querySelector('input').onchange=function(){ S.pick=i; save(); renderStep4(); renderStep5(); };
+      box.appendChild(l);
+    });
+    var ab=$('autoBox');
+    if(S.pick==null){ ab.innerHTML='<div class="hint">질문을 고르면 형식 확인 결과가 여기에 나와.</div>'; }
+    else{
+      var q=S.q[S.pick], ban=banned(S.pick);
+      ab.innerHTML='<h3>형식 확인 <span class="hint">내용이 알맞은지는 선생님이 주제 카드를 보고 확인해</span></h3>'+
+        '<div class="auto"><span class="st ok">확인</span><div><b>입력 변수 2개</b>: '+esc(q.in1)+', '+esc(q.in2)+'</div></div>'+
+        '<div class="auto"><span class="st ok">확인</span><div><b>출력 값과 단위</b>: '+esc(q.out)+' ('+esc(q.unit)+')</div></div>'+
+        '<div class="auto"><span class="st '+(ban?'no':'ok')+'">'+(ban?'다시':'확인')+'</span><div><b>고를 수 없는 주제</b>: '+(ban?'수업 실습 예시인 산불과 겹쳐. 다른 질문을 골라 줘.':'겹치지 않아')+'</div></div>';
+    }
+    var tp= S.pick!=null? (typeById(S.phen[S.pick].type)||typeOf(S.phen[S.pick].text)):null;
+    var ot=$('opt-time'); ot.innerHTML='';
+    TIMES.forEach(function(t){
+      var b=document.createElement('button'); b.className='opt'+(S.time===t[0]?' on':'')+(tp&&tp.time===t[0]?' rec':''); b.innerHTML=t[0]+'<small>'+t[1]+'</small>';
+      b.onclick=function(){ S.time=t[0]; save(); renderStep4(); renderStep5(); }; ot.appendChild(b);
+    });
+    var nb=document.createElement('button'); nb.className='opt bad'+(S.time==='none'?' on':''); nb.innerHTML='한 번 계산하면 끝나<small>시간이 안 흘러</small>';
+    nb.onclick=function(){ S.time='none'; save(); renderStep4(); renderStep5(); }; ot.appendChild(nb);
+    $('fix-time').classList.toggle('on', S.time==='none');
+    var orr=$('opt-reason'); orr.innerHTML='';
+    REASONS.concat(['__easy']).forEach(function(r){
+      var easy=r==='__easy', on=S.reasons.indexOf(r)>=0;
+      var b=document.createElement('button'); b.className='opt'+(easy?' bad':'')+(on?' on':''); b.textContent= easy? '직접 해 보면 금방 알 수 있어' : r;
+      b.onclick=function(){ var i=S.reasons.indexOf(r); if(i>=0) S.reasons.splice(i,1); else S.reasons.push(r); S.s2edited=false; save(); renderStep4(); renderStep5(); };
+      orr.appendChild(b);
+    });
+    $('fix-reason').classList.toggle('on', S.reasons.indexOf('__easy')>=0);
+    if(document.activeElement!==$('reasonOwn')) $('reasonOwn').value=S.reasonOwn||'';
+    var v=$('v4');
+    if(step4ok()){ v.className='verdict ok'; v.textContent='다 답했어. 다음 단계로 가자.'; } else { v.className='verdict'; v.textContent=''; }
+  }
+  $('reasonOwn').addEventListener('input',function(){ S.reasonOwn=this.value.trim(); S.s2edited=false; save(); renderStep4(); renderStep5(); });
+
+  /* ---------- step 5 ---------- */
+  function adn(chg){
+    chg=chg.trim(); if(!/다$/.test(chg)) return '';
+    var stem=chg.slice(0,-1);
+    if(/는$/.test(stem)) return stem;
+    var last=stem.charCodeAt(stem.length-1);
+    if(last>=0xAC00 && last<=0xD7A3 && (last-0xAC00)%28===4) return stem.slice(0,-1)+String.fromCharCode(last-4)+'는';
+    return '';
+  }
+  function starters(){
+    if(S.pick==null) return [];
+    var p=S.phen[S.pick], v=adn(p.chg||'');
+    if(!v) { var t=p.text; return [t+'는 것을 자주 겪기', t+'는 이유가 궁금하기']; }
+    var core=p.obj+' '+v;
+    return [p.place+'에서 '+core+' 것을 자주 겪기', '왜 '+p.place+'에서 '+core+'지 궁금하기', '뉴스에서 '+core+' 모습을 봤기', '진로 체험에서 '+core+' 모습을 봤기'];
+  }
+  function renderStep5(){
+    var q=S.pick!=null? S.q[S.pick]:null;
+    if(!S.s2edited) S.s2=reasonText();
+    if(document.activeElement!==$('s1')) $('s1').value=S.s1||'';
+    if(document.activeElement!==$('s2')) $('s2').value=S.s2||'';
+    $('s3a').value= q? q.in1+'와(과) '+q.in2 : '';
+    $('s3b').value= q? q.out : '';
+    var st=$('starters'); st.innerHTML='';
+    var ss=starters();
+    if(!ss.length) st.innerHTML='<div class="hint">4단계에서 질문을 고르면 고를 수 있는 문장이 나와.</div>';
+    ss.forEach(function(x){ var b=document.createElement('button'); b.className='starter'; b.textContent='나는 '+x+' 때문에 …'; b.onclick=function(){ S.s1=x; save(); $('s1').value=x; $('s1').classList.add('flash'); renderExit(); }; st.appendChild(b); });
+    [['rl1','rr1','rng1','in1'],['rl2','rr2','rng2','in2']].forEach(function(a){
+      $(a[0]).textContent= q? '입력 변수: '+q[a[3]] : '입력 변수';
+      var r=$(a[1]); r.innerHTML='';
+      var rr= q? ((q.rh&&q.rh[q[a[3]]]) || RANGE[q[a[3]]]) : '';
+      if(q && !rr){ r.innerHTML='<div class="hint">추천이 없는 값이야. <b>가장 적을 때</b>와 <b>가장 많을 때</b>를 상상해서 "최솟값 ~ 최댓값 단위"로 써 (예: 0 ~ 10개, 1 ~ 30분).</div>'; }
+      if(q && rr){ var b=document.createElement('button'); b.className='schip'; b.textContent='추천 범위 넣기: '+rr; b.onclick=function(){ S[a[2]]=rr; save(); $(a[2]).value=S[a[2]]; renderExit(); }; r.appendChild(b); }
+    });
+    ['rng1','rng2','sid','sname'].forEach(function(f){ if(document.activeElement!==$(f)) $(f).value=S[f]||''; });
+    renderExit();
+  }
+  $('s1').addEventListener('input',function(){ S.s1=this.value; save(); renderExit(); });
+  $('s2').addEventListener('input',function(){ S.s2=this.value; S.s2edited=true; save(); renderExit(); });
+  ['rng1','rng2','sid','sname'].forEach(function(f){ $(f).addEventListener('input',function(){ S[f]=this.value; save(); renderExit(); }); });
+  function v(t,ph){ return t? esc(t) : '<span class="empty">'+(ph||'아직 비어 있어')+'</span>'; }
+  function defText(){
+    var q=S.pick!=null? S.q[S.pick]:null;
+    return '나는 '+(S.s1||'___')+' 때문에 불편했다(궁금했다). 이 문제는 '+(S.s2||'___')+' 때문에 직접 실험하기 어려워서 시뮬레이션으로 알아보려고 한다. 그래서 '+(q? q.in1+'와(과) '+q.in2:'___')+'을/를 바꾸면 '+(q? q.out:'___')+'이/가 어떻게 변하는지 확인하려고 한다.';
+  }
+  function renderExit(){
+    var q=S.pick!=null? S.q[S.pick]:null, p=S.pick!=null? S.phen[S.pick]:null;
+    $('x-id').innerHTML=v(((S.sid||'')+' '+(S.sname||'')).trim(),'위 칸에 학번과 이름을 적어');
+    $('x-ph').innerHTML=v(p&&p.text,'4단계에서 질문을 고르면 채워져');
+    $('x-q').innerHTML=v(q&&qText(q));
+    $('x-in').innerHTML= q? esc(q.in1)+' ('+v(S.rng1,'범위')+')<br>'+esc(q.in2)+' ('+v(S.rng2,'범위')+')' : v('');
+    $('x-out').innerHTML= q? esc(q.out)+' ('+esc(q.unit)+')' : v('');
+    $('x-time').innerHTML=v(S.time&&S.time!=='none'? S.time : (S.time==='none'?'한 번 계산 (선생님 확인 필요)':''));
+    $('x-def').innerHTML= (S.s1||q)? esc(defText()) : v('');
+  }
+  function exitText(){
+    var q=S.pick!=null? S.q[S.pick]:null, p=S.pick!=null? S.phen[S.pick]:null;
+    return ['[시뮬레이션 주제 카드]','학번·이름: '+(S.sid||'')+' '+(S.sname||''),'현상: '+(p?p.text:''),'실험 질문: '+(q?qText(q):''),
+      '입력 변수: '+(q? q.in1+' ('+(S.rng1||'')+'), '+q.in2+' ('+(S.rng2||'')+')':''),'출력 값: '+(q? q.out+' ('+q.unit+')':''),
+      '한 단계: '+(S.time==='none'?'한 번 계산':(S.time||'')),'문제 정의: '+defText()].join('\n');
+  }
+  $('copyBtn').onclick=function(){
+    var t=exitText(), b=this;
+    function ok(){ b.textContent='복사했어'; setTimeout(function(){ b.textContent='주제 카드 복사하기'; },1600); }
+    function fb(){ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); ok(); }catch(e){ b.textContent='직접 드래그해서 복사해'; } document.body.removeChild(ta); }
+    if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok,fb); else fb();
+  };
+  $('printBtn').onclick=function(){ var st=document.querySelectorAll('.step')[4]; st.classList.add('printme'); window.print(); setTimeout(function(){ st.classList.remove('printme'); },500); };
+
+  /* ---------- stepper ---------- */
+  var steps=[].slice.call(document.querySelectorAll('.step')), dots=$('dots');
+  steps.forEach(function(st,i){ var b=document.createElement('button'); b.className='sdot'; b.innerHTML='<b>'+(i+1)+'</b>'+st.getAttribute('data-t'); b.onclick=function(){ go(i); }; dots.appendChild(b); });
+  function gateMsg(i){
+    if(i===0){ var sh=Object.keys(BR).filter(function(b){ return S.kw[b].length<2; }); if(sh.length) return sh.map(function(b){return BR[b];}).join(', ')+' 갈래에 낱말을 2개 이상 모아 줘.'; }
+    if(i===1 && S.phen.length<2) return '현상을 2개 이상 찾아 줘.';
+    if(i===2 && doneQ().length<1) return '실험 질문을 1개 이상 완성해 줘. (네 칸 모두)';
+    if(i===3 && !step4ok()) return '질문을 고르고, 한 단계 간격과 실험이 어려운 이유를 골라 줘.';
+    return '';
+  }
+  function renderNav(){
+    steps.forEach(function(st,i){ st.classList.toggle('on',i===S.cur); });
+    [].forEach.call(dots.children,function(d,i){ d.classList.toggle('cur',i===S.cur); d.classList.toggle('done',i!==S.cur && !gateMsg(i)); });
+    $('bar').style.width=((S.cur+1)/steps.length*100)+'%';
+    $('prev').disabled=S.cur===0;
+    $('next').textContent= S.cur===steps.length-1? '주제 카드를 복사해 제출해':'다음 단계';
+    $('next').disabled= S.cur===steps.length-1;
+    $('gate').textContent='';
+  }
+  function renderAll(){ renderKw(); renderStep2(); renderStep3(); renderStep4(); renderStep5(); renderNav(); }
+  function go(i){ S.cur=Math.max(0,Math.min(steps.length-1,i)); save(); renderAll(); var top=document.querySelector('main').getBoundingClientRect().top+window.pageYOffset-70; window.scrollTo({top:top,behavior:'smooth'}); }
+  $('prev').onclick=function(){ go(S.cur-1); };
+  $('next').onclick=function(){ var m=gateMsg(S.cur); if(m){ $('gate').textContent=m; return; } go(S.cur+1); };
+
+  renderCards(); renderPType();
+  if(S.sel) { $('p-place').value = JOBS[S.sel]? JOBS[S.sel][0] : S.sel; }
+  renderAll(); prevPhen();
+})();
+</script>
+</body>
+</html>
