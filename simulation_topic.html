@@ -271,6 +271,26 @@ footer{padding:30px 0 46px; color:var(--muted); font-size:13px; text-align:cente
 .jobwarn{display:none; margin-top:10px; padding:10px 12px; border-radius:10px; background:color-mix(in srgb, var(--amber) 12%, var(--surface)); border:1px solid color-mix(in srgb, var(--amber) 40%, transparent); font-size:14px;}
 .jobwarn.on{display:block;}
 .flash{animation:flash 1s;}
+body:not(.unlocked) .lockable{display:none !important;}
+.game{max-width:760px; margin:0 auto; text-align:center;}
+.gcard{background:var(--surface); border:2px solid var(--border); border-radius:20px; padding:28px 22px; box-shadow:var(--shadow); min-height:170px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:8px; transition:border-color .2s, background .2s;}
+.gcard .gq{font-size:clamp(20px,3.2vw,27px); font-weight:900; line-height:1.4;}
+.gcard .gn{font-size:13px; font-weight:700; color:var(--muted);}
+.gcard.right{border-color:var(--good); background:color-mix(in srgb, var(--good) 10%, var(--surface));}
+.gcard.wrong{border-color:var(--bad); background:color-mix(in srgb, var(--bad) 8%, var(--surface));}
+.gwhy{font-size:15px; font-weight:700; min-height:24px;}
+.gbtns{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px;}
+.gbtn{font-size:22px; font-weight:900; padding:18px; border-radius:16px; border:none; cursor:pointer; color:#fff;}
+.gbtn.o{background:var(--good);} .gbtn.x{background:var(--bad);}
+.gbtn:disabled{opacity:.5; cursor:default;}
+.gbar{height:10px; border-radius:99px; background:var(--surface-3); overflow:hidden; margin:14px 0 6px;}
+.gbar i{display:block; height:100%; background:linear-gradient(90deg,var(--amber),var(--bad)); width:100%; transition:width .2s linear;}
+.gstat{display:flex; justify-content:space-between; font-size:14px; font-weight:700; color:var(--ink-2);}
+.grule{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:16px 0; text-align:left;}
+@media (max-width:640px){ .grule{grid-template-columns:1fr;} }
+.grule div{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px 12px; font-size:14px;}
+.grule b{display:block; color:var(--accent); font-size:15px;}
+.gresult{font-size:20px; font-weight:900; margin:10px 0;}
 @keyframes flash{0%{background:color-mix(in srgb, var(--amber) 35%, var(--surface));}100%{background:var(--surface);}}
 </style>
 </head>
@@ -282,11 +302,32 @@ footer{padding:30px 0 46px; color:var(--muted); font-size:13px; text-align:cente
     <div class="eyebrow"><span class="dot"></span>소프트웨어와 생활 · 4단원 시뮬레이션 · 문제 정의</div>
     <h1 class="display">내 시뮬레이션 주제 찾기</h1>
     <p class="lead">좋은 주제는 멀리 있지 않아. <b>내 일상, 내 관심사, 내 진로</b>에서 출발해서 <b>변하는 현상</b>을 찾고, <b>실험 질문</b>으로 다듬으면 돼. 칸마다 예시가 있어서 <b>눌러서 고르고, 내 상황에 맞게 고치면</b> 돼. AI 없이 내 머리로 다섯 단계를 밟아 보자.</p>
-    <div class="flow"><span>1 나에게서 출발</span><i>→</i><span>2 현상 찾기</span><i>→</i><span>3 실험 질문</span><i>→</i><span>4 확인하기</span><i>→</i><span>5 주제 카드</span></div>
+    <div class="flow"><span>0 스피드 게임</span><i>→</i><span>1 나에게서 출발</span><i>→</i><span>2 현상 찾기</span><i>→</i><span>3 실험 질문</span><i>→</i><span>4 확인하기</span><i>→</i><span>5 주제 카드</span></div>
   </div>
 </header>
 
-<section class="block alt">
+<section class="block" id="gameSec">
+  <div class="wrap game">
+    <div class="sectag">0단계 · 스피드 게임</div>
+    <h2 class="display" style="font-size:clamp(24px,3.6vw,34px)">시뮬레이션 주제로 적절할까?</h2>
+    <p class="hint" style="font-size:15px">60초 안에 10문제. <b>9개 이상</b> 맞히면 오늘 활동이 열려. 아래 세 가지가 모두 있으면 <b>적절하다</b>야. 문제는 120개 중에서 매번 다르게 나와.</p>
+    <div class="grule">
+      <div><b>① 변하는 현상</b>시간이 흐르며 늘고, 줄고, 몰리고, 퍼지고, 쌓인다</div>
+      <div><b>② 입력 변수</b>슬라이더로 바꿔 볼 값이 있다</div>
+      <div><b>③ 출력 값 + 실험의 어려움</b>결과가 숫자로 나오고, 직접 해 보기는 어렵다</div>
+    </div>
+    <div id="gStart"><button class="btn amber" id="gGo" style="font-size:18px; padding:14px 28px">게임 시작</button><div class="hint" id="gBest" style="margin-top:8px"></div></div>
+    <div id="gPlay" style="display:none">
+      <div class="gstat"><span id="gNum">1 / 10</span><span id="gScore">맞힘 0</span><span id="gTime">60초</span></div>
+      <div class="gbar"><i id="gBar"></i></div>
+      <div class="gcard" id="gCard"><div class="gn">이건 시뮬레이션 주제로 적절할까?</div><div class="gq" id="gQ"></div><div class="gwhy" id="gWhy"></div></div>
+      <div class="gbtns"><button class="gbtn o" id="gO">O 적절하다</button><button class="gbtn x" id="gX">X 적절하지 않다</button></div>
+    </div>
+    <div id="gEnd" style="display:none"><div class="gresult" id="gRes"></div><div class="hint" id="gResWhy" style="font-size:14.5px; text-align:left; max-width:620px; margin:0 auto"></div><div style="margin-top:12px"><button class="btn" id="gAgain">다시 도전</button></div></div>
+  </div>
+</section>
+
+<section class="block alt lockable">
   <div class="wrap">
     <div class="sechead"><span class="sectag">먼저 흐름 보기</span><h2>한 학생은 이렇게 주제를 찾았어</h2><p>간호사가 꿈인 학생의 예야. 낱말 하나가 시뮬레이션 주제가 되기까지의 과정을 봐.</p></div>
     <div class="chain">
@@ -299,14 +340,14 @@ footer{padding:30px 0 46px; color:var(--muted); font-size:13px; text-align:cente
   </div>
 </section>
 
-<div class="stepper-top">
+<div class="stepper-top lockable">
   <div class="wrap">
     <div class="stepdots" id="dots"></div>
     <div class="progress"><i id="bar"></i></div>
   </div>
 </div>
 
-<main class="wrap">
+<main class="wrap lockable">
 
 <!-- STEP 1 -->
 <section class="step" data-t="나에게서 출발">
@@ -390,7 +431,7 @@ footer{padding:30px 0 46px; color:var(--muted); font-size:13px; text-align:cente
 
 <!-- STEP 4 -->
 <section class="step" data-t="확인하기">
-  <div class="stephead"><div class="bignum">4</div><div><h2>시뮬레이션에 맞는지 확인하기</h2><div class="why">가장 마음에 드는 질문 <b>하나만</b> 골라서 두 가지에 답하면 돼.</div><div class="goal">목표: 질문 1개 고르고 두 가지 답하기</div></div></div>
+  <div class="stephead"><div class="bignum">4</div><div><h2>시뮬레이션에 맞는지 확인하기</h2><div class="why">가장 마음에 드는 질문 <b>하나만</b> 골라서 세 가지에 답하면 돼.</div><div class="goal">목표: 질문 1개 고르고 세 가지 답하기</div></div></div>
   <div class="panel">
     <h3>1) 질문 고르기</h3>
     <div id="pickq"></div>
@@ -409,18 +450,27 @@ footer{padding:30px 0 46px; color:var(--muted); font-size:13px; text-align:cente
     <div class="addrow" style="margin-top:8px"><input id="reasonOwn" placeholder="직접 쓰기 (예: 실제 응급실에서 의사 수를 마음대로 바꿀 수 없기)"></div>
     <div class="fix" id="fix-reason">직접 해 보면 금방 알 수 있다면 실제 실험이 더 정확해. 규모를 키우거나(전교생, 한 달) 위험하거나 돈이 드는 상황으로 바꿔 생각해 봐. 그래도 진행은 할 수 있어.</div>
   </div>
+  <div class="panel">
+    <h3>4) 내 예상은?</h3>
+    <div class="hint" id="predQ">질문을 고르면 예상할 문장이 나와.</div>
+    <div class="optrow" id="opt-pred"></div>
+    <div class="line qline" style="margin-top:10px">왜냐하면 <input id="predWhy" placeholder="예: 배식대가 많으면 한 번에 여러 명이 받을 수 있기"> 때문이다.</div>
+    <div class="hint" style="margin-top:6px">맞든 틀리든 괜찮아. 이 한 줄이 다음 시간 기획지의 <b>규칙</b>이 돼.</div>
+  </div>
   <div class="note warn"><span class="nt">고를 수 없는 주제</span>수업 실습 예시인 산불은 고를 수 없어.</div>
   <div class="verdict" id="v4"></div>
 </section>
 
 <!-- STEP 5 -->
 <section class="step" data-t="주제 카드">
-  <div class="stephead"><div class="bignum">5</div><div><h2>문제 정의하고 주제 카드 만들기</h2><div class="why">앞에서 고른 내용이 문장에 자동으로 들어가 있어. <b>문장 1만 고르거나 쓰면</b> 돼. 이게 교과서의 <b>① 문제 정의</b>야.</div><div class="goal">목표: 세 문장 완성 + 입력 변수 범위 + 제출</div></div></div>
+  <div class="stephead"><div class="bignum">5</div><div><h2>문제 정의하고 주제 카드 만들기</h2><div class="why">앞에서 고른 내용이 문장에 자동으로 들어가 있어. <b>문장 1만 고르거나 쓰면</b> 돼. 이게 교과서의 <b>① 문제 정의</b>야.</div><div class="goal">목표: 세 문장 + 쓸모 한 줄 + 입력 변수 범위 + 제출</div></div></div>
   <div class="note warn"><span class="nt">꼭 오늘 제출해</span>입력한 내용은 이 컴퓨터에만 저장돼. 다음 시간에 다른 자리에 앉으면 보이지 않으니, 끝나면 바로 주제 카드를 복사해 클래스룸에 제출해.</div>
   <div class="sent"><div class="lab">문장 1 · 불편했던 점, 궁금했던 점 (아래에서 하나 고른 뒤 <b>내 경험에 맞게 고쳐 써</b>)</div><div class="line">나는 <input id="s1" placeholder="아래 문장을 누르거나 직접 써"> 때문에 불편했다(궁금했다).</div>
     <div style="margin-top:8px" id="starters"></div></div>
   <div class="sent"><div class="lab">문장 2 · 직접 실험하기 어려운 이유 (4단계에서 자동, 고쳐 써도 돼)</div><div class="line">이 문제는 <input id="s2"> 때문에 직접 실험하기 어려워서 시뮬레이션으로 알아보려고 한다.</div></div>
   <div class="sent"><div class="lab">문장 3 · 알아볼 것 (3단계에서 자동)</div><div class="line">그래서 <input id="s3a" readonly> 을/를 바꾸면 <input id="s3b" readonly> 이/가 어떻게 변하는지 확인하려고 한다.</div></div>
+  <div class="sent"><div class="lab">이 시뮬레이션은 어디에 쓸모 있을까? · 결과를 알면 <b>누가 무엇을</b> 결정할 수 있을까?</div><div class="line"><input id="use" placeholder="예: 영양사가 배식대를 몇 개로 늘릴지 정할 수 있다"></div>
+    <div class="optrow" id="useEx" style="margin-top:6px"></div></div>
   <div class="sent"><div class="lab">입력 변수의 범위 · 실제로 있을 법한 가장 작은 값 ~ 가장 큰 값</div>
     <div class="grid2"><div class="fld"><label id="rl1">입력 변수 1</label><input id="rng1" placeholder="예: 1 ~ 5명"><div class="optrow" id="rr1"></div></div><div class="fld"><label id="rl2">입력 변수 2</label><input id="rng2" placeholder="예: 1 ~ 10분"><div class="optrow" id="rr2"></div></div></div>
   </div>
@@ -435,6 +485,8 @@ footer{padding:30px 0 46px; color:var(--muted); font-size:13px; text-align:cente
       <tr><th>입력 변수 (범위)</th><td id="x-in"></td></tr>
       <tr><th>출력 값</th><td id="x-out"></td></tr>
       <tr><th>한 단계</th><td id="x-time"></td></tr>
+      <tr><th>내 예상</th><td id="x-pred"></td></tr>
+      <tr><th>쓸모</th><td id="x-use"></td></tr>
       <tr><th>문제 정의</th><td id="x-def"></td></tr>
     </table>
     <div class="actions">
@@ -526,7 +578,7 @@ footer{padding:30px 0 46px; color:var(--muted); font-size:13px; text-align:cente
   var BANNED=['산불'];
   var COLORS=['var(--c3)','var(--c4)','var(--c5)','var(--c2)','var(--c1)','var(--accent)'];
 
-  var S={kw:{daily:[],interest:[],career:[]}, sel:null, phen:[], q:[], pick:null, time:null, reasons:[], reasonOwn:'', s1:'', s2:'', s2edited:false, rng1:'', rng2:'', sid:'', sname:'', cur:0};
+  var S={kw:{daily:[],interest:[],career:[]}, sel:null, phen:[], q:[], pick:null, time:null, reasons:[], reasonOwn:'', s1:'', s2:'', s2edited:false, pred:'', predWhy:'', use:'', gamePassed:false, gameBest:null, rng1:'', rng2:'', sid:'', sname:'', cur:0};
   try{ var sv=JSON.parse(localStorage.getItem(KEY)||'null'); if(sv){ for(var k in sv) S[k]=sv[k]; } }catch(e){}
   function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
   function esc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
@@ -728,7 +780,7 @@ footer{padding:30px 0 46px; color:var(--muted); font-size:13px; text-align:cente
   /* ---------- step 4 ---------- */
   function banned(i){ var p=S.phen[i], q=S.q[i]; var t=p.text+' '+p.kw+' '+q.in1+' '+q.in2+' '+q.out; return BANNED.some(function(b){ return t.indexOf(b)>=0; }); }
   function reasonText(){ var r=S.reasons.filter(function(x){return x!=='__easy';}).map(function(x){return RSENT[x]||x;}); if(S.reasonOwn) r.push(S.reasonOwn); return r.join(', '); }
-  function step4ok(){ return S.pick!=null && qDone(S.q[S.pick]) && !banned(S.pick) && S.time && (S.reasons.length>0||S.reasonOwn); }
+  function step4ok(){ return S.pick!=null && qDone(S.q[S.pick]) && !banned(S.pick) && S.time && (S.reasons.length>0||S.reasonOwn) && S.pred && (S.predWhy||'').trim(); }
   function renderStep4(){
     var box=$('pickq'), list=doneQ(); box.innerHTML='';
     if(S.pick!=null && list.indexOf(S.pick)<0) S.pick=null;
@@ -767,9 +819,15 @@ footer{padding:30px 0 46px; color:var(--muted); font-size:13px; text-align:cente
     });
     $('fix-reason').classList.toggle('on', S.reasons.indexOf('__easy')>=0);
     if(document.activeElement!==$('reasonOwn')) $('reasonOwn').value=S.reasonOwn||'';
+    var pq=$('predQ'), po=$('opt-pred'); po.innerHTML='';
+    if(S.pick!=null){ var qq=S.q[S.pick]; pq.innerHTML='<b>'+esc(qq.in1)+'</b>을(를) 늘리면 <b>'+esc(qq.out)+'</b>은(는) 어떻게 될 것 같아?';
+      ['늘어날 것 같다','줄어들 것 같다','별로 안 변할 것 같다','처음엔 변하다가 멈출 것 같다'].forEach(function(t){ var b=document.createElement('button'); b.className='opt'+(S.pred===t?' on':''); b.textContent=t; b.onclick=function(){ S.pred=t; save(); renderStep4(); renderExit(); }; po.appendChild(b); });
+    } else { pq.textContent='질문을 고르면 예상할 문장이 나와.'; }
+    if(document.activeElement!==$('predWhy')) $('predWhy').value=S.predWhy||'';
     var v=$('v4');
     if(step4ok()){ v.className='verdict ok'; v.textContent='다 답했어. 다음 단계로 가자.'; } else { v.className='verdict'; v.textContent=''; }
   }
+  $('predWhy').addEventListener('input',function(){ S.predWhy=this.value; save(); renderExit(); var v=$('v4'); if(step4ok()){ v.className='verdict ok'; v.textContent='다 답했어. 다음 단계로 가자.'; } else { v.className='verdict'; v.textContent=''; } });
   $('reasonOwn').addEventListener('input',function(){ S.reasonOwn=this.value.trim(); S.s2edited=false; save(); renderStep4(); renderStep5(); });
 
   /* ---------- step 5 ---------- */
@@ -806,12 +864,18 @@ footer{padding:30px 0 46px; color:var(--muted); font-size:13px; text-align:cente
       if(q && !rr){ r.innerHTML='<div class="hint">추천이 없는 값이야. <b>가장 적을 때</b>와 <b>가장 많을 때</b>를 상상해서 "최솟값 ~ 최댓값 단위"로 써 (예: 0 ~ 10개, 1 ~ 30분).</div>'; }
       if(q && rr){ var b=document.createElement('button'); b.className='schip'; b.textContent='추천 범위 넣기: '+rr; b.onclick=function(){ S[a[2]]=rr; save(); $(a[2]).value=S[a[2]]; renderExit(); }; r.appendChild(b); }
     });
-    ['rng1','rng2','sid','sname'].forEach(function(f){ if(document.activeElement!==$(f)) $(f).value=S[f]||''; });
+    ['rng1','rng2','sid','sname','use'].forEach(function(f){ if(document.activeElement!==$(f)) $(f).value=S[f]||''; });
+    var ue=$('useEx'); ue.innerHTML='';
+    if(q){ var p5=S.phen[S.pick], tp5=typeById(p5.type)||typeOf(p5.text), who=p5.place;
+      var USE={queue:'운영하는 사람이 기다리는 시간을 줄이려면 무엇을 얼마나 늘려야 할지 정할 수 있다',pile:'환기·청소·수거를 얼마나 자주 할지 정할 수 있다',spread:'얼마나 빨리 퍼질지 미리 알고 대비할 수 있다',deplete:'언제, 얼마나 채워 넣을지 정할 수 있다',grow:'목표까지 얼마나 걸릴지 계획을 세울 수 있다',stamina:'언제 쉬거나 교체할지 정할 수 있다',load:'장비를 몇 대 준비할지 정할 수 있다'};
+      var ex=[ who+'에서 '+(USE[tp5&&tp5.id]||q.in1+'을(를) 얼마로 하면 좋을지 정할 수 있다'), '나와 친구들이 '+q.out+'을(를) 줄이는(늘리는) 방법을 알 수 있다' ];
+      ex.forEach(function(t){ var b=document.createElement('button'); b.className='schip'; b.textContent=t; b.onclick=function(){ S.use=t; save(); $('use').value=t; $('use').classList.add('flash'); renderExit(); }; ue.appendChild(b); });
+    }
     renderExit();
   }
   $('s1').addEventListener('input',function(){ S.s1=this.value; save(); renderExit(); });
   $('s2').addEventListener('input',function(){ S.s2=this.value; S.s2edited=true; save(); renderExit(); });
-  ['rng1','rng2','sid','sname'].forEach(function(f){ $(f).addEventListener('input',function(){ S[f]=this.value; save(); renderExit(); }); });
+  ['rng1','rng2','sid','sname','use'].forEach(function(f){ $(f).addEventListener('input',function(){ S[f]=this.value; save(); renderExit(); }); });
   function v(t,ph){ return t? esc(t) : '<span class="empty">'+(ph||'아직 비어 있어')+'</span>'; }
   function defText(){
     var q=S.pick!=null? S.q[S.pick]:null;
@@ -826,12 +890,14 @@ footer{padding:30px 0 46px; color:var(--muted); font-size:13px; text-align:cente
     $('x-out').innerHTML= q? esc(q.out)+' ('+esc(q.unit)+')' : v('');
     $('x-time').innerHTML=v(S.time&&S.time!=='none'? S.time : (S.time==='none'?'한 번 계산 (선생님 확인 필요)':''));
     $('x-def').innerHTML= (S.s1||q)? esc(defText()) : v('');
+    $('x-pred').innerHTML= S.pred? esc((q? q.in1+'을(를) 늘리면 '+q.out+'은(는) ':'')+S.pred+(S.predWhy? ' 왜냐하면 '+S.predWhy+' 때문이다.':'')) : v('');
+    $('x-use').innerHTML=v(S.use);
   }
   function exitText(){
     var q=S.pick!=null? S.q[S.pick]:null, p=S.pick!=null? S.phen[S.pick]:null;
     return ['[시뮬레이션 주제 카드]','학번·이름: '+(S.sid||'')+' '+(S.sname||''),'현상: '+(p?p.text:''),'실험 질문: '+(q?qText(q):''),
       '입력 변수: '+(q? q.in1+' ('+(S.rng1||'')+'), '+q.in2+' ('+(S.rng2||'')+')':''),'출력 값: '+(q? q.out+' ('+q.unit+')':''),
-      '한 단계: '+(S.time==='none'?'한 번 계산':(S.time||'')),'문제 정의: '+defText()].join('\n');
+      '한 단계: '+(S.time==='none'?'한 번 계산':(S.time||'')),'내 예상: '+(q&&S.pred? q.in1+'을(를) 늘리면 '+q.out+'은(는) '+S.pred+(S.predWhy?' 왜냐하면 '+S.predWhy+' 때문이다.':''):''),'쓸모: '+(S.use||''),'문제 정의: '+defText()].join('\n');
   }
   $('copyBtn').onclick=function(){
     var t=exitText(), b=this;
@@ -848,7 +914,7 @@ footer{padding:30px 0 46px; color:var(--muted); font-size:13px; text-align:cente
     if(i===0){ var sh=Object.keys(BR).filter(function(b){ return S.kw[b].length<2; }); if(sh.length) return sh.map(function(b){return BR[b];}).join(', ')+' 갈래에 낱말을 2개 이상 모아 줘.'; }
     if(i===1 && S.phen.length<2) return '현상을 2개 이상 찾아 줘.';
     if(i===2 && doneQ().length<1) return '실험 질문을 1개 이상 완성해 줘. (네 칸 모두)';
-    if(i===3 && !step4ok()) return '질문을 고르고, 한 단계 간격과 실험이 어려운 이유를 골라 줘.';
+    if(i===3 && !step4ok()) return '질문을 고르고, 한 단계 간격, 실험이 어려운 이유, 내 예상과 이유를 채워 줘.';
     return '';
   }
   function renderNav(){
@@ -864,6 +930,44 @@ footer{padding:30px 0 46px; color:var(--muted); font-size:13px; text-align:cente
   function go(i){ S.cur=Math.max(0,Math.min(steps.length-1,i)); save(); renderAll(); var top=document.querySelector('main').getBoundingClientRect().top+window.pageYOffset-70; window.scrollTo({top:top,behavior:'smooth'}); }
   $('prev').onclick=function(){ go(S.cur-1); };
   $('next').onclick=function(){ var m=gateMsg(S.cur); if(m){ $('gate').textContent=m; return; } go(S.cur+1); };
+
+  /* ---------- speed game ---------- */
+  var GAME_O=[["급식실 줄이 점심시간에 길어진다", "배식대 수를 바꿔 볼 수 있고, 기다리는 시간이 숫자로 나와"], ["교실 이산화탄소가 수업 중에 쌓인다", "환기 횟수를 바꿔 볼 수 있고, 농도가 숫자로 나와"], ["콘서트가 끝나면 관객이 출구로 몰린다", "출구 수를 바꿔 볼 수 있고, 실제로 실험하기 위험해"], ["반 친구들 사이에 소문이 퍼진다", "전할 확률을 바꿔 볼 수 있고, 아는 사람 수가 숫자로 나와"], ["휴대폰 배터리가 게임할수록 닳는다", "화면 밝기를 바꿔 볼 수 있고, 남은 배터리가 숫자로 나와"], ["놀이공원 대기 시간이 주말에 길어진다", "한 번 태우는 인원을 바꿔 볼 수 있어"], ["편의점 삼각김밥이 아침마다 바닥난다", "진열 개수를 바꿔 볼 수 있고, 남은 개수가 숫자로 나와"], ["응급실에 환자들이 밤마다 몰린다", "의사 수를 바꿔 볼 수 있고, 실제로는 실험할 수 없어"], ["투수 체력이 이닝이 늘수록 떨어진다", "투구 수를 바꿔 볼 수 있고, 남은 체력이 숫자로 나와"], ["비상벨이 울리면 사람들이 출구로 대피한다", "출구 수를 바꿔 볼 수 있고, 직접 해 보기엔 위험해"], ["물 주는 양에 따라 화분 식물이 자란다", "물 양을 바꿔 볼 수 있고, 직접 하면 몇 주가 걸려"], ["접속자가 많을수록 게임 서버가 느려진다", "서버 수를 바꿔 볼 수 있고, 응답 시간이 숫자로 나와"], ["도서관 빈자리가 시험 기간에 줄어든다", "좌석 수를 바꿔 볼 수 있고, 빈자리 수가 숫자로 나와"], ["엘리베이터 대기 시간이 출근 시간에 길어진다", "엘리베이터 수를 바꿔 볼 수 있어"], ["화장실 줄이 쉬는 시간에 길어진다", "칸 수를 바꿔 볼 수 있고, 줄 선 인원이 숫자로 나와"], ["교실 온도가 여름 오후에 올라간다", "에어컨 설정 온도를 바꿔 볼 수 있어"], ["분리수거장 쓰레기가 주말 동안 쌓인다", "수거 간격을 바꿔 볼 수 있고, 쌓인 양이 숫자로 나와"], ["유튜브 영상 조회수가 공유될수록 늘어난다", "공유할 확률을 바꿔 볼 수 있어"], ["SNS 챌린지가 친구들 사이에 퍼진다", "따라 할 확률을 바꿔 볼 수 있고, 참여 인원이 숫자로 나와"], ["아이돌 굿즈 재고가 판매 시작 직후 바닥난다", "1인당 구매 제한을 바꿔 볼 수 있어"], ["게임 접속 대기 줄이 업데이트 날 길어진다", "서버 수를 바꿔 볼 수 있고, 대기 인원이 숫자로 나와"], ["반려동물 몸무게가 간식을 줄수록 늘어난다", "간식 횟수를 바꿔 볼 수 있고, 직접 하면 오래 걸려"], ["헬스장에서 운동할수록 근력이 늘어난다", "운동 횟수를 바꿔 볼 수 있고, 직접 하면 몇 달이 걸려"], ["축구 선수 체력이 경기 후반에 떨어진다", "교체 횟수를 바꿔 볼 수 있어"], ["팝업 스토어 대기 줄이 오픈 첫날 길어진다", "한 번에 들어가는 인원을 바꿔 볼 수 있어"], ["영화관 빈 좌석이 개봉 첫 주에 줄어든다", "상영 횟수를 바꿔 볼 수 있어"], ["미세먼지가 바람 없는 날 쌓인다", "바람 세기를 바꿔 볼 수 있고, 농도가 숫자로 나와"], ["용돈이 한 달 동안 줄어든다", "하루 쓰는 돈을 바꿔 볼 수 있고, 남은 돈이 숫자로 나와"], ["카페 주문이 출근 시간에 밀린다", "바리스타 수를 바꿔 볼 수 있어"], ["약국 대기 줄이 병원 점심시간 뒤에 길어진다", "약사 수를 바꿔 볼 수 있어"], ["호텔 빈방이 성수기에 줄어든다", "방 가격을 바꿔 볼 수 있고, 남은 방 수가 숫자로 나와"], ["공항 출국 심사 줄이 연휴 첫날 길어진다", "심사대 수를 바꿔 볼 수 있어"], ["배양 접시의 세균 수가 시간이 지날수록 늘어난다", "온도를 바꿔 볼 수 있고, 직접 하면 위험하고 오래 걸려"], ["공장 기계가 오래될수록 불량품이 늘어난다", "점검 간격을 바꿔 볼 수 있어"], ["물류 센터에 택배 상자가 할인 행사 뒤 쌓인다", "작업자 수를 바꿔 볼 수 있어"], ["은행 대기 시간이 월말에 길어진다", "창구 수를 바꿔 볼 수 있어"], ["저축한 돈이 이자가 붙을수록 늘어난다", "이자율을 바꿔 볼 수 있고, 직접 하면 몇 년이 걸려"], ["농장 해충이 여름철에 퍼진다", "농약 뿌리는 간격을 바꿔 볼 수 있어"], ["콜센터 대기 전화가 문의가 몰리는 날 쌓인다", "상담원 수를 바꿔 볼 수 있어"], ["외운 단어가 시간이 지날수록 잊힌다", "복습 간격을 바꿔 볼 수 있고, 기억한 단어 수가 숫자로 나와"], ["수면이 부족한 날이 이어지면 집중력이 떨어진다", "수면 시간을 바꿔 볼 수 있고, 직접 실험하면 건강에 해로워"], ["댐 물 높이가 장마철에 올라간다", "방류량을 바꿔 볼 수 있고, 실제로 실험할 수 없어"], ["태양광 발전량이 맑은 날 늘어난다", "패널 각도를 바꿔 볼 수 있어"], ["학교 축제 부스 줄이 오후에 길어진다", "운영 인원을 바꿔 볼 수 있어"], ["PC방 빈 좌석이 금요일 저녁에 줄어든다", "좌석 수를 바꿔 볼 수 있어"], ["수영장 레인이 방학에 붐빈다", "레인 수를 바꿔 볼 수 있고, 레인당 인원이 숫자로 나와"], ["자전거 대여소 자전거가 출근 시간에 줄어든다", "처음 자전거 수를 바꿔 볼 수 있어"], ["빵 반죽이 발효 시간 동안 부풀어 오른다", "발효 온도를 바꿔 볼 수 있어"], ["냄비 속 물이 끓일수록 줄어든다", "불 세기를 바꿔 볼 수 있고, 남은 물 양이 숫자로 나와"], ["마라톤 출발 직후 참가자가 좁은 길로 몰린다", "출발 그룹 수를 바꿔 볼 수 있고, 실제로 실험하기 어려워"], ["K-POP 앨범 판매량이 컴백 첫 주에 늘어난다", "판매처 수를 바꿔 볼 수 있어"], ["웹툰 댓글이 새 화가 올라오면 늘어난다", "업로드 간격을 바꿔 볼 수 있어"], ["포켓몬 배틀 중 체력(HP)이 공격받을수록 줄어든다", "공격력과 방어력을 바꿔 볼 수 있어"], ["야구장 입장 줄이 경기 직전에 길어진다", "입장 게이트 수를 바꿔 볼 수 있어"], ["가짜 뉴스가 SNS에서 하루 만에 퍼진다", "공유할 확률을 바꿔 볼 수 있고, 실제로 실험하면 안 돼"], ["건물 실내 온도가 겨울 밤 동안 내려간다", "단열 두께를 바꿔 볼 수 있어"], ["식당 손님이 점심시간에 몰린다", "테이블 수를 바꿔 볼 수 있어"], ["재활 운동을 할수록 환자 근력이 회복된다", "재활 횟수를 바꿔 볼 수 있고, 실제로는 오래 걸려"], ["공연장 입구에 관객이 입장 시간에 몰린다", "티켓 확인 게이트 수를 바꿔 볼 수 있어"], ["옷 가게 인기 상품 재고가 출시 후 바닥난다", "처음 재고를 바꿔 볼 수 있어"]];
+  var GAME_X=[["내 적성 알아보기", "바꿔 볼 입력 변수도, 숫자로 나오는 출력 값도 없어"], ["급식비 계산기", "한 번 계산하면 끝나. 시간이 흐르며 변하지 않아"], ["물이 끓는 시간 재기", "직접 끓여 보면 바로 알 수 있어"], ["오늘 저녁 메뉴 추천", "결과가 숫자가 아니라 의견이야"], ["시험 점수 평균 구하기", "한 번 계산하면 끝나"], ["학교 홈페이지 만들기", "변하는 현상을 실험하는 게 아니야"], ["영어 단어 퀴즈 앱", "현상을 실험하는 프로그램이 아니야"], ["내 키 재기", "직접 재 보면 바로 알 수 있어"], ["MBTI 검사", "바꿔 볼 입력 변수가 없어"], ["가장 좋아하는 과목 투표", "결과가 의견이고 시간 흐름이 없어"], ["용돈 합계 계산하기", "한 번 계산하면 끝나"], ["연필 길이 재기", "직접 재 보면 바로 알 수 있어"], ["시간표 보여 주는 앱", "변하는 현상을 실험하지 않아"], ["반 친구 생일 정리하기", "정리하는 일이지 실험이 아니야"], ["BMI 계산기", "한 번 계산하면 끝나"], ["오늘 날씨 확인하기", "실험이 아니라 정보를 보는 것이야"], ["좋아하는 노래 순위 매기기", "결과가 의견이야"], ["교실 책상 개수 세기", "직접 세면 바로 알 수 있어"], ["내 휴대폰 무게 재기", "저울로 재면 바로 알 수 있어"], ["할 일 목록 앱", "변하는 현상을 실험하지 않아"], ["영단어 뜻 찾기", "실험이 아니라 검색이야"], ["수학 문제 정답 확인", "한 번 확인하면 끝나"], ["우리 반 단체 사진 꾸미기", "현상을 실험하는 게 아니야"], ["공 하나 떨어뜨려 보기", "직접 해 보면 바로 알 수 있어"], ["내 성격 장단점 쓰기", "입력 변수와 숫자 결과가 없어"], ["환율 계산기", "한 번 계산하면 끝나"], ["학급 회의 안건 정리", "정리하는 일이지 실험이 아니야"], ["오늘 입을 옷 고르기", "결과가 의견이야"], ["동아리 홍보 포스터 만들기", "현상을 실험하는 게 아니야"], ["교과서 쪽수 세기", "직접 세면 바로 알 수 있어"], ["내가 좋아하는 색 고르기", "입력 변수도 숫자 결과도 없어"], ["자기소개서 쓰기", "현상을 실험하는 게 아니야"], ["시계 보고 시각 알기", "실험이 아니라 확인이야"], ["책 줄거리 요약하기", "현상을 실험하는 게 아니야"], ["손 씻는 데 걸린 시간 재기", "직접 재 보면 바로 알 수 있어"], ["학번으로 반 찾기", "한 번 찾으면 끝나"], ["좋아하는 연예인 이상형 월드컵", "결과가 의견이야"], ["학교 지도 그리기", "변하는 현상이 없어"], ["주사위 한 번 던져 보기", "직접 던져 보면 바로 알 수 있어"], ["내 꿈 발표하기", "입력 변수도 숫자 결과도 없어"], ["영화 감상문 쓰기", "현상을 실험하는 게 아니야"], ["단위 변환기 (cm를 m로)", "한 번 계산하면 끝나"], ["급식 메뉴 별점 매기기", "결과가 의견이야"], ["필통 속 펜 개수 세기", "직접 세면 바로 알 수 있어"], ["엘리베이터 버튼 디자인하기", "변하는 현상을 실험하지 않아"], ["반 대표 뽑기 투표", "결과가 의견이고 실제로 해 보면 돼"], ["가방 무게 재기", "저울로 재면 바로 알 수 있어"], ["계산기로 할인 가격 구하기", "한 번 계산하면 끝나"], ["우리 집 가훈 정하기", "입력 변수도 숫자 결과도 없어"], ["숙제 마감일 알림 앱", "현상을 실험하지 않아"], ["교실 창문 개수 세기", "직접 세면 바로 알 수 있어"], ["좋아하는 음식 설문 결과 보기", "이미 나온 결과를 보는 것이지 실험이 아니야"], ["물컵 하나 얼려 보기", "직접 해 보면 바로 알 수 있어"], ["나의 하루 일기 쓰기", "현상을 실험하는 게 아니야"], ["친구 전화번호 저장하기", "실험이 아니야"], ["한글 맞춤법 검사기", "현상을 실험하지 않아"], ["내 신발 사이즈 재기", "직접 재 보면 바로 알 수 있어"], ["학교 급훈 만들기", "입력 변수도 숫자 결과도 없어"], ["이번 주 로또 번호 맞히기", "결과가 우연이고, 바꿔서 실험할 원리가 없어"], ["책상 높이 재기", "직접 재 보면 바로 알 수 있어"]];
+  var G={list:[], idx:0, score:0, t:60, timer:null, lock:false, wrong:[]};
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  function gStart(){
+    G.list=shuffle(shuffle(GAME_O).slice(0,5).map(function(x){return [x[0],'O',x[1]];}).concat(shuffle(GAME_X).slice(0,5).map(function(x){return [x[0],'X',x[1]];})));
+    G.idx=0; G.score=0; G.t=60; G.wrong=[]; G.lock=false;
+    $('gStart').style.display='none'; $('gEnd').style.display='none'; $('gPlay').style.display='block';
+    gShow(); clearInterval(G.timer);
+    G.timer=setInterval(function(){ G.t-=0.2; if(G.t<=0){ G.t=0; gFinish(); } gStat(); },200);
+  }
+  function gStat(){ $('gNum').textContent=Math.min(G.idx+1,10)+' / 10'; $('gScore').textContent='맞힘 '+G.score; $('gTime').textContent=Math.ceil(G.t)+'초'; $('gBar').style.width=(G.t/60*100)+'%'; }
+  function gShow(){ var c=$('gCard'); c.className='gcard'; $('gQ').textContent=G.list[G.idx][0]; $('gWhy').textContent=''; $('gO').disabled=false; $('gX').disabled=false; gStat(); }
+  function gAnswer(a){
+    if(G.lock) return; G.lock=true; $('gO').disabled=true; $('gX').disabled=true;
+    var it=G.list[G.idx], ok=a===it[1], c=$('gCard');
+    if(ok){ G.score++; c.className='gcard right'; $('gWhy').textContent='정답! '+it[2]; }
+    else { c.className='gcard wrong'; $('gWhy').textContent='정답은 '+(it[1]==='O'?'적절하다':'적절하지 않다')+' · '+it[2]; G.wrong.push(it); }
+    gStat();
+    setTimeout(function(){ G.lock=false; G.idx++; if(G.idx>=10) gFinish(); else gShow(); }, ok? 700 : 1800);
+  }
+  function gFinish(){
+    clearInterval(G.timer); $('gPlay').style.display='none'; $('gEnd').style.display='block';
+    var used=Math.round(60-G.t), pass=G.score>=9;
+    $('gRes').innerHTML= pass? '<span style="color:var(--good)">통과! '+G.score+'/10 · '+used+'초</span>' : '<span style="color:var(--bad)">'+G.score+'/10 · 9개 이상 맞혀야 통과야</span>';
+    $('gResWhy').innerHTML= G.wrong.length? '<b>틀린 문제</b><br>'+G.wrong.map(function(w){ return '· '+esc(w[0])+' → 정답: '+(w[1]==='O'?'적절하다':'적절하지 않다')+' ('+esc(w[2])+')'; }).join('<br>') : '';
+    if(pass){ if(!S.gameBest || used<S.gameBest) S.gameBest=used; S.gamePassed=true; save(); unlock(true); $('gAgain').textContent='기록 깨러 다시 도전'; }
+    else { $('gAgain').textContent='다시 도전'; }
+  }
+  function unlock(scroll){
+    document.body.classList.add('unlocked');
+    $('gBest').textContent= S.gameBest? '통과했어. 최고 기록 '+S.gameBest+'초' : '';
+    if(scroll) setTimeout(function(){ var t=document.querySelector('section.block.alt.lockable').getBoundingClientRect().top+window.pageYOffset-20; window.scrollTo({top:t,behavior:'smooth'}); },1200);
+  }
+  $('gGo').onclick=gStart; $('gAgain').onclick=gStart; $('gO').onclick=function(){ gAnswer('O'); }; $('gX').onclick=function(){ gAnswer('X'); };
+  if(S.gamePassed || location.hash==='#teacher') unlock(false);
 
   renderCards(); renderPType();
   if(S.sel) { $('p-place').value = JOBS[S.sel]? JOBS[S.sel][0] : S.sel; }
