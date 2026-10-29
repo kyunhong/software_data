@@ -685,11 +685,11 @@ body:not(.unlocked) .lockable{display:none !important;}
 
   /* ---------- step 0: load ---------- */
   function parseCard(t){
-    function g(label){ var m=t.match(new RegExp(label+'[ \\t]*:[ \\t]*(.*)')); return m? m[1].trim() : ''; }
+    function g(label){ var m=t.match(new RegExp(label+'[ \\t]*[:：][ \\t]*(.*)')); return m? m[1].trim() : ''; }
     var r={id:g('학번·이름'), ph:g('현상'), time:g('한 단계'), pred:g('내 예상')};
-    var outl=g('출력 값'); var mo=outl.match(/^(.*)\s*\(([^()]*)\)\s*$/); if(mo){ r.out=mo[1].trim(); r.unit=mo[2].trim(); } else r.out=outl;
+    var outl=g('출력 값'); var mo=outl.match(/^(.*?)\s*\(([^()]*)\)\s*$/); if(mo){ r.out=mo[1].trim(); r.unit=mo[2].trim(); } else r.out=outl;
     var inl=g('입력 변수'); r.ins=[];
-    if(inl){ inl.split(/\),\s*/).forEach(function(part){ part=part.replace(/\)\s*$/,''); var k=part.lastIndexOf(' ('); if(k>0) r.ins.push({n:part.slice(0,k).trim(), r:part.slice(k+2).trim()}); else if(part.trim()) r.ins.push({n:part.trim(), r:''}); }); }
+    if(inl){ (/\(/.test(inl)? inl.split(/\)\s*,\s*/) : inl.split(/\s*,\s*/)).forEach(function(part){ part=part.replace(/\)\s*$/,''); var k=part.lastIndexOf('('); if(k>0) r.ins.push({n:part.slice(0,k).trim(), r:part.slice(k+1).trim()}); else { var d=part.search(/\d[\d.,]*\s*[가-힣a-zA-Z%]*\s*~/); if(d>0) r.ins.push({n:part.slice(0,d).trim(), r:part.slice(d).trim()}); else if(part.trim()) r.ins.push({n:part.trim(), r:''}); } }); }
     return r;
   }
   $('loadBtn').onclick=function(){
@@ -1014,7 +1014,7 @@ body:not(.unlocked) .lockable{display:none !important;}
     return '\''+st+'\'인 '+josa(o,'이','가')+' 언제 \''+nx+'\''+ro+' 바뀔까?'; }
 
   /* ---------- step 2 ---------- */
-  var PVC=['#2ecc71','#f1c40f','#e74c3c'];
+  var PVC=['#2ecc71','#e74c3c','#3498db'];
   ['e-space','e-obj','e-drop','e-lay'].forEach(function(id){ var k={'e-space':'space','e-obj':'obj','e-drop':'drop','e-lay':'layout'}[id]; $(id).addEventListener('input',function(){ S[k]=this.value; save(); renderPv(); if(k==='obj') setQ3(); }); });
   function st3(){ var a=(S.states||[]).slice(0,3); while(a.length<3) a.push(''); return a; }
   var ST3=null;
@@ -1136,7 +1136,7 @@ body:not(.unlocked) .lockable{display:none !important;}
         '<div class="fld"><label>왜냐하면 ~ 때문 (선택)</label><input data-i="2" data-k="c" value="'+esc(r.c)+'"></div></div>';
         btns='<button class="schip" data-hint="2">막히면 힌트 보기</button>';
         var m3=drawOf(), Q3=Q3M[m3], Q3old={D:['이웃 칸으로 번지거나, 사라지거나, 다시 비는 조건은?','만약 영양분이 바닥나면 / 세포가 죽은 세포가 된다 / 먹을 것이 없기 때문'],F:['한 번 뽑을 때마다 무엇이 줄거나 쌓일까? (돈, 뽑은 횟수 등)','만약 한 번 뽑으면 / 가진 돈이 1,000원 줄어든다 / 카드팩을 사야 하기 때문'],G:['물체가 땅이나 벽에 닿으면 어떻게 될까?','만약 공이 땅에 닿으면 / 멈추고 날아간 거리를 잰다 / 더 이상 날아가지 않기 때문']}[m3];
-        body='<div class="hint" style="margin-bottom:6px;font-weight:700">내 주제에서는: '+esc(Q3?Q3[0]:(tp.q3||''))+'</div>'+body+'<div class="exbox" id="ex2">예시 · '+esc(Q3?Q3[1]:tp.r3(o).join(' / '))+'</div>';
+        body='<div class="hint" style="margin-bottom:6px;font-weight:700">내 주제에서는: '+esc((Q3?Q3[0]:(tp.q3||'')).replace('새로운 사람은', o&&o!=='대상'? '새로운 '+o+(bat(o)?'은':'는') : '새로운 사람은'))+'</div>'+body+'<div class="exbox" id="ex2">예시 · '+esc(Q3?Q3[1]:tp.r3(o).join(' / '))+'</div>';
       }
       d.innerHTML='<h4>규칙 '+(i+1)+' · '+(i===0? ({F:'결과별 확률',I:'종류별로 늘고 주는 규칙',E:'구간이 바뀌는 규칙',J:'구간이 바뀌는 규칙',M:'구간이 바뀌는 규칙'}[drawOf()]||k[0]) : k[0])+'</h4><div class="rq">'+rqText(i)+'</div>'+body+(btns?'<div class="optrow">'+btns+'</div>':'');
       box.appendChild(d);
@@ -1353,7 +1353,9 @@ body:not(.unlocked) .lockable{display:none !important;}
     else if(t==='mon'){ var uv=used('mon','v'), v=monOpts().map(function(o){return o[0];}).filter(function(k){ return k!=='custom' && uv.indexOf(k)<0; })[0]||'custom'; it=newItem('mon',{v:v,c:'#3498db',w:22,h:12}); }
     else if(t==='plot') it=newItem('plot',{g:graphOpts()[graphOpts().length>1?1:0],c:'#e67e22',w:28,h:26});
     else it=newItem('title',{label:'새 글자',c:'#34495e',w:30,h:7});
-    var spot=[[40,40],[10,70],[70,70],[40,10],[5,40]].filter(function(p){ return !S.ui.items.some(function(q){ return p[0]<q.x+q.w && p[0]+it.w>q.x && p[1]<q.y+q.h && p[1]+it.h>q.y; }); })[0]||[38,40];
+    var hit=function(x,y){ return S.ui.items.reduce(function(a,q){ var ox=Math.min(x+it.w,q.x+q.w)-Math.max(x,q.x), oy=Math.min(y+it.h,q.y+q.h)-Math.max(y,q.y); return a+(ox>0&&oy>0? ox*oy : 0); },0); };
+    var spot=null, best=1e9; for(var yy=1; yy<=100-it.h-1 && best>0; yy+=1) for(var xx=1; xx<=100-it.w-1; xx+=1){ var hv=hit(xx,yy); if(hv<best){ best=hv; spot=[xx,yy]; if(!hv) break; } }
+    spot=spot||[38,40];
     it.x=Math.min(100-it.w,spot[0]); it.y=Math.min(100-it.h,spot[1]); S.ui.items.push(it); USEL=it.id; save(); renderUI(); }; });
   function uiProblems(){ if(!S.ui) return '화면을 만들어 줘.'; var its=S.ui.items;
     if(!its.some(function(it){return it.t==='sim';})) return '시뮬레이션 창이 있어야 해.';
@@ -1361,7 +1363,7 @@ body:not(.unlocked) .lockable{display:none !important;}
     if(!its.some(function(it){return it.t==='btn'&&it.f==='시작';})) return '"시작" 버튼이 있어야 해.';
     if(!its.some(function(it){return it.t==='btn'&&it.f==='초기화';})) return '"초기화" 버튼이 있어야 해.';
     if(!its.some(function(it){return it.t==='mon';})) return '모니터(숫자)를 하나 이상 넣어 줘.';
-    if(!its.some(function(it){return it.t==='plot';})) return '그래프를 하나 이상 넣어 줘.';
+    if(!its.some(function(it){return it.t==='plot';})) return '그래프를 하나 이상 넣어 줘.'; if(overlaps().length) return '겹친 부품이 있어. 빨간 글씨를 보고 끌어서 떨어뜨려 줘. 어려우면 위쪽 "배치 틀" 버튼 하나를 눌러.';
     var cs=S.states.map(function(s){return S.colors[s];}); if(cs.some(function(c,k){ return !c || cs.indexOf(c)!==k; })) return '시뮬레이션 창을 눌러 상태마다 서로 다른 색을 골라 줘.';
     return ''; }
 
@@ -1466,8 +1468,11 @@ body:not(.unlocked) .lockable{display:none !important;}
     if(i===0){ if(!(filled(S.ph) && filled(S.out) && S.ins.filter(function(x){return filled(x.n);}).length>=2)) return '현상, 입력 변수 2개, 출력 값을 채워 줘.'; if(!filled(S.id)) return '학번 · 이름을 써 줘. 마지막에 제출할 때 함께 들어가.'; }
     if(i===1 && !S.gamePassed) return '추상화 게임을 통과해야 다음이 열려.';
     if(i===2){ if(!filled(S.space)) return '① 공간을 써 줘.'; if(!filled(S.obj)) return '② 질문에 답해 줘.'; if(DRAW[drawOf()].lay && !filled(S.layout)) return '② 아래 칸('+DRAW[drawOf()].lay+')도 써 줘.'; if(S.states.length<2) return '③ 상태를 2개 이상 써 줘. 추천 넣기를 눌러도 돼.'; if(!filled(S.drop)) return '④ 뺄 것 하나를 써 줘.'; }
-    if(i===3){ if(S.ins.filter(function(x){return filled(x.n)&&filled(x.r);}).length<2) return '입력 변수 2개 이상에 이름과 범위를 모두 써 줘.'; var bad=S.ins.filter(function(x){ return filled(x.n) && !rangeOk(x.r); }); if(bad.length) return '"'+bad[0].n+'"의 범위를 "1 ~ 4개"처럼 숫자 두 개와 물결(~)로 써 줘. 슬라이더의 양 끝이 돼.'; }
-    if(i===4){ if(S.states.length<2) return '2단계에서 상태를 2개 이상 정해 줘.'; if(!transFull()) return '규칙 1의 화살표마다 "만약 ~하면"을 써 줘.'; if(!irulesFull()) return '규칙 2에서 입력 변수마다 세 칸을 모두 채워 줘.'; if(!r3Full()) return '규칙 3의 "만약 ~하면"과 "~된다"를 채워 줘.'; if(anyPh()) return '괄호로 된 안내 문구를 지우고 내 말로 채워 줘.'; }
+    if(i===3){ if(S.ins.filter(function(x){return filled(x.n)&&filled(x.r);}).length<2) return '입력 변수 2개 이상에 이름과 범위를 모두 써 줘.'; var bad=S.ins.filter(function(x){ return filled(x.n) && !rangeOk(x.r); }); if(bad.length) return '"'+bad[0].n+'"의 범위를 "1 ~ 4개"처럼 숫자 두 개와 물결(~)로 써 줘. 슬라이더의 양 끝이 돼.'; var rev=S.ins.filter(function(x){ if(!filled(x.n)) return false; var q=rangeParse(x.r); return !(q.max>q.min); })[0]; if(rev) return '"'+rev.n+'"의 범위는 작은 수부터 큰 수 순서로 써 줘. (예: 10 ~ 50개)'; }
+    if(i===4){ if(S.states.length<2) return '2단계에서 상태를 2개 이상 정해 줘.'; if(!transFull()) return '규칙 1의 화살표마다 "만약 ~하면"을 써 줘.'; if(!irulesFull()) return '규칙 2에서 입력 변수마다 세 칸을 모두 채워 줘.'; if(!r3Full()) return '규칙 3의 "만약 ~하면"과 "~된다"를 채워 줘.'; if(anyPh()) return '괄호로 된 안내 문구를 지우고 내 말로 채워 줘.';
+      var nrm=function(x){ return (x||'').replace(/[\s.,!?~]/g,''); }, dup=function(a){ a=a.map(nrm).filter(Boolean); return a.some(function(x,k){ return a.indexOf(x)!==k; }); };
+      if(!PERSTATE[drawOf()] && dup(S.trans.slice(0,nT()))) return '규칙 1에 똑같은 문장이 있어. 칸마다 언제 바뀌는지 따로 써 줘.';
+      var ir=S.irules.slice(0,S.ins.filter(function(x){return filled(x.n);}).length); if(ir.length>1 && dup(ir.map(function(r){return r.b;}))) return '규칙 2의 "무엇이 어떻게 달라져?"가 입력마다 똑같아. 입력 변수마다 달라지는 점을 따로 써 줘.'; }
     if(i===5){ if(!filled(S.time)) return '한 단계 시간을 정해 줘.'; if(!filled(S.end)) return '끝나는 조건을 써 줘. 예시를 눌러도 돼.'; }
     if(i===6 && !(S.quiz && S.quiz.filter(function(x){return x===true;}).length===5)) return '다섯 부품 모두 입력인지 출력인지 맞혀 줘.';
     if(i===7){ var up=uiProblems(); if(up) return up; }
