@@ -846,7 +846,7 @@ details.faq dd{margin:2px 0 0 0;color:var(--ink-2);font-size:14.5px}
 </section>
 <!-- 8 -->
 <section class="step" data-t="정리 · 제출">
-  <div class="stephead"><div class="bignum">8</div><div><div class="phase">마무리</div><h2>논리 점검하고 제출하기</h2><div class="why">내 글이 하나의 이야기로 이어지는지 확인하고, 클래스룸 과제에 <b>① 시뮬레이션 HTML 파일</b>, <b>② 프롬프트 누적 기록</b>, <b>③ 실행 및 해석 보고서</b>를 올려. 그다음 ③을 보면서 <b>④ 분석 글을 수기 용지에 손으로</b> 써서 종이로 내.</div><div class="goal">목표: 논리 점검 4개 · ①~③ 클래스룸 · ④ 수기 분석 글</div></div></div>
+  <div class="stephead"><div class="bignum">8</div><div><div class="phase">마무리</div><h2>논리 점검하고 제출하기</h2><div class="why">내 글이 하나의 이야기로 이어지는지 확인하고, <b>② 프롬프트 기록</b>은 작성지 <b>[구현 ⓐ·ⓑ]</b>에, <b>③ 보고서</b>는 작성지 <b>[실행 및 해석 보고서]</b> 칸에 붙여 넣어. 클래스룸에는 <b>작성지와 ① 시뮬레이션 HTML 파일</b>을 올려. 그다음 ③을 보면서 <b>④ 분석 글을 수기 용지에 손으로</b> 써서 종이로 내.</div><div class="goal">목표: 논리 점검 4개 · ②③ 작성지에 붙여 넣기 · 작성지와 HTML 클래스룸 · ④ 수기 분석 글</div></div></div>
   <div class="panel" id="laterBox" style="display:none;border:1.5px solid var(--bad)"></div>
   <div class="panel">
     <h3>내 생각의 흐름</h3>
@@ -881,12 +881,13 @@ details.faq dd{margin:2px 0 0 0;color:var(--ink-2);font-size:14.5px}
   </div>
 
   <div class="subcard">
-    <div class="subhead"><span class="subno">④</span><div><b>분석 글 (수기 · 5점)</b><div class="hint">나눠 준 <b>수기 용지</b>에 손으로 500~800자 · 종이로 제출</div></div><span class="pill" id="okS4"></span></div>
+    <div class="subhead"><span class="subno">④</span><div><b>분석 글 (수기 · 5점)</b><div class="hint">나눠 준 <b>수기 용지</b>에 손으로 500~1000칸 (띄어쓰기 포함) · 종이로 제출</div></div><span class="pill" id="okS4"></span></div>
     <ol class="howto">
-      <li><b>첫 문단</b>: 내 시뮬레이션 소개 2~3문장 (어떤 현상인지, 입력 2개와 출력, 핵심 규칙 하나). 점수는 없으니 짧게.</li>
+      <li><b>첫 문단</b>: 내 시뮬레이션 소개 2~3문장 (어떤 현상인지, 입력 2개와 출력, 핵심 규칙 하나).</li>
       <li><b>다음 문단부터</b>: 분석 ①~⑤가 모두 들어가게 <b>한 편의 글로 이어서</b>. ① 실험 결과 숫자 ② 적용된 규칙 · 식과 계산값 비교 ③ 실제와 비교 ④ 한계와 발전 ⑤ 결론과 활용</li>
       <li>위 ③ 보고서와 실험 기록표는 <b>보면서 써도 돼</b>. 그대로 베끼지 말고 <b>내 말로 줄이고 이어서</b>. <b>AI 창은 닫아.</b></li>
-      <li>쓰기 전에 용지 앞면의 <b>"이렇게 써야 인정돼요"</b>를 읽고, 다 쓰면 ①~⑤가 모두 들어갔는지 스스로 확인한 뒤 선생님께 내. <b>최소 500자</b>, 800칸까지만 채점돼.</li>
+      <li><b>①의 숫자와 ②의 식은 작성지 [핵심 정리]와 같아야 인정돼.</b></li>
+      <li>다 쓰면 안내문의 <b>분석하기 ①~⑤</b>를 보고 모두 들어갔는지 스스로 확인한 뒤 선생님께 내. <b>최소 500칸</b>, 1000칸까지만 채점돼.</li>
     </ol>
     <label style="display:flex; gap:8px; align-items:center; cursor:pointer; margin-top:8px; font-weight:700"><input type="checkbox" id="sub4" style="width:auto"> 수기 분석 글을 다 쓰고 선생님께 냈어</label>
   </div>
@@ -894,7 +895,7 @@ details.faq dd{margin:2px 0 0 0;color:var(--ink-2);font-size:14.5px}
   <div class="panel">
     <h3>마지막 확인</h3>
     <div id="subCheck"></div>
-    <div class="hint" style="margin-top:8px">②와 ③은 각각 복사해서 클래스룸 과제에 붙여 넣어 (선생님이 정한 곳에). ①~③을 올렸으면 클래스룸에서 <b>제출</b>을 누르고 "제출함"으로 바뀌었는지 확인해. ④는 종이로 내.</div>
+    <div class="hint" style="margin-top:8px">②와 ③은 각각 복사해서 작성지의 해당 칸에 붙여 넣어. 작성지와 ① HTML 파일을 클래스룸에 올렸으면 <b>제출</b>을 누르고 "제출함"으로 바뀌었는지 확인해. ④는 종이로 내.</div>
   </div>
 </section>
 
@@ -1108,7 +1109,7 @@ details.faq dd{margin:2px 0 0 0;color:var(--ink-2);font-size:14.5px}
   function renderVlog(){
     var el=$('vlog'); if(!S.versions.length){ el.innerHTML='<div class="hint">아직 기록이 없어. 1단계에서 버전 1을 기록해.</div>'; return; }
     var nAfter=S.versions.filter(function(v){return !isFirst(v);}).length, nRule=S.versions.filter(function(v){return !isFirst(v) && v.rule;}).length;
-    var prog='<div class="hint" style="margin-bottom:8px">수행평가 기준까지: <b>v2 이후 '+nAfter+' / 5개</b> '+(nAfter>=5?'✓':'')+' · <b>규칙 고침 '+nRule+' / 1개</b> '+(nRule>=1?'✓':'(아래 표의 O/X를 누르거나 "규칙을 현실에 맞게"를 해 봐)')+'</div>';
+    var prog='<div class="hint" style="margin-bottom:8px">수행평가 기준까지: <b>v2 이후 '+nAfter+' / 2개</b> '+(nAfter>=2?'✓':'')+'</div>';
     el.innerHTML=prog+'<div style="overflow-x:auto"><table class="vtable"><tr><th>버전</th><th>무엇을</th><th>보낸 프롬프트</th><th>결과</th><th>규칙 고침</th></tr>'+S.versions.map(function(v,i){
       var resCell= isFirst(v)? '<span class="'+resCls(v.res)+'">'+esc(resLabel(v.res)||'1단계에서 고르기')+'</span>' : ['ok','mid','no'].map(function(r){ return '<button class="opt'+(r==='no'?' bad':'')+(v.res===r?' on':'')+'" data-vr="'+i+'" data-r="'+r+'" style="padding:4px 9px;font-size:13px;margin:2px">'+resLabel(r)+'</button>'; }).join('');
       var ruleCell= isFirst(v)? '' : '<button class="opt'+(v.rule?' on':'')+'" data-vrule="'+i+'" style="padding:4px 10px;font-size:13px">'+(v.rule?'O':'X')+'</button>';
@@ -1128,7 +1129,7 @@ details.faq dd{margin:2px 0 0 0;color:var(--ink-2);font-size:14.5px}
       var pr= v.kind==='고치기'? josa(v.target,'이','가')+' 설계대로 안 됨' : v.kind==='오류 해결'? v.target+' 문제' : v.kind==='규칙 현실화'? '규칙을 현실에 맞게 고침' : '더 좋게: '+v.target;
       L.push('v'+v.v+' | 문제: '+pr+' | 보낸 프롬프트: '+v.prompt.replace(/\n/g,' ')+' | 결과: '+(resLabel(v.res)||'미기록')+' | 규칙 고침: '+(v.rule?'O':'X')); });
     var nA=S.versions.filter(function(v){return !isFirst(v);}).length, nR=S.versions.filter(function(v){return !isFirst(v) && v.rule;}).length;
-    L.push('(v2 이후 '+nA+'개 · 규칙 고침 '+nR+'개 / 수행평가 기준: 5개 이상 · 1개 이상)');
+    L.push('(v2 이후 '+nA+'개 / 수행평가 기준: v2부터 2개 이상)');
     L.push(''); L.push('■ 최종 점검 결과');
     its.forEach(function(it){ var ok=S.ck[it.k]===true; L.push((ok?'[O] ':'[X] ')+it.q+(S.fx[it.k]==='gave'? ' → 못 고침: '+(S.giveNote[it.k]||'') : '')); });
     L.push(''); L.push('■ 저장: '+(S.sv1?'HTML 파일 저장함':'저장 안 함')+(S.sv2?' · 실행 확인함':''));
@@ -1417,7 +1418,7 @@ details.faq dd{margin:2px 0 0 0;color:var(--ink-2);font-size:14.5px}
     later.forEach(function(v,i){ var pr= v.kind==='고치기'? josa(v.target,'이','가')+' 설계대로 안 됨' : v.kind==='오류 해결'? v.target+' 문제' : v.kind==='규칙 현실화'? '규칙을 현실에 맞게 고침' : '더 좋게: '+v.target;
       L.push((extra? '추가 '+(i+1) : 'v'+v.v)+' | 문제: '+pr+' | 보낸 프롬프트: '+v.prompt.replace(/\n/g,' ')+' | 결과: '+(resLabel(v.res)||'미기록')+' | 규칙 고침: '+(v.rule?'O':'X')+(v.key && S.fx[v.key]==='gave'? ' | 끝내 못 고침: '+punct(S.giveNote[v.key]||'') : '')); });
     var nA=later.length, nR=later.filter(function(v){return v.rule;}).length;
-    L.push(''); L.push('(이 컴퓨터 기록: 고친 프롬프트 '+nA+'개 · 규칙 고침 '+nR+'개 / 수행평가 기준: v2 이후 5개 이상 · 규칙 고침 1개 이상)');
+    L.push(''); L.push('(이 컴퓨터 기록: 고친 프롬프트 '+nA+'개 / 수행평가 기준: v2부터 2개 이상)');
     return L.join('\n'); }
   function subState(){ return [['① 시뮬레이션 HTML 파일 첨부',!!S.sub1],['② 프롬프트 누적 기록 복사',!!S.cpLog],['③ 실행 및 해석 보고서 복사',!!S.cpRep],['④ 수기 분석 글 제출 (종이)',!!S.sub4]]; }
   function renderLater(){ var b=blanks(), el=$('laterBox'); if(!el) return; if(!b.length){ el.style.display='none'; return; } el.style.display='block';
@@ -1427,14 +1428,14 @@ details.faq dd{margin:2px 0 0 0;color:var(--ink-2);font-size:14.5px}
     $('fname2').textContent=((S.id||'학번 이름').trim().replace(/\s+/g,'_'))+'_시뮬레이션.html'; $('sub1').checked=!!S.sub1; $('sub4').checked=!!S.sub4;
     $('buildReport2').textContent=promptLog(); $('finalReport').textContent=finalReport();
     var hasV1=S.versions.some(function(v){ return v.v===1 && v.kind==='처음 만들기'; }), nA=S.versions.filter(function(v){ return !(v.v===1 && v.kind==='처음 만들기'); }).length;
-    $('vNote').innerHTML= S.skip4 && !hasV1? '이 컴퓨터에는 지난 시간의 버전 기록이 없어. <b>지난 시간에 클래스룸에 낸 구현 기록</b>의 버전 기록을 함께 붙여 넣어. 오늘 Gemini에 프롬프트를 더 보냈다면 <b>3단계</b>에서 기록하면 여기에 이어져.' : (nA<5? '고친 프롬프트가 '+nA+'개야. 수행평가 기준은 v2 이후 5개 이상 · 규칙 고침 1개 이상이야. 더 고쳤다면 3단계에서 기록해.' : '오늘 프롬프트를 더 보냈다면 3단계에서 기록하면 여기에 이어져.');
+    $('vNote').innerHTML= S.skip4 && !hasV1? '이 컴퓨터에는 지난 시간의 버전 기록이 없어. <b>지난 시간에 클래스룸에 낸 구현 기록</b>의 버전 기록을 함께 붙여 넣어. 오늘 Gemini에 프롬프트를 더 보냈다면 <b>3단계</b>에서 기록하면 여기에 이어져.' : (nA<2? '고친 프롬프트가 '+nA+'개야. 수행평가 기준은 v2부터 2개 이상이야. 더 고쳤다면 3단계에서 기록해.' : '오늘 프롬프트를 더 보냈다면 3단계에서 기록하면 여기에 이어져.');
     [['okS1',S.sub1],['okS2',S.cpLog],['okS3',S.cpRep],['okS4',S.sub4]].forEach(function(p){ var e=$(p[0]); e.textContent=p[1]? '✓ 완료' : ''; e.style.display=p[1]? 'inline-block' : 'none'; });
     $('subCheck').innerHTML=subState().map(function(x){ return '<div class="subrow '+(x[1]?'ok':'no')+'"><span class="mk">'+(x[1]?'✓':'○')+'</span>'+esc(x[0])+'</div>'; }).join(''); }
   $('sub1').onchange=function(){ S.sub1=this.checked; save(); renderSub(); };
   $('sub4').onchange=function(){ S.sub4=this.checked; save(); renderSub(); };
-  $('copyBuild2').onclick=function(){ S.cpLog=true; save(); renderSub(); copyText(promptLog(),this,'복사했어. 클래스룸에 붙여 넣어'); };
+  $('copyBuild2').onclick=function(){ S.cpLog=true; save(); renderSub(); copyText(promptLog(),this,'복사했어. 작성지에 붙여 넣어'); };
   $('goFix').onclick=function(){ go(3); };
-  $('copyFinal').onclick=function(){ if(blanks().length){ $('gate').textContent='보고서에 빈 곳이 있어. 먼저 '+blanks().map(function(i){ return i+'단계'; }).join(', ')+'를 채우고 복사해 줘.'; window.scrollTo(0,document.body.scrollHeight); return; } S.cpRep=true; save(); renderSub(); copyText(finalReport(),this,'복사했어. 클래스룸에 붙여 넣어'); };
+  $('copyFinal').onclick=function(){ if(blanks().length){ $('gate').textContent='보고서에 빈 곳이 있어. 먼저 '+blanks().map(function(i){ return i+'단계'; }).join(', ')+'를 채우고 복사해 줘.'; window.scrollTo(0,document.body.scrollHeight); return; } S.cpRep=true; save(); renderSub(); copyText(finalReport(),this,'복사했어. 작성지에 붙여 넣어'); };
 
   /* ---------- nav & gates ---------- */
   var steps=[].slice.call(document.querySelectorAll('section.step')), dots=$('dots');
