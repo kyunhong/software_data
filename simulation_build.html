@@ -51,6 +51,12 @@ input:focus,textarea:focus{outline:2px solid color-mix(in srgb, var(--accent) 50
 .hero{padding:56px 0 40px; background:radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 55%), radial-gradient(circle at 88% 6%, color-mix(in srgb, var(--amber) 18%, transparent), transparent 50%), var(--surface); border-bottom:1px solid var(--border);}
 .back-hub{display:flex; width:max-content; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--ink-2); text-decoration:none; margin-bottom:14px;}
 .back-hub:hover{color:var(--accent);}
+.toprow{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap;}
+.toprow .back-hub{margin-bottom:0;}
+.resetbtn{font:700 12.5px "Noto Sans KR",sans-serif; color:var(--ink-2); background:transparent; border:1px solid var(--border-strong,var(--border)); border-radius:999px; padding:5px 12px; cursor:pointer;}
+.resetbtn:hover{color:var(--accent); border-color:var(--accent);}
+.restorenote{font-size:13px; color:var(--ink-2); background:color-mix(in srgb, var(--amber,#c9781f) 12%, transparent); border-radius:10px; padding:8px 12px; margin:0 0 12px;}
+.restorenote[hidden]{display:none;}
 .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:700; letter-spacing:.14em; color:var(--accent); margin-bottom:14px;}
 .eyebrow .dot{width:7px; height:7px; border-radius:50%; background:var(--amber);}
 .hero h1{font-size:clamp(30px,5vw,50px); line-height:1.18;}
@@ -546,7 +552,8 @@ details.faq dd{margin:2px 0 0 0;color:var(--ink-2);font-size:14.5px}
 
 <header class="hero">
   <div class="wrap">
-    <a class="back-hub" href="./index.html">← 실습 허브로</a>
+    <div class="toprow"><a class="back-hub" href="./index.html">← 실습 허브로</a><button type="button" class="resetbtn" id="resetAll">처음부터 다시</button></div>
+    <div class="restorenote" id="restoreNote" hidden>이 컴퓨터에 저장된 내용이 있어서 이어서 불러왔어. 내 것이 아니면 <b>처음부터 다시</b>를 눌러.</div>
     <div class="eyebrow"><span class="dot"></span>소프트웨어와 생활 · 4단원 시뮬레이션 · 모델 구현 · 실행 및 해석</div>
     <h1 class="display">시뮬레이션 만들고 실험하기</h1>
     <p class="lead">지난 시간에 낸 <b>첫 프롬프트</b>로 Gemini Canvas에서 시뮬레이션을 <b>만들고, 점검하고, 고쳐</b>(④ 모델 구현). 그다음 조건을 바꿔 가며 <b>실험</b>하고, 결과가 <b>실제와 어떻게 다를지, 무엇이 한계인지, 어떻게 발전시키고 어디에 쓸 수 있을지</b> 논리적으로 생각해 보자(⑤ 실행 및 해석).</p>
@@ -911,6 +918,18 @@ details.faq dd{margin:2px 0 0 0;color:var(--ink-2);font-size:14.5px}
 <script>
 (function(){
   var KEY='simBuild.v1';
+  var TTL=60*60*1000, TSKEY=KEY+'.ts', RESTORED=false, RESETTING=false, _lastTouch=0;
+  try{ var _raw=localStorage.getItem(KEY), _ts=+localStorage.getItem(TSKEY)||0;
+    if(_raw && (!_ts || Date.now()-_ts>TTL)){ localStorage.removeItem(KEY); localStorage.removeItem(TSKEY); }
+    else if(_raw){ RESTORED=true; } }catch(e){}
+  function touchTs(force){ if(RESETTING) return; var n=Date.now(); if(!force && n-_lastTouch<10000) return; _lastTouch=n; try{ localStorage.setItem(TSKEY, String(n)); }catch(e){} }
+  ['input','click','keydown','change'].forEach(function(ev){ document.addEventListener(ev, function(){ touchTs(false); }, true); });
+  window.addEventListener('pagehide', function(){ touchTs(true); });
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden') touchTs(true); });
+  (function(){ var rb=document.getElementById('resetAll'), rn=document.getElementById('restoreNote');
+    if(rn && RESTORED) rn.hidden=false;
+    if(rb) rb.addEventListener('click', function(){ if(!confirm('지금까지 쓴 내용이 모두 지워지고 처음부터 다시 시작해. 계속할까?')) return; RESETTING=true; try{ localStorage.removeItem(KEY); localStorage.removeItem(TSKEY); }catch(e){} location.reload(); });
+  })();
   function $(id){ return document.getElementById(id); }
   function esc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
   function bat(w){ w=(w||'').trim().replace(/\s*\([^()]*\)\s*$/,'').replace(/["'”’]+$/,''); var c=w.charCodeAt(w.length-1); if(c>=0x30&&c<=0x39) return '013678'.indexOf(w.charAt(w.length-1))>=0; return c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28!==0; }
@@ -931,7 +950,7 @@ details.faq dd{margin:2px 0 0 0;color:var(--ink-2);font-size:14.5px}
     diff:[],dSame:'',src:[],dReal:'',dSim:'',lWhen:'',lHow:'',dev:[],dvWhat:'',dvGain:'',uWho:'',uWhat:'',gain:[],uGain:'',uCare:'',
     logic:[null,null,null,null],cur:0};
   try{ var sv=JSON.parse(localStorage.getItem(KEY)||'null'); if(sv){ for(var k in sv) S[k]=sv[k]; } }catch(e){}
-  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} var g=document.getElementById('gate'); if(g) g.textContent=''; }
+  function save(){ if(RESETTING) return; touchTs(false); try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} var g=document.getElementById('gate'); if(g) g.textContent=''; }
 
   /* ---------- parse ---------- */
   var CNAMES='초록|파랑|빨강|노랑|보라|주황|청록|회색|남색|흰색|검정';

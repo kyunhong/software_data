@@ -51,6 +51,12 @@ input:focus,textarea:focus{outline:2px solid color-mix(in srgb, var(--accent) 50
 .hero{padding:56px 0 40px; background:radial-gradient(circle at 14% 18%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 55%), radial-gradient(circle at 88% 6%, color-mix(in srgb, var(--amber) 18%, transparent), transparent 50%), var(--surface); border-bottom:1px solid var(--border);}
 .back-hub{display:flex; width:max-content; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--ink-2); text-decoration:none; margin-bottom:14px;}
 .back-hub:hover{color:var(--accent);}
+.toprow{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap;}
+.toprow .back-hub{margin-bottom:0;}
+.resetbtn{font:700 12.5px "Noto Sans KR",sans-serif; color:var(--ink-2); background:transparent; border:1px solid var(--border-strong,var(--border)); border-radius:999px; padding:5px 12px; cursor:pointer;}
+.resetbtn:hover{color:var(--accent); border-color:var(--accent);}
+.restorenote{font-size:13px; color:var(--ink-2); background:color-mix(in srgb, var(--amber,#c9781f) 12%, transparent); border-radius:10px; padding:8px 12px; margin:0 0 12px;}
+.restorenote[hidden]{display:none;}
 .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:13px; font-weight:700; letter-spacing:.14em; color:var(--accent); margin-bottom:14px;}
 .eyebrow .dot{width:7px; height:7px; border-radius:50%; background:var(--amber);}
 .hero h1{font-size:clamp(30px,5vw,50px); line-height:1.18;}
@@ -460,7 +466,8 @@ body:not(.unlocked) .lockable{display:none !important;}
 
 <header class="hero">
   <div class="wrap">
-    <a class="back-hub" href="./index.html">← 실습 허브로</a>
+    <div class="toprow"><a class="back-hub" href="./index.html">← 실습 허브로</a><button type="button" class="resetbtn" id="resetAll">처음부터 다시</button></div>
+    <div class="restorenote" id="restoreNote" hidden>이 컴퓨터에 저장된 내용이 있어서 이어서 불러왔어. 내 것이 아니면 <b>처음부터 다시</b>를 눌러.</div>
     <div class="eyebrow"><span class="dot"></span>소프트웨어와 생활 · 4단원 시뮬레이션 · 개념적 모델링 · 화면 구성 연습</div>
     <h1 class="display">내 시뮬레이션 설계하기</h1>
     <p class="lead">지난 시간 만든 <b>주제 카드</b>로 시뮬레이션의 <b>설계도</b>를 그려 보자. 교과서의 <b>② 개념적 모델링</b>(핵심만 남기고 규칙 정하기)과 <b>③ 화면 구성</b>(입력 · 출력 부품 배치하기)을 하고, 마지막에 AI에게 줄 <b>첫 프롬프트</b>를 제출하면 끝이야. 다음 시간에는 이 프롬프트로 <b>④ 모델 구현</b>을 해.</p>
@@ -652,6 +659,18 @@ body:not(.unlocked) .lockable{display:none !important;}
 <script>
 (function(){
   var KEY='simDesign.v1';
+  var TTL=60*60*1000, TSKEY=KEY+'.ts', RESTORED=false, RESETTING=false, _lastTouch=0;
+  try{ var _raw=localStorage.getItem(KEY), _ts=+localStorage.getItem(TSKEY)||0;
+    if(_raw && (!_ts || Date.now()-_ts>TTL)){ localStorage.removeItem(KEY); localStorage.removeItem(TSKEY); }
+    else if(_raw){ RESTORED=true; } }catch(e){}
+  function touchTs(force){ if(RESETTING) return; var n=Date.now(); if(!force && n-_lastTouch<10000) return; _lastTouch=n; try{ localStorage.setItem(TSKEY, String(n)); }catch(e){} }
+  ['input','click','keydown','change'].forEach(function(ev){ document.addEventListener(ev, function(){ touchTs(false); }, true); });
+  window.addEventListener('pagehide', function(){ touchTs(true); });
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden') touchTs(true); });
+  (function(){ var rb=document.getElementById('resetAll'), rn=document.getElementById('restoreNote');
+    if(rn && RESTORED) rn.hidden=false;
+    if(rb) rb.addEventListener('click', function(){ if(!confirm('지금까지 쓴 내용이 모두 지워지고 처음부터 다시 시작해. 계속할까?')) return; RESETTING=true; try{ localStorage.removeItem(KEY); localStorage.removeItem(TSKEY); }catch(e){} location.reload(); });
+  })();
   function $(id){ return document.getElementById(id); }
   function esc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
   function bat(w){ w=(w||'').trim().replace(/\s*\([^()]*\)\s*$/,''); var c=w.charCodeAt(w.length-1); return c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28!==0; }
@@ -660,7 +679,7 @@ body:not(.unlocked) .lockable{display:none !important;}
   var S={id:'',ph:'',ins:[{n:'',r:''},{n:'',r:''}],out:'',unit:'',time:'',pred:'',space:'',obj:'',states:[],drop:'',
     rules:[{a:'',b:'',c:''},{a:'',b:'',c:''},{a:'',b:'',c:''}],tnum:'',tgraph:'',colors:{},checks:[null,null,null,null,null,null],quiz:[],ui:null,trans:[],irules:[],type:'',draw:'',layout:'',end:'',show:'',tryNote:'',gamePassed:false,gameBest:null,cur:0};
   try{ var sv=JSON.parse(localStorage.getItem(KEY)||'null'); if(sv){ for(var k in sv) S[k]=sv[k]; } }catch(e){}
-  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} var g=document.getElementById('gate'); if(g) g.textContent=''; }
+  function save(){ if(RESETTING) return; touchTs(false); try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} var g=document.getElementById('gate'); if(g) g.textContent=''; }
 
   /* ---------- types ---------- */
   var TYPES=[
