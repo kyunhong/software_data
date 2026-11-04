@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>분석 글 원고지 연습</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#1F3864;--blue:#2E5597;--label:#D9E2F3;--light:#EAF0F8;--red:#C00000;--line:#9aa5b8}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Noto Sans KR","Malgun Gothic",sans-serif;background:#f4f6fa;color:#222}
+  header{background:var(--navy);color:#fff;padding:14px 20px}
+  header h1{margin:0;font-size:20px}
+  header p{margin:4px 0 0;font-size:13px;opacity:.85}
+  body{word-break:keep-all;overflow-wrap:break-word}
+  textarea{word-break:normal}
+  .back-hub{display:block;width:max-content;font-size:13px;font-weight:700;color:#fff;opacity:.85;text-decoration:none;margin-bottom:8px}
+  .back-hub:hover{opacity:1}
+  main{display:grid;grid-template-columns:minmax(300px,1fr) auto;gap:18px;padding:18px;max-width:1280px;margin:0 auto}
+  @media (max-width:980px){main{grid-template-columns:1fr}}
+  .card{background:#fff;border:1px solid #d5dbe6;border-radius:10px;padding:14px}
+  h2{font-size:15px;margin:0 0 8px;color:var(--navy)}
+  textarea{width:100%;min-height:420px;resize:vertical;font:inherit;font-size:16px;line-height:1.7;padding:10px;border:1px solid #c3cbd9;border-radius:8px}
+  textarea:focus{outline:2px solid var(--blue);border-color:transparent}
+  .rules{font-size:13px;line-height:1.7;background:var(--light);border-radius:8px;padding:8px 12px;margin-top:10px}
+  .rules b{color:var(--navy)}
+  .stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .stat{flex:1;min-width:120px;background:var(--light);border-radius:8px;padding:8px 10px}
+  .stat .k{font-size:12px;color:#555}
+  .stat .v{font-size:24px;font-weight:700;color:var(--navy)}
+  .stat.ok .v{color:#1d7a3a}.stat.warn .v{color:var(--red)}
+  .msg{min-height:20px;font-size:13px;font-weight:700;color:var(--red);margin-top:6px}
+  .btns{display:flex;gap:8px;margin-top:10px}
+  button{font:inherit;font-size:13px;border:0;border-radius:6px;padding:7px 12px;background:var(--blue);color:#fff;cursor:pointer}
+  button.ghost{background:#e4e9f2;color:#333}
+  .editor{position:sticky;top:12px;align-self:start;max-height:calc(100vh - 24px);overflow:auto}
+  .editor textarea{height:clamp(220px,calc(100vh - 380px),640px);min-height:220px}
+  .stickybar{position:sticky;top:0;z-index:2;background:#fff;padding-bottom:4px;margin:-14px -14px 0;padding:14px 14px 4px;border-radius:10px 10px 0 0}
+  .c.cur{background:#fff6cc}
+  @media (max-width:980px){.editor{position:static;max-height:none}.editor textarea{height:auto;min-height:260px}}
+  .gridwrap{display:flex;gap:4px}
+  .grid{display:grid;grid-template-columns:repeat(20,26px);border-left:1px solid var(--line);border-top:1px solid var(--line)}
+  .c{width:26px;height:30px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:15px}
+  .c.indent{background:#f3f5f9}
+  .c.r500{border-bottom:2px solid var(--red)}
+  .c.over{background:#f5e5e5;color:#999}
+  .nums{display:grid;grid-auto-rows:30px;font-size:11px;color:#888;padding-top:1px}
+  .nums div{display:flex;align-items:flex-end;padding-bottom:2px}
+  .nums .red{color:var(--red);font-weight:700}
+  .bar{height:8px;background:#e4e9f2;border-radius:4px;overflow:hidden;margin:4px 0 10px;position:relative}
+  .bar i{display:block;height:100%;background:var(--blue);width:0}
+  .bar span{position:absolute;left:50%;top:-2px;width:2px;height:12px;background:var(--red)}
+</style>
+</head>
+<body>
+<header>
+  <a class="back-hub" href="./index.html">← 실습 허브로</a>
+  <h1>분석 글 원고지 연습 (한 줄 20칸 · 1000칸)</h1>
+  <p>수기 용지와 같은 칸으로 미리 써 보는 곳이에요. 직접 타이핑만 되고, 쓴 내용은 어디에도 보내지 않아요.</p>
+</header>
+<main>
+  <section class="card editor">
+    <h2>여기에 직접 타이핑하기</h2>
+    <textarea id="t" spellcheck="false" placeholder="첫 문단: 내 시뮬레이션 소개 2~3문장&#10;(Enter를 누르면 새 문단이 시작되고, 첫 칸은 자동으로 비워져요)"></textarea>
+    <div class="msg" id="msg"></div>
+    <div class="btns"><button class="ghost" id="clear">모두 지우기</button></div>
+    <div class="rules">
+      <b>원고지 규칙 (수기 용지도 똑같이 써요)</b><br>
+      · 글자, 숫자, 문장 부호, <b>띄어쓰기</b>는 모두 한 칸씩 써요.<br>
+      · 새 문단(Enter)은 <b>새 줄에서 첫 칸을 비우고</b> 시작해요.<br>
+      · 줄의 맨 앞에 오는 띄어쓰기는 쓰지 않고, 마침표 · 쉼표는 앞 줄 끝 칸에 함께 써요.<br>
+      · <b>500칸(빨간 선) 이상</b> 써야 하고, <b>1000칸까지만</b> 채점해요.<br>
+      · 붙여 넣기는 막혀 있어요. AI 창은 닫고 내 말로 써요.
+    </div>
+  </section>
+  <section class="card sheet">
+    <div class="stickybar">
+    <div class="stats">
+      <div class="stat" id="sCells"><div class="k">사용한 칸 (원고지 기준)</div><div class="v" id="vCells">0</div></div>
+      <div class="stat"><div class="k">글자 수 (공백 제외)</div><div class="v" id="vChars">0</div></div>
+      <div class="stat"><div class="k">남은 칸 (500까지)</div><div class="v" id="vLeft">500</div></div>
+    </div>
+    <div class="bar"><i id="bar"></i><span title="500칸"></span></div>
+    </div>
+    <div class="gridwrap"><div class="grid" id="g"></div><div class="nums" id="n"></div></div>
+  </section>
+</main>
+<script>
+(function(){
+  var COLS=20, ROWS=50, MIN=500, MAX=1000;
+  var t=document.getElementById('t'), g=document.getElementById('g'), n=document.getElementById('n'), msg=document.getElementById('msg');
+  var KEY='wongoji-draft', TSKEY=KEY+'.ts', TTL=60*60*1000;
+  try{ var _raw=localStorage.getItem(KEY), _ts=+localStorage.getItem(TSKEY)||0;
+    if(_raw && (!_ts || Date.now()-_ts>TTL)){ localStorage.removeItem(KEY); localStorage.removeItem(TSKEY); } }catch(e){}
+  function touchTs(){ try{ localStorage.setItem(TSKEY,String(Date.now())); }catch(e){} }
+  window.addEventListener('pagehide',touchTs);
+  document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden') touchTs(); });
+  try{ var saved=localStorage.getItem(KEY); if(saved) t.value=saved; }catch(e){}
+
+  function warn(s){ msg.textContent=s; clearTimeout(warn._t); warn._t=setTimeout(function(){ msg.textContent=''; },2500); }
+  ['paste','drop'].forEach(function(ev){ t.addEventListener(ev,function(e){ e.preventDefault(); warn('붙여 넣기는 할 수 없어요. 직접 타이핑해 주세요.'); }); });
+  t.addEventListener('beforeinput',function(e){ if(e.inputType==='insertFromPaste'||e.inputType==='insertFromDrop'||e.inputType==='insertFromYank'){ e.preventDefault(); warn('붙여 넣기는 할 수 없어요. 직접 타이핑해 주세요.'); } });
+  t.addEventListener('contextmenu',function(e){ e.preventDefault(); });
+
+  function layout(text){
+    var cells=[], paras=text.replace(/\r/g,'').split('\n');
+    paras.forEach(function(p){
+      p=p.replace(/^\s+/,'');
+      if(!p.length) return;
+      while(cells.length%COLS) cells.push({ch:'',pad:true});
+      cells.push({ch:'',indent:true});
+      Array.from(p).forEach(function(ch){
+        if(/\s/.test(ch)){
+          if(cells.length%COLS===0) return;            // 줄 맨 앞 띄어쓰기는 쓰지 않음
+          var last=cells[cells.length-1]; if(last && last.ch===' ') return; // 띄어쓰기 두 번은 한 칸
+          cells.push({ch:' '});
+        } else if(/[.,!?]/.test(ch) && cells.length%COLS===0 && cells.length){ cells[cells.length-1].ch+=ch; // 줄 맨 앞 문장 부호는 앞 줄 끝 칸에 함께
+        } else cells.push({ch:ch});
+      });
+    });
+    while(cells.length && cells[cells.length-1].ch===' ') cells.pop();
+    return cells;
+  }
+  function render(){
+    var cells=layout(t.value), used=cells.length;
+    var rows=Math.max(ROWS, Math.ceil(used/COLS));
+    var html='', nums='';
+    for(var i=0;i<rows*COLS;i++){
+      var c=cells[i]||{ch:''}, cls='c';
+      if(c.indent) cls+=' indent';
+      if(Math.floor(i/COLS)===MIN/COLS-1) cls+=' r500';
+      if(i>=MAX) cls+=' over';
+      if(i===used-1) cls+=' cur';
+      html+='<div class="'+cls+'">'+(c.ch===' '?'':esc(c.ch))+'</div>';
+    }
+    for(var r=1;r<=rows;r++){ var v=r*COLS; nums+='<div class="'+(v===MIN?'red':'')+'">'+v+'</div>'; }
+    g.innerHTML=html; n.innerHTML=nums;
+    var chars=cells.filter(function(c){ return c.ch && c.ch!==' '; }).length;
+    document.getElementById('vCells').textContent=used;
+    document.getElementById('vChars').textContent=chars;
+    document.getElementById('vLeft').textContent=Math.max(0,MIN-used);
+    var s=document.getElementById('sCells'); s.className='stat'+(used>MAX?' warn':used>=MIN?' ok':'');
+    document.getElementById('bar').style.width=Math.min(100,used/MAX*100)+'%';
+    if(used>MAX) warn('1000칸을 넘었어요. 1000칸 뒤는 채점하지 않아요.');
+    try{ localStorage.setItem(KEY,t.value); }catch(e){}
+    touchTs();
+  }
+  function esc(s){ return s.replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  t.addEventListener('input',function(){ render(); follow(); });
+  function follow(){ var el=g.querySelector('.c.cur'); if(!el) return; var r=el.getBoundingClientRect(), vh=window.innerHeight||document.documentElement.clientHeight, top=120; if(r.top<top||r.bottom>vh-40){ window.scrollBy({top:r.top-vh/2,behavior:'auto'}); } }
+  var clr=document.getElementById('clear'), armed=false;
+  clr.addEventListener('click',function(){
+    if(!armed){ armed=true; clr.textContent='정말 지울까요? 한 번 더 누르기'; setTimeout(function(){ armed=false; clr.textContent='모두 지우기'; },3000); return; }
+    armed=false; clr.textContent='모두 지우기'; t.value=''; render(); t.focus();
+  });
+  render();
+})();
+</script>
+</body>
+</html>
