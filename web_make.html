@@ -371,7 +371,7 @@ figure.shot figcaption { background: #fff; border-top: 1px solid var(--line-soft
     <div class="restorenote" id="restoreNote" hidden>이 컴퓨터에 저장된 내용이 있어서 이어서 불러왔어요. 내 것이 아니면 <b>처음부터 다시</b>를 눌러요.</div>
     <div class="eyebrow">1차시 · 따라하기 학습지</div>
     <h1>나만의 웹페이지 만들기</h1>
-    <p>오늘은 나를 소개하는 웹페이지를 만들어요. <b>Gemini에게 말로 부탁하는 방법</b>과 <b>웹 도구에서 직접 조작하는 방법</b> 중 하나를 골라요. 한 줄에 한 가지씩, 끝낸 줄은 체크하세요.</p>
+    <p>오늘은 Gemini에게 프롬프트를 보내 나를 소개하는 웹페이지를 만들어요. 시간이 남으면 추가 활동으로 웹 도구에서 직접 조작해 만들어 봐요. 한 줄에 한 가지씩, 끝낸 줄은 체크하세요.</p>
     <div class="flow">
       <div><b>① 켜기</b><span>Gemini Canvas 열기</span></div>
       <div><b>② 부탁</b><span>부탁 글 보내기</span></div>
@@ -407,38 +407,6 @@ figure.shot figcaption { background: #fff; border-top: 1px solid var(--line-soft
       <div class="part"><b>JavaScript</b><i>동작</i><span>버튼을 누르면 무슨 일이 일어날지 정해요.</span></div>
     </div>
     <div class="note tip"><b>왜 "파일 하나에 다 넣어 줘"라고 할까?</b>세 가지를 파일 하나(index.html)에 모아 두면, 다음 시간에 인터넷에 올릴 때 그 파일 하나만 올리면 돼요.</div>
-  </section>
-
-  <section class="step" id="way" data-label="방법 고르기">
-    <div class="step-head"><div class="num">?</div><h2>만드는 방법 고르기</h2></div>
-    <p class="why">두 방법 모두 결과는 똑같이 <b>HTML 파일 하나</b>예요. 다음 시간에 GitHub에 올리는 방법도 같아요.</p>
-    <div class="parts">
-      <div class="part"><b>A. Gemini로 만들기</b><i>AI에게 부탁</i><span>프롬프트를 보내면 AI가 코드를 써 줘요. 자유롭게 아무 기능이나 부탁할 수 있어요.</span><span style="margin-top:8px"><button type="button" class="gobtn" data-go="s1">A로 시작하기 →</button></span></div>
-      <div class="part"><b>B. 웹 도구로 만들기</b><i>직접 조작</i><span>요소를 넣고 색·글자를 고르면 코드가 바로 바뀌어요. 어떤 조작이 어떤 코드가 되는지 눈으로 볼 수 있어요.</span><span style="margin-top:8px"><button type="button" class="gobtn" data-go="tool">B로 시작하기 →</button></span></div>
-    </div>
-    <div class="note tip"><b>고르기 어렵다면</b>코드가 어떻게 생겼는지 궁금하면 B, 더 화려한 기능을 넣고 싶으면 A를 추천해요. 시간이 남으면 다른 방법도 해 봐요.</div>
-  </section>
-
-  <section class="step" id="tool" data-label="웹 도구로 만들기">
-    <div class="step-head"><div class="num">?</div><h2>B. 웹 도구로 만들기</h2></div>
-    <span class="where">지금 볼 탭 · 오른쪽 크롬 창</span>
-    <div class="builder" style="flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px">
-      <code id="toolUrl" style="flex:1 1 260px;min-width:0;word-break:break-all">web_builder.html</code>
-      <a class="gobtn" href="web_builder.html" target="_blank" style="text-decoration:none">새 탭으로 열기</a>
-      <script>try { document.getElementById('toolUrl').textContent = new URL('web_builder.html', location.href).href; } catch (e) {}</script>
-      <button type="button" class="copy" style="position:static" data-copy="toolUrl">주소 복사</button>
-    </div>
-    <ol class="todo">
-      <li><input type="checkbox" id="t-1"><label for="t-1"><span class="t">위 <span class="btnname">주소 복사</span> → 오른쪽 창 주소창에 <kbd>Ctrl</kbd>+<kbd>V</kbd> → <kbd>Enter</kbd></span><span class="sub">'웹페이지 만들기 도구'가 열리고 예시 페이지가 보여요. 도구는 화면이 넓어야 편해요. 도구 창에서 <kbd>⊞ Windows</kbd>+<kbd>↑</kbd>로 최대화하고, 학습지는 필요할 때 작업 표시줄에서 다시 열어요.</span></label></li>
-      <li><input type="checkbox" id="t-2"><label for="t-2"><span class="t">미리보기에서 제목을 누르고, 오른쪽 <b>글자</b> 칸에서 내 별명으로 바꾸기</span><span class="sub">아래 코드에서 노랗게 바뀐 줄을 찾아보세요. 그 줄이 방금 바꾼 HTML이에요.</span></label></li>
-      <li><input type="checkbox" id="t-3"><label for="t-3"><span class="t">왼쪽 구성 목록 맨 위 <b>페이지 전체</b> → 테마나 배경색 바꾸기</span><span class="sub">이번엔 파란 줄(CSS)이 바뀌어요.</span></label></li>
-      <li><input type="checkbox" id="t-4"><label for="t-4"><span class="t">뒤집는 카드의 글을 내가 좋아하는 것 3가지로 바꾸기</span></label></li>
-      <li><input type="checkbox" id="t-5"><label for="t-5"><span class="t">왼쪽 <b>요소 넣기</b>에서 2개 이상 더 넣기</span><span class="sub">버튼을 넣으면 <b>누르면</b>에서 동작을 골라요. 주황 줄(JavaScript)이 생겨요.</span></label></li>
-      <li><input type="checkbox" id="t-6"><label for="t-6"><span class="t"><span class="btnname">폰 화면</span>을 눌러 휴대폰에서 어떻게 보일지 확인</span></label></li>
-      <li><input type="checkbox" id="t-7"><label for="t-7"><span class="t">오른쪽 위 <span class="btnname">코드 전체 복사</span> → 새 탭에 <code>docs.new</code> → <kbd>Ctrl</kbd>+<kbd>V</kbd></span><span class="sub">구글 문서 제목을 <b>내 웹페이지 코드</b>로 바꿔 두면 다음 시간에 GitHub에 붙여넣을 수 있어요. 나중에 도구의 <b>코드 불러오기</b>에 이 코드를 붙여넣으면 이어서 고칠 수 있어요.</span></label></li>
-    </ol>
-    <div class="note tip"><b>코드 색깔 읽기</b>분홍 줄은 HTML(구조), 파란 줄은 CSS(디자인), 주황 줄은 JavaScript(동작)예요. 도구에서 무언가 바꿀 때마다 어느 색 줄이 바뀌는지 살펴보세요.</div>
-    <div class="check"><b>확인 지점</b><span>미리보기에 내 별명과 내가 넣은 요소가 보이고, 구글 문서에 코드가 붙어 있으면 통과. 아래 1~6단계는 A 방법이라 건너뛰어도 돼요.</span></div>
   </section>
 
   <section class="step" id="s1" data-label="켜기">
@@ -493,6 +461,7 @@ figure.shot figcaption { background: #fff; border-top: 1px solid var(--line-soft
             <input id="b-l3" value="김밥" aria-label="좋아하는 것 3" autocomplete="off">
           </div>
         </div>
+    <p class="why">요소를 넣고 고치면 코드가 바로 바뀌는 도구예요. 어떤 조작이 HTML·CSS·JavaScript 중 어느 코드가 되는지 확인해 봐요. 웹 도구에는 데이터 저장 기능이 없어서 4차시와 수행평가에서는 Gemini를 써요.</p>
         <label class="f"><span>나에 대한 OX 퀴즈</span><input id="b-quiz" value="나는 귀엽다" autocomplete="off"></label>
         <label class="f"><span>퀴즈 정답</span><select id="b-ans"><option>O</option><option>X</option></select></label>
         <label class="f full"><span>버튼을 누르면 나오는 것</span>
@@ -557,23 +526,11 @@ figure.shot figcaption { background: #fff; border-top: 1px solid var(--line-soft
     </div>
     <ol class="todo">
       <li><input type="checkbox" id="c4-1"><label for="c4-1"><span class="t">Canvas 아래 입력칸에 고칠 점 하나 쓰고 보내기</span></label></li>
-      <li><input type="checkbox" id="c4-2"><label for="c4-2"><span class="t">미리보기로 바뀐 점 확인 → 아래 기록지에 적기</span></label></li>
+      <li><input type="checkbox" id="c4-2"><label for="c4-2"><span class="t">미리보기에서 바뀐 점 확인</span></label></li>
       <li><input type="checkbox" id="c4-3"><label for="c4-3"><span class="t">3번 이상 반복하기</span></label></li>
     </ol>
-
-    <div class="builder">
-      <h3>수정 기록지</h3>
-      <div class="log" id="log">
-        <div class="log-row log-head"><span></span><span>내가 한 말</span><span>바뀐 점</span><span>결과</span></div>
-      </div>
-      <div class="rowbtn">
-        <button type="button" id="addRow">+ 줄 추가</button>
-        <button type="button" class="g" id="copyLog">기록지 복사</button>
-      </div>
-      <p style="font-size:14px;color:var(--muted)">기록은 이 컴퓨터에만 남아요. 끝나면 <b>기록지 복사</b>를 눌러 선생님이 알려 준 곳에 붙여넣으세요.</p>
-    </div>
     <div class="note warn"><b>고친 뒤 다른 부분이 망가졌다면</b>Canvas 창 위쪽의 <b>↶ 되돌리기</b>를 누르거나, "방금 바꾼 거 되돌려 줘"라고 말하세요.</div>
-    <div class="check"><b>확인 지점</b><span>수정 기록지에 3줄 이상 적혀 있으면 통과.</span></div>
+    <div class="check"><b>확인 지점</b><span>3번 이상 고쳐서 처음보다 바뀐 페이지가 보이면 통과.</span></div>
   </section>
 
   <section class="step" id="s5" data-label="코드">
@@ -608,6 +565,28 @@ figure.shot figcaption { background: #fff; border-top: 1px solid var(--line-soft
     <div class="check"><b>확인 지점</b><span>Gemini 왼쪽 <b>최근 대화</b> 목록에 오늘 대화가 있고, 구글 드라이브에 HTML 파일이 올라가 있으면 통과.</span></div>
   </section>
 
+  <section class="step" id="tool" data-label="웹 도구로 만들기">
+    <div class="step-head"><div class="num">?</div><h2>추가 활동: 웹 도구로 만들기</h2></div>
+    <span class="where">지금 볼 탭 · 오른쪽 크롬 창</span>
+    <div class="builder" style="flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px">
+      <code id="toolUrl" style="flex:1 1 260px;min-width:0;word-break:break-all">web_builder.html</code>
+      <a class="gobtn" href="web_builder.html" target="_blank" style="text-decoration:none">새 탭으로 열기</a>
+      <script>try { document.getElementById('toolUrl').textContent = new URL('web_builder.html', location.href).href; } catch (e) {}</script>
+      <button type="button" class="copy" style="position:static" data-copy="toolUrl">주소 복사</button>
+    </div>
+    <ol class="todo">
+      <li><input type="checkbox" id="t-1"><label for="t-1"><span class="t">위 <span class="btnname">주소 복사</span> → 오른쪽 창 주소창에 <kbd>Ctrl</kbd>+<kbd>V</kbd> → <kbd>Enter</kbd></span><span class="sub">'웹페이지 만들기 도구'가 열리고 예시 페이지가 보여요. 도구는 화면이 넓어야 편해요. 도구 창에서 <kbd>⊞ Windows</kbd>+<kbd>↑</kbd>로 최대화하고, 학습지는 필요할 때 작업 표시줄에서 다시 열어요.</span></label></li>
+      <li><input type="checkbox" id="t-2"><label for="t-2"><span class="t">미리보기에서 제목을 누르고, 오른쪽 <b>글자</b> 칸에서 내 별명으로 바꾸기</span><span class="sub">아래 코드에서 노랗게 바뀐 줄을 찾아보세요. 그 줄이 방금 바꾼 HTML이에요.</span></label></li>
+      <li><input type="checkbox" id="t-3"><label for="t-3"><span class="t">왼쪽 구성 목록 맨 위 <b>페이지 전체</b> → 테마나 배경색 바꾸기</span><span class="sub">이번엔 파란 줄(CSS)이 바뀌어요.</span></label></li>
+      <li><input type="checkbox" id="t-4"><label for="t-4"><span class="t">뒤집는 카드의 글을 내가 좋아하는 것 3가지로 바꾸기</span></label></li>
+      <li><input type="checkbox" id="t-5"><label for="t-5"><span class="t">왼쪽 <b>요소 넣기</b>에서 2개 이상 더 넣기</span><span class="sub">버튼을 넣으면 <b>누르면</b>에서 동작을 골라요. 주황 줄(JavaScript)이 생겨요.</span></label></li>
+      <li><input type="checkbox" id="t-6"><label for="t-6"><span class="t"><span class="btnname">폰 화면</span>을 눌러 휴대폰에서 어떻게 보일지 확인</span></label></li>
+      <li><input type="checkbox" id="t-7"><label for="t-7"><span class="t">오른쪽 위 <span class="btnname">코드 전체 복사</span> → 새 탭에 <code>docs.new</code> → <kbd>Ctrl</kbd>+<kbd>V</kbd></span><span class="sub">구글 문서 제목을 <b>내 웹페이지 코드</b>로 바꿔 두면 다음 시간에 GitHub에 붙여넣을 수 있어요. 나중에 도구의 <b>코드 불러오기</b>에 이 코드를 붙여넣으면 이어서 고칠 수 있어요.</span></label></li>
+    </ol>
+    <div class="note tip"><b>코드 색깔 읽기</b>분홍 줄은 HTML(구조), 파란 줄은 CSS(디자인), 주황 줄은 JavaScript(동작)예요. 도구에서 무언가 바꿀 때마다 어느 색 줄이 바뀌는지 살펴보세요.</div>
+    <div class="check"><b>확인 지점</b><span>미리보기에 내 별명과 내가 넣은 요소가 보이고, 구글 문서에 코드가 붙어 있으면 통과.</span></div>
+  </section>
+
   <section class="step" id="mission" data-label="도전">
     <div class="step-head"><div class="num">★</div><h2>추가 과제</h2></div>
     <div class="missions">
@@ -621,6 +600,9 @@ figure.shot figcaption { background: #fff; border-top: 1px solid var(--line-soft
   <section class="step" id="help" data-label="안 될 때">
     <div class="step-head"><div class="num">!</div><h2>안 될 때</h2></div>
     <div>
+      <details><summary>GitHub에 올렸더니 흰 화면만 나와요</summary>
+        <p>코드 첫 줄이 <code>&lt;!DOCTYPE html&gt;</code>이 아니고 <code>import React</code> 같은 글자로 시작하면 웹페이지가 아니라 React 코드예요. Gemini에게 "React 없이 HTML 파일 하나로 다시 만들어 줘"라고 요청하세요.</p>
+      </details>
       <details><summary>Canvas 메뉴가 안 보여요</summary>
         <p>학교 구글 계정은 Gemini나 Canvas가 막혀 있을 수 있어요. 손을 들어 선생님께 알려 주세요.</p>
       </details>
@@ -706,6 +688,7 @@ figure.shot figcaption { background: #fff; border-top: 1px solid var(--line-soft
       '나를 소개하는 재밌는 웹페이지를 만들어 줘.', '',
       '[꼭 지킬 것]',
       '- HTML 파일 하나에 CSS와 JavaScript를 모두 넣어 줘.',
+      '- React 같은 라이브러리 없이 순수 HTML, CSS, JavaScript로만 만들어 줘. 코드는 <!DOCTYPE html>로 시작해야 해.',
       '- 실명, 학교, 사진, 연락처 같은 개인정보는 넣지 마.',
       '- 휴대폰에서도 잘 보이게 해 줘.', '',
       '[내용]',
@@ -732,31 +715,6 @@ figure.shot figcaption { background: #fff; border-top: 1px solid var(--line-soft
   var cp = document.getElementById('copyPrompt');
   cp.addEventListener('click', function () { var el = document.getElementById('prompt'); copyText(cp, el.textContent, el, '복사'); });
 
-  /* 수정 기록지 */
-  var log = document.getElementById('log');
-  var rows = (saved.log && saved.log.length) ? saved.log : [{}, {}, {}];
-  function saveLog() {
-    saved.log = Array.prototype.map.call(log.querySelectorAll('.log-row[data-i]'), function (r) {
-      var f = r.querySelectorAll('input,select'); return { a: f[0].value, b: f[1].value, c: f[2].value };
-    });
-    save();
-  }
-  function addRow(d, i) {
-    var r = document.createElement('div'); r.className = 'log-row'; r.dataset.i = i;
-    r.innerHTML = '<b>' + (i + 1) + '</b><input placeholder="예: 배경을 분홍색으로 바꿔 줘" aria-label="' + (i + 1) + '번 내가 한 말"><input placeholder="예: 배경이 분홍색이 됨" aria-label="' + (i + 1) + '번 바뀐 점"><select aria-label="' + (i + 1) + '번 결과"><option value="">결과</option><option>성공</option><option>반쯤</option><option>실패</option></select>';
-    var f = r.querySelectorAll('input,select'); f[0].value = d.a || ''; f[1].value = d.b || ''; f[2].value = d.c || '';
-    Array.prototype.forEach.call(f, function (x) { x.addEventListener('input', saveLog); x.addEventListener('change', saveLog); });
-    log.appendChild(r);
-  }
-  rows.forEach(addRow);
-  document.getElementById('addRow').addEventListener('click', function () { addRow({}, log.querySelectorAll('.log-row[data-i]').length); saveLog(); });
-  var cl = document.getElementById('copyLog');
-  cl.addEventListener('click', function () {
-    var t = Array.prototype.map.call(log.querySelectorAll('.log-row[data-i]'), function (r, i) {
-      var f = r.querySelectorAll('input,select'); return (i + 1) + '. 내가 한 말: ' + f[0].value + ' / 바뀐 점: ' + f[1].value + ' / 결과: ' + f[2].value;
-    }).join('\n');
-    copyText(cl, t, log, '기록지 복사');
-  });
 
   buildPrompt(); render();
 })();
@@ -830,9 +788,11 @@ figure.shot figcaption { background: #fff; border-top: 1px solid var(--line-soft
     side.appendChild(a); links[s.id] = a;
   }
   grp('준비'); prep.forEach(function (s) { addLink(s, ''); });
-  grp(toolSec ? 'A. Gemini로 만들기' : '단계'); mainSteps.forEach(function (s) { addLink(s, numText(s)); });
-  if (toolSec) { grp('B. 웹 도구로 만들기'); addLink(toolSec, ''); }
-  if (aux.length) { grp('도움'); aux.forEach(function (s) { addLink(s, ''); }); }
+  grp('단계'); mainSteps.forEach(function (s) { addLink(s, numText(s)); });
+  var extras = aux.filter(function (s) { return s.id === 'mission'; }).concat(toolSec ? [toolSec] : []);
+  if (extras.length) { grp('추가 활동'); extras.forEach(function (s) { addLink(s, ''); }); }
+  var helps = aux.filter(function (s) { return s.id !== 'mission'; });
+  if (helps.length) { grp('도움'); helps.forEach(function (s) { addLink(s, ''); }); }
   var rw = document.createElement('div'); rw.className = 'resetwrap';
   var reset = document.getElementById('reset'); rw.appendChild(reset); side.appendChild(rw);
 
@@ -842,7 +802,7 @@ figure.shot figcaption { background: #fff; border-top: 1px solid var(--line-soft
     var w = s.querySelector('.where'); if (w && head) s.insertBefore(w, head);
     var nEl = head ? head.querySelector('.num') : null;
     if (nEl) { var t = nEl.textContent.trim(); if (/^[1-9]\d*$/.test(t)) nEl.textContent = ('0' + t).slice(-2); else nEl.hidden = true; }
-    var order = s === toolSec ? [document.getElementById('way'), toolSec] : (flow.indexOf(s) >= 0 ? flow : aux);
+    var order = s === toolSec ? [mainSteps[mainSteps.length - 1], toolSec] : (flow.indexOf(s) >= 0 ? flow : aux);
     var i = order.indexOf(s);
     function mk(cls, txt, to) { var b = document.createElement('button'); b.type = 'button'; b.className = cls; b.textContent = txt; b.disabled = !to; if (to) b.addEventListener('click', function () { show(to.id, true); }); return b; }
     if (head) {
@@ -900,7 +860,7 @@ figure.shot figcaption { background: #fff; border-top: 1px solid var(--line-soft
   document.addEventListener('keydown', function (e) {
     var t = e.target.tagName; if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT' || e.altKey || e.ctrlKey || e.metaKey) return;
     var curId = (steps.filter(function (s) { return !s.hidden; })[0] || {}).id;
-    var order = (toolSec && curId === 'tool') ? [document.getElementById('way'), toolSec] : (AUX.indexOf(curId) >= 0 ? aux : flow);
+    var order = (toolSec && curId === 'tool') ? [mainSteps[mainSteps.length - 1], toolSec] : (AUX.indexOf(curId) >= 0 ? aux : flow);
     var i = order.map(function (s) { return s.id; }).indexOf(curId);
     if (e.key === 'ArrowRight' && i < order.length - 1) show(order[i + 1].id, true);
     if (e.key === 'ArrowLeft' && i > 0) show(order[i - 1].id, true);
