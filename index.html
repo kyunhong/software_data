@@ -66,13 +66,13 @@
   <p class="lead">단원별로 직접 해볼 수 있는 학생용 실습 웹앱 모음입니다. 아래에서 단원을 고른 다음, 카드를 눌러 원하는 실습으로 이동하세요.</p>
 
   <div class="unit-tabs" role="tablist" id="unit-tabs">
-    <button type="button" class="unit-tab" data-unit="1" role="tab">1단원</button>
-    <button type="button" class="unit-tab active" data-unit="3" role="tab">3단원</button>
+    <button type="button" class="unit-tab active" data-unit="1" role="tab">1단원</button>
+    <button type="button" class="unit-tab" data-unit="3" role="tab">3단원</button>
     <button type="button" class="unit-tab" data-unit="4" role="tab">4단원</button>
     <button type="button" class="unit-tab" data-unit="5" role="tab">5단원</button>
   </div>
 
-  <div class="cards" data-unit-group="1" hidden>
+  <div class="cards" data-unit-group="1">
     <a class="card" href="./topic_guide.html" style="--card-color:var(--c1)">
       <div class="card-eyebrow">사전 활동 · 45분 · 개인 활동</div>
       <h2>나만의 소프트웨어 주제 찾기</h2>
@@ -87,7 +87,7 @@
     </a>
   </div>
 
-  <div class="cards" data-unit-group="3">
+  <div class="cards" data-unit-group="3" hidden>
     <a class="card" href="./data_laundromat.html" style="--card-color:var(--c3)">
       <div class="card-eyebrow">실습 1 · 데이터 전처리</div>
       <h2>데이터 전처리</h2>
@@ -210,12 +210,25 @@
 (function(){
   var tabs = document.querySelectorAll(".unit-tab");
   var groups = document.querySelectorAll("[data-unit-group]");
+  var KEY = "hub-last-unit";
+  function select(unit){
+    tabs.forEach(function(t){ t.classList.toggle("active", t.dataset.unit === unit); });
+    groups.forEach(function(g){ g.hidden = g.dataset.unitGroup !== unit; });
+  }
   tabs.forEach(function(tab){
     tab.addEventListener("click", function(){
-      var unit = tab.dataset.unit;
-      tabs.forEach(function(t){ t.classList.toggle("active", t===tab); });
-      groups.forEach(function(g){ g.hidden = g.dataset.unitGroup !== unit; });
+      select(tab.dataset.unit);
+      try { localStorage.setItem(KEY, tab.dataset.unit); } catch (e) {}
     });
+  });
+  try {
+    var saved = localStorage.getItem(KEY);
+    var valid = Array.prototype.some.call(tabs, function(t){ return t.dataset.unit === saved; });
+    if (valid) select(saved);
+  } catch (e) {}
+  window.addEventListener("pageshow", function(e){
+    if (!e.persisted) return;
+    try { var s = localStorage.getItem(KEY); if (s) select(s); } catch (err) {}
   });
 })();
 </script>
