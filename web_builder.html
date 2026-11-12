@@ -31,6 +31,8 @@ button, input, select, textarea { font: inherit; }
 .btn { border: 0; background: #fff; color: #333D4B; border-radius: 9px; padding: 7px 12px; font-weight: 700; font-size: 13px; cursor: pointer; }
 .btn:disabled { opacity: .4; cursor: default; }
 .btn.pri { background: var(--accent); color: #fff; }
+.hubbtn { background: var(--accent); color: #fff; text-decoration: none; display: inline-flex; align-items: center; font-weight: 800; padding: 7px 14px; border-radius: 999px; box-shadow: 0 1px 4px rgba(0, 0, 0, .15); }
+.hubbtn:hover { filter: brightness(1.08); }
 .btn.sm { padding: 4px 9px; font-size: 12.5px; background: #F2F4F6; }
 .btn:focus-visible, .add button:focus-visible, .layers li:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
@@ -135,6 +137,7 @@ details.more[open] > div { display: flex; flex-direction: column; gap: 10px; mar
 </head>
 <body>
 <div class="top"><div class="top-in">
+  <a class="btn hubbtn" href="./index.html" title="실습 허브로 돌아가기">← 실습 허브</a>
   <span class="tag">1차시</span><h1>웹페이지 만들기 도구</h1>
   <button class="btn" type="button" id="undoBtn" title="Ctrl+Z">↶ 실행 취소</button>
   <button class="btn" type="button" id="redoBtn" title="Ctrl+Y">↷ 다시 실행</button>
