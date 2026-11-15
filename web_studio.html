@@ -193,7 +193,7 @@ textarea.srcedit{flex:1;border:0;background:var(--code);color:var(--codeink);fon
       <div class="empty" id="empty">
         <div class="start">
           <h2>어떻게 시작할까요?</h2>
-          <p>작업 내용은 이 브라우저에 자동으로 저장돼요.</p>
+          <p>작업 내용은 이 브라우저에 자동으로 저장되고, 1시간 동안 쓰지 않으면 자동으로 지워져요.</p>
           <div class="opts">
             <button class="opt" id="stPaste"><b>내 코드 붙여넣기</b><span>GitHub의 index.html 코드나 Gemini가 만든 HTML 코드로 시작해요.</span></button>
             <button class="opt" id="stTpl"><b>기본 틀로 새로 만들기</b><span>코드 없이 빈 페이지에서 블록을 넣어 만들어요.</span></button>
@@ -227,15 +227,6 @@ textarea.srcedit{flex:1;border:0;background:var(--code);color:var(--codeink);fon
 (function () {
   'use strict';
   var KEY = 'web-studio-v1';
-  // 공용 PC 대비: 마지막 활동 후 1시간이 지나면 이전 학생의 작업을 지움
-  var TSKEY = KEY + '.ts', TTL = 60 * 60 * 1000, RESTORED = false, RESETTING = false, _last = 0;
-  try { var _ts = +localStorage.getItem(TSKEY) || 0, _raw = localStorage.getItem(KEY);
-    if (_raw && (!_ts || Date.now() - _ts > TTL)) { localStorage.removeItem(KEY); localStorage.removeItem(TSKEY); }
-    else if (_raw) { RESTORED = true; } } catch (e) {}
-  function touchTs(force) { if (RESETTING) return; var n = Date.now(); if (!force && n - _last < 10000) return; _last = n; try { localStorage.setItem(TSKEY, String(n)); } catch (e) {} }
-  ['input', 'click', 'keydown', 'change'].forEach(function (ev) { document.addEventListener(ev, function () { touchTs(false); }, true); });
-  window.addEventListener('pagehide', function () { touchTs(true); });
-  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') touchTs(true); });
   var $ = function (id) { return document.getElementById(id); };
   var DEF_ACCENT = '#e2557a';
   var SKIP = /^(SCRIPT|STYLE|TEMPLATE|LINK|META|NOSCRIPT|TITLE|BASE)$/;
@@ -402,11 +393,21 @@ textarea.srcedit{flex:1;border:0;background:var(--code);color:var(--codeink);fon
   var S = null, doc = null, selEl = null, mode = 'edit', jsPick = false;
   var hist = [], hpos = -1, prevCode = {}, scrollY = {};
   function blank() { return { v: 1, pages: [], cur: 0, accent: DEF_ACCENT, font: '' }; }
-  try { S = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { S = null; }
-  if (!S || !S.pages) S = blank();
-  if (RESTORED && S.pages.length) setTimeout(function () { toast('이 컴퓨터에 저장된 작업을 이어서 불러왔어요. 내 것이 아니면 "새로 시작"을 눌러요.', 'alert'); }, 400);
+  // 1시간 동안 사용하지 않으면 이 컴퓨터에 남은 작업을 지움 (다음 반 학생에게 보이지 않게)
+  var TSKEY = KEY + '.ts', TTL = 60 * 60 * 1000, _lastTs = 0, RESTORED = false;
+  function wipe() { try { Object.keys(localStorage).forEach(function (k) { if (k === KEY || k === TSKEY || /^st-/.test(k)) localStorage.removeItem(k); }); } catch (e) {} }
+  try {
+    var _ts = +localStorage.getItem(TSKEY) || 0;
+    if (localStorage.getItem(KEY) && (!_ts || Date.now() - _ts > TTL)) wipe();
+    S = JSON.parse(localStorage.getItem(KEY) || 'null');
+  } catch (e) { S = null; }
+  if (!S || !S.pages) S = blank(); else RESTORED = S.pages.length > 0;
+  function touchTs(force) { var n = Date.now(); if (!force && n - _lastTs < 10000) return; _lastTs = n; try { if (localStorage.getItem(KEY)) localStorage.setItem(TSKEY, String(n)); } catch (e) {} }
+  ['input', 'click', 'keydown', 'pointerdown'].forEach(function (ev) { document.addEventListener(ev, function () { touchTs(false); }, true); });
+  window.addEventListener('pagehide', function () { touchTs(true); });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') touchTs(true); });
 
-  function save() { if (RESETTING) return; touchTs(false); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { if (!save.w) { save.w = 1; toast('사진이 커서 이 브라우저에 자동 저장이 안 돼요. "모든 파일 내려받기"로 보관하세요.'); } } }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); localStorage.setItem(TSKEY, String(Date.now())); } catch (e) { if (!save.w) { save.w = 1; toast('사진이 커서 이 브라우저에 자동 저장이 안 돼요. "모든 파일 내려받기"로 보관하세요.'); } } }
   function cur() { return S.pages[S.cur]; }
   function parse(h) { return new DOMParser().parseFromString(h, 'text/html'); }
   function ser(d) {
@@ -1261,7 +1262,7 @@ textarea.srcedit{flex:1;border:0;background:var(--code);color:var(--codeink);fon
   $('restart').addEventListener('click', function () {
     if (!S.pages.length) return;
     if (!confirm('지금까지 만든 내용이 이 브라우저에서 모두 지워져요. 필요하면 먼저 "모든 파일 내려받기"를 해요. 처음부터 할까요?')) return;
-    S = blank(); hist = []; hpos = -1; prevCode = {}; try { localStorage.removeItem(KEY); localStorage.removeItem(TSKEY); } catch (e) {}
+    S = blank(); hist = []; hpos = -1; prevCode = {}; wipe();
     load(); undoUi(); all();
   });
 
@@ -1439,6 +1440,7 @@ textarea.srcedit{flex:1;border:0;background:var(--code);color:var(--codeink);fon
   });
 
   drawBlocks();
+  if (RESTORED) setTimeout(function () { toast('이 컴퓨터에 남아 있던 작업을 이어서 불러왔어요. 내 것이 아니면 "처음부터"를 눌러요. (1시간 동안 쓰지 않으면 자동으로 지워져요)', 'alert'); }, 600);
   load();
   if (S.pages.length) pushHist(); else undoUi();
   all();
